@@ -30,10 +30,10 @@ namespace SharpLayout
 
         public override bool Equals(object obj)
         {
-            if (obj is CellInfo cellInfo) return Equals(cellInfo);
+            if (obj is CellInfo) return Equals((CellInfo) obj);
             return false;
         }
 
-        private (int row, int column) Tuple => (RowIndex, ColumnIndex);
+        private Tuple<int, int> Tuple => System.Tuple.Create(RowIndex, ColumnIndex);
     }
 }

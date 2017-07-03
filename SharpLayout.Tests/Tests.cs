@@ -76,7 +76,9 @@ namespace SharpLayout.Tests
         [Fact]
         public void PaymentOrderTest()
         {
-            PaymentOrder.GetContent(out PageSettings pageSettings, out List<Table> tables);
+            PageSettings pageSettings;
+            List<Table> tables;
+            PaymentOrder.GetContent(out pageSettings, out tables, false);
             Assert(nameof(PaymentOrderTest), CreatePng(pageSettings, tables));
         }
 

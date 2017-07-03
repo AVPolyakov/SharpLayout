@@ -12,7 +12,9 @@ namespace SharpLayout.Tests
 	{
 	    static void Main()
 	    {
-	        PaymentOrder.GetContent(out PageSettings pageSettings, out List<Table> tables);
+	        PageSettings pageSettings;
+	        List<Table> tables;
+	        PaymentOrder.GetContent(out pageSettings, out tables, true);
             Process.Start(CreatePdf(pageSettings, tables));
 	        //Process.Start(SavePng(pageSettings, tables, 0));
 	    }

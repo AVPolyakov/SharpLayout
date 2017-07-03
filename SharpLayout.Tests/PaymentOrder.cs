@@ -7,14 +7,14 @@ namespace SharpLayout.Tests
 {
     public static class PaymentOrder
     {
-        public static void GetContent(out PageSettings pageSettings, out List<Table> tables)
+        public static void GetContent(out PageSettings pageSettings, out List<Table> tables, bool isHighlightCells)
         {
             pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
                 RightMargin = Cm(1),
-                //IsHighlightCells = true
+                IsHighlightCells = isHighlightCells
             };
             tables = new List<Table>();
             var cellMargin = Cm(0.05);

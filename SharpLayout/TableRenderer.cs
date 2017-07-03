@@ -254,7 +254,7 @@ namespace SharpLayout
         private static Dictionary<int, double> MaxHeights(this Table table, XGraphics graphics, Func<CellInfo, Option<double>> rightBorderFunc,
             Func<CellInfo, Option<double>> bottomBorderFunc)
         {
-            var cellContentsByBottomRow = new Dictionary<CellInfo, (Paragraph paragraph, Option<int> rowspan, Row row)>();
+            var cellContentsByBottomRow = new Dictionary<CellInfo, MaxHeightsTuple>();
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
@@ -264,7 +264,7 @@ namespace SharpLayout
                         var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan);
                         var rowIndex = rowspan.Match(value => row.Index + value - 1, () => row.Index);
                         cellContentsByBottomRow.Add(new CellInfo(rowIndex, column.Index),
-                            (paragraph.Value, rowspan, row));
+                            new MaxHeightsTuple(paragraph.Value, rowspan, row));
                     }
                 }
             var result = new Dictionary<int, double>();
@@ -274,11 +274,11 @@ namespace SharpLayout
                 foreach (var column in table.Columns)
                 {
                     double rowHeightByContent;
-                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column),
-                        out (Paragraph paragraph, Option<int> rowspan, Row row) cell))
+                    MaxHeightsTuple cell;
+                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column), out cell))
                     {
-                        var paragraphHeight = cell.paragraph.GetParagraphHeight(cell.row.Index, column, table, graphics, rightBorderFunc);
-                        rowHeightByContent = cell.rowspan.Match(
+                        var paragraphHeight = cell.Paragraph.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc);
+                        rowHeightByContent = cell.Rowspan.Match(
                             _ => Math.Max(paragraphHeight - Enumerable.Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
                             () => paragraphHeight);
                     }
@@ -310,7 +310,7 @@ namespace SharpLayout
 
         private static Func<CellInfo, Option<double>> RightBorder(this Table table)
         {
-            var result = new Dictionary<CellInfo, List<(double width, CellInfo cellInfo)>>();
+            var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
@@ -319,37 +319,37 @@ namespace SharpLayout
                     {
                         var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index, column.Index + mergeRight),
-                            (rightBorder.Value, new CellInfo(row, column)));
+                            new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
                         var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan);
                         if (rowspan.HasValue)
                             for (var i = 1; i <= rowspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
-                                    (rightBorder.Value, new CellInfo(row, column)));
+                                    new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
                     }
                     var leftBorder = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.LeftBorder);
                     if (leftBorder.HasValue)
                     {
                         var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index, column.Index + mergeRight),
-                            (leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
+                            new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
                         var rowspan = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.Rowspan);
                         if (rowspan.HasValue)
                             for (var i = 1; i <= rowspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
-                                    (leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
+                                    new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
                     }
                 }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.cellInfo).CellsToSttring()}");
+                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
                 else
-                    return list[0].width;
+                    return list[0].Width;
             });
         }
 
         private static Func<CellInfo, Option<double>> BottomBorder(this Table table)
         {
-            var result = new Dictionary<CellInfo, List<(double width, CellInfo cellInfo)>>();
+            var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
@@ -358,84 +358,84 @@ namespace SharpLayout
                     {
                         var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index + mergeDown, column.Index), 
-                            (bottomBorder.Value, new CellInfo(row, column)));
+                            new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
                         var colspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan);
                         if (colspan.HasValue)
                             for (var i = 1; i <= colspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
-                                    (bottomBorder.Value, new CellInfo(row, column)));
+                                    new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
                     }
                     var topBorder = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.TopBorder);
                     if (topBorder.HasValue)
                     {
                         var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index + mergeDown, column.Index),
-                            (topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
+                            new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
                         var colspan = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.Colspan);
                         if (colspan.HasValue)
                             for (var i = 1; i <= colspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
-                                    (topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
+                                    new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
                     }
                 }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.cellInfo).CellsToSttring()}");
+                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
                 else
-                    return list[0].width;
+                    return list[0].Width;
             });
         }
 
         private static Func<CellInfo, Option<double>> LeftBorder(this Table table)
         {
-            var result = new Dictionary<CellInfo, List<(double width, CellInfo cellInfo)>>();
+            var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
             {
                 var leftBorder = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.LeftBorder);
                 if (leftBorder.HasValue)
                 {
-                    result.Add(new CellInfo(row.Index, 0), (leftBorder.Value, new CellInfo(row.Index, 0)));
+                    result.Add(new CellInfo(row.Index, 0), new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
                     var rowspan = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.Rowspan);
                     if (rowspan.HasValue)
                         for (var i = 1; i <= rowspan.Value - 1; i++)
                             result.Add(new CellInfo(row.Index + i, 0),
-                                (leftBorder.Value, new CellInfo(row.Index, 0)));
+                                new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
                 }
             }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.cellInfo).CellsToSttring()}");
+                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
                 else
-                    return list[0].width;
+                    return list[0].Width;
             });
         }
 
         private static Func<CellInfo, Option<double>> TopBorder(this Table table)
         {
-            var result = new Dictionary<CellInfo, List<(double width, CellInfo cellInfo)>>();
+            var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var column in table.Columns)
             {
                 var bottomBorder = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.TopBorder);
                 if (bottomBorder.HasValue)
                 {
                     result.Add(new CellInfo(0, column.Index),
-                        (bottomBorder.Value, new CellInfo(0, column.Index)));
+                        new BorderTuple(bottomBorder.Value, new CellInfo(0, column.Index)));
                     var colspan = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.Colspan);
                     if (colspan.HasValue)
                         for (var i = 1; i <= colspan.Value - 1; i++)
                             result.Add(new CellInfo(0, column.Index + i),
-                                (bottomBorder.Value, new CellInfo(0, column.Index)));
+                                new BorderTuple(bottomBorder.Value, new CellInfo(0, column.Index)));
                 }
             }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.cellInfo).CellsToSttring()}");
+                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
                 else
-                    return list[0].width;
+                    return list[0].Width;
             });
         }
 
-        private static string CellsToSttring(this IEnumerable<CellInfo> cells) => string.Join(",", cells.Select(_ => $"({_.RowIndex},{_.ColumnIndex})"));
+        private static string CellsToSttring(this IEnumerable<CellInfo> cells) => string.Join(",", cells.Select(_ => $"r{_.RowIndex}c{_.ColumnIndex}"));
 
         private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, double y)
         {
@@ -484,6 +484,32 @@ namespace SharpLayout
                 MaxHeights = maxHeights;
                 MaxLeftBorder = table.Rows.Count == 0 ? 0 : table.Rows.Max(row => leftBorderFunc(new CellInfo(row.Index, 0)).ValueOr(0));
                 Y = y;                
+            }
+        }
+
+        private class MaxHeightsTuple
+        {
+            public Paragraph Paragraph { get; }
+            public Option<int> Rowspan { get; }
+            public Row Row { get; }
+
+            public MaxHeightsTuple(Paragraph paragraph, Option<int> rowspan, Row row)
+            {
+                Paragraph = paragraph;
+                Rowspan = rowspan;
+                Row = row;
+            }
+        }
+
+        public class BorderTuple
+        {
+            public double Width { get; }
+            public CellInfo CellInfo { get; }
+
+            public BorderTuple(double width, CellInfo cellInfo)
+            {
+                Width = width;
+                CellInfo = cellInfo;
             }
         }
 
