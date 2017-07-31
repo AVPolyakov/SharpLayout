@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SharpLayout
 {
     public class Table
     {
+        public int Line { get; }
         internal readonly double X0;
 
         public readonly List<Column> Columns = new List<Column>();
         
         public readonly List<Row> Rows = new List<Row>();
 
-        public Table(double x0)
+        public Table(double x0,  [CallerLineNumber] int line = 0)
         {
+            Line = line;
             X0 = x0;
         }
 

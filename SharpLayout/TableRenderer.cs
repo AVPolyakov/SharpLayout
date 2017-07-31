@@ -435,7 +435,7 @@ namespace SharpLayout
             });
         }
 
-        private static string CellsToSttring(this IEnumerable<CellInfo> cells) => string.Join(",", cells.Select(_ => $"r{_.RowIndex}c{_.ColumnIndex}"));
+        private static string CellsToSttring(this IEnumerable<CellInfo> cells) => string.Join(",", cells.Select(_ => $"r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
 
         private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, double y)
         {
@@ -535,6 +535,15 @@ namespace SharpLayout
             var xFont = new XFont("Times New Roman", 10, XFontStyle.Regular,
                 new XPdfFontOptions(PdfFontEncoding.Unicode));
             var xSolidBrush = new XSolidBrush(XColor.FromArgb(128, 255, 0, 0));
+            if (row == 0 && column.Index == 0)
+                xGraphics.DrawString($"{info.Table.Line}",
+                    xFont,
+                    new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
+                    new XRect(x - 100 - 2 - 10, y, 100, 100),
+                    new XStringFormat {
+                        Alignment = XStringAlignment.Far,
+                        LineAlignment = XLineAlignment.Near
+                    });
             if (column.Index == 0)
                 xGraphics.DrawString($"r{row + 1}",
                     xFont,

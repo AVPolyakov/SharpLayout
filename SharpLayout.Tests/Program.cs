@@ -14,7 +14,7 @@ namespace SharpLayout.Tests
 	    {
 	        PageSettings pageSettings;
 	        List<Table> tables;
-	        PaymentOrder.GetContent(out pageSettings, out tables, true);
+	        Svo.GetContent(out pageSettings, out tables, true);
             Process.Start(CreatePdf(pageSettings, tables));
 	        //Process.Start(SavePng(pageSettings, tables, 0));
 	    }
@@ -25,9 +25,13 @@ namespace SharpLayout.Tests
 	        using (var pdfDocument = new PdfDocument())
 	        {
 	            pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
-	            using (var xGraphics = XGraphics.FromPdfPage(pdfDocument.AddPage()))
-	                TableRenderer.Draw(xGraphics, pageSettings, (pageIndex, action) =>  {
-	                    using (var xGraphics2 = XGraphics.FromPdfPage(pdfDocument.AddPage()))
+	            var page = pdfDocument.AddPage();
+	            page.Orientation = pageSettings.Orientation;
+	            using (var xGraphics = XGraphics.FromPdfPage(page))
+	                TableRenderer.Draw(xGraphics, pageSettings, (pageIndex, action) => {
+	                    var addPage = pdfDocument.AddPage();
+                        addPage.Orientation = pageSettings.Orientation;
+	                    using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
 	                        action(xGraphics2);
 	                }, tables);
 	            filename = $"HelloWorld_tempfile{Guid.NewGuid():N}.pdf";
