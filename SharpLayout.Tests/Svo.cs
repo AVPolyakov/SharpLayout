@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+п»їusing System.Collections.Generic;
 using System.Linq;
 using PdfSharp;
 using static SharpLayout.Tests.Tests;
@@ -26,7 +26,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
-                var paragraph = TimesNewRoman10_5("Код формы по ОКУД 0406009");
+                var paragraph = TimesNewRoman10_5("РљРѕРґ С„РѕСЂРјС‹ РїРѕ РћРљРЈР” 0406009");
                 paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                 paragraph.Alignment = ParagraphAlignment.Right;
                 paragraph.BottomMargin = Px(11);
@@ -44,7 +44,7 @@ namespace SharpLayout.Tests
                     var r1 = table.AddRow();
                     r1.Height = rowHeight;
                     {
-                        var paragraph = TimesNewRoman9_5("Наименование уполномоченного банка");
+                        var paragraph = TimesNewRoman9_5("РќР°РёРјРµРЅРѕРІР°РЅРёРµ СѓРїРѕР»РЅРѕРјРѕС‡РµРЅРЅРѕРіРѕ Р±Р°РЅРєР°");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         var cell = r1[c1];
                         cell.Paragraph = paragraph;
@@ -63,7 +63,7 @@ namespace SharpLayout.Tests
                     var r1 = table.AddRow();
                     r1.Height = rowHeight;
                     {
-                        var paragraph = TimesNewRoman9_5("Наименование резидента");
+                        var paragraph = TimesNewRoman9_5("РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЂРµР·РёРґРµРЅС‚Р°");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         var cell = r1[c1];
                         cell.Paragraph = paragraph;
@@ -85,7 +85,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
-                var paragraph = TimesNewRoman11_5Bold("СПРАВКА О ВАЛЮТНЫХ ОПЕРАЦИЯХ");
+                var paragraph = TimesNewRoman11_5Bold("РЎРџР РђР’РљРђ Рћ Р’РђР›Р®РўРќР«РҐ РћРџР•Р РђР¦РРЇРҐ");
                 paragraph.Alignment = ParagraphAlignment.Center;
                 paragraph.TopMargin = Px(41);
                 r1[c1].Paragraph = paragraph;
@@ -99,7 +99,7 @@ namespace SharpLayout.Tests
                     table.Columns.Sum(_ => _.Width);
                 var r1 = table.AddRow();
                 {
-                    var paragraph = TimesNewRoman11_5Bold("от  ");
+                    var paragraph = TimesNewRoman11_5Bold("РѕС‚  ");
                     paragraph.TopMargin = Px(30 - 18);
                     r1[c2].Paragraph = paragraph;
                 }
@@ -126,7 +126,7 @@ namespace SharpLayout.Tests
                     var r1 = table.AddRow();
                     r1.Height = rowHeight;
                     {
-                        var paragraph = TimesNewRoman9_5("Номер счета резидента в уполномоченном банке");
+                        var paragraph = TimesNewRoman9_5("РќРѕРјРµСЂ СЃС‡РµС‚Р° СЂРµР·РёРґРµРЅС‚Р° РІ СѓРїРѕР»РЅРѕРјРѕС‡РµРЅРЅРѕРј Р±Р°РЅРєРµ");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         var cell = r1[c1];
                         cell.Paragraph = paragraph;
@@ -147,7 +147,7 @@ namespace SharpLayout.Tests
                     var r1 = table.AddRow();
                     r1.Height = rowHeight;                    
                     {
-                        var paragraph = TimesNewRoman9_5("Код страны банка-нерезидента");
+                        var paragraph = TimesNewRoman9_5("РљРѕРґ СЃС‚СЂР°РЅС‹ Р±Р°РЅРєР°-РЅРµСЂРµР·РёРґРµРЅС‚Р°");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         var cell = r1[c1];
                         cell.Paragraph = paragraph;
@@ -164,7 +164,7 @@ namespace SharpLayout.Tests
                     }
                     {
                         var cell = r1[c3];
-                        var paragraph = TimesNewRoman9_5("Признак корректировки");
+                        var paragraph = TimesNewRoman9_5("РџСЂРёР·РЅР°Рє РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё");
                         paragraph.Alignment = ParagraphAlignment.Right;
                         paragraph.LeftMargin = cellMargin;
                         paragraph.RightMargin = Cm(0.2) + cellMargin;
@@ -213,63 +213,63 @@ namespace SharpLayout.Tests
                         var cell = r1[c1];
                         cell.Rowspan = 2;
                         cell.LeftBorder = cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("№ п/п");
+                        cell.Paragraph = TimesNewRoman9("в„– Рї/Рї");
                     }
                     {
                         var cell = r1[c2];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Уведомление, распоряжение, расчетный или иной документ");
+                        cell.Paragraph = TimesNewRoman9("РЈРІРµРґРѕРјР»РµРЅРёРµ, СЂР°СЃРїРѕСЂСЏР¶РµРЅРёРµ, СЂР°СЃС‡РµС‚РЅС‹Р№ РёР»Рё РёРЅРѕР№ РґРѕРєСѓРјРµРЅС‚");
                     }
                     {
                         var cell = r1[c3];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Дата операции");
+                        cell.Paragraph = TimesNewRoman9("Р”Р°С‚Р° РѕРїРµСЂР°С†РёРё");
                     }
                     {
                         var cell = r1[c4];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Признак платежа");
+                        cell.Paragraph = TimesNewRoman9("РџСЂРёР·РЅР°Рє РїР»Р°С‚РµР¶Р°");
                     }
                     {
                         var cell = r1[c5];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Код вида валютной операции");
+                        cell.Paragraph = TimesNewRoman9("РљРѕРґ РІРёРґР° РІР°Р»СЋС‚РЅРѕР№ РѕРїРµСЂР°С†РёРё");
                     }
                     {
                         var cell = r1[c6];
                         cell.Colspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Сумма операции");
+                        cell.Paragraph = TimesNewRoman9("РЎСѓРјРјР° РѕРїРµСЂР°С†РёРё");
                     }
                     {
                         var cell = r1[c8];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9(@"Номер ПС
-или номер и (или) дата договора (контракта)");
+                        cell.Paragraph = TimesNewRoman9(@"РќРѕРјРµСЂ РџРЎ
+РёР»Рё РЅРѕРјРµСЂ Рё (РёР»Рё) РґР°С‚Р° РґРѕРіРѕРІРѕСЂР° (РєРѕРЅС‚СЂР°РєС‚Р°)");
                     }
                     {
                         var cell = r1[c9];
                         cell.Colspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9(@"Сумма операции
-в единицах валюты контракта (кредитного договора)");
+                        cell.Paragraph = TimesNewRoman9(@"РЎСѓРјРјР° РѕРїРµСЂР°С†РёРё
+РІ РµРґРёРЅРёС†Р°С… РІР°Р»СЋС‚С‹ РєРѕРЅС‚СЂР°РєС‚Р° (РєСЂРµРґРёС‚РЅРѕРіРѕ РґРѕРіРѕРІРѕСЂР°)");
                     }
                     {
                         var cell = r1[c11];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Срок возврата аванса");
+                        cell.Paragraph = TimesNewRoman9("РЎСЂРѕРє РІРѕР·РІСЂР°С‚Р° Р°РІР°РЅСЃР°");
                     }
                     {
                         var cell = r1[c12];
                         cell.Rowspan = 2;
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("Ожидаемый срок");
+                        cell.Paragraph = TimesNewRoman9("РћР¶РёРґР°РµРјС‹Р№ СЃСЂРѕРє");
                     }
                 }
                 var r2 = table.AddRow();
@@ -277,22 +277,22 @@ namespace SharpLayout.Tests
                     {
                         var cell = r2[c6];
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("код валюты");
+                        cell.Paragraph = TimesNewRoman9("РєРѕРґ РІР°Р»СЋС‚С‹");
                     }
                     {
                         var cell = r2[c7];
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("сумма");
+                        cell.Paragraph = TimesNewRoman9("СЃСѓРјРјР°");
                     }
                     {
                         var cell = r2[c9];
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("код валюты");
+                        cell.Paragraph = TimesNewRoman9("РєРѕРґ РІР°Р»СЋС‚С‹");
                     }
                     {
                         var cell = r2[c10];
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.Paragraph = TimesNewRoman9("сумма");
+                        cell.Paragraph = TimesNewRoman9("СЃСѓРјРјР°");
                     }
                 }
                 var r3 = table.AddRow();
@@ -361,7 +361,7 @@ namespace SharpLayout.Tests
                 tables.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
-                var paragraph = TimesNewRoman9_5("Примечание.");
+                var paragraph = TimesNewRoman9_5("РџСЂРёРјРµС‡Р°РЅРёРµ.");
                 paragraph.TopMargin = Px(1);
                 paragraph.BottomMargin = Px(4);
                 r1[c1].Paragraph = paragraph;
@@ -380,7 +380,7 @@ namespace SharpLayout.Tests
                         var cell = r1[c1];
                         cell.LeftBorder = cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
                         cell.VerticalAlignment = VerticalAlignment.Center;
-                        var paragraph = TimesNewRoman9("№ строки");
+                        var paragraph = TimesNewRoman9("в„– СЃС‚СЂРѕРєРё");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
                         cell.Paragraph = paragraph;
@@ -389,7 +389,7 @@ namespace SharpLayout.Tests
                         var cell = r1[c2];
                         cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
                         cell.VerticalAlignment = VerticalAlignment.Center;
-                        var paragraph = TimesNewRoman9("Содержание");
+                        var paragraph = TimesNewRoman9("РЎРѕРґРµСЂР¶Р°РЅРёРµ");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
                         cell.Paragraph = paragraph;
@@ -425,7 +425,7 @@ namespace SharpLayout.Tests
                 tables.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
-                var paragraph = TimesNewRoman9_5("Информация уполномоченного банка");
+                var paragraph = TimesNewRoman9_5("РРЅС„РѕСЂРјР°С†РёСЏ СѓРїРѕР»РЅРѕРјРѕС‡РµРЅРЅРѕРіРѕ Р±Р°РЅРєР°");
                 paragraph.TopMargin = Px(3);
                 paragraph.BottomMargin = Px(4);
                 r1[c1].Paragraph = paragraph;
