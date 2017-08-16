@@ -1,28 +1,28 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using PdfSharp;
-using static SharpLayout.Tests.Tests;
+using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
 
 namespace SharpLayout.Tests
 {
     public static class Svo
     {
-        public static void GetContent(out PageSettings pageSettings, out List<Table> tables, bool isHighlightCells)
+        public static void AddSection(Document document)
         {
-            pageSettings = new PageSettings {
+            var pageSettings = new PageSettings {
                 TopMargin = Cm(2),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
                 RightMargin = Cm(2),
-                IsHighlightCells = isHighlightCells,
+                IsHighlightCells = true,
                 Orientation = PageOrientation.Landscape
             };
-            tables = new List<Table>();
+            var section = new Section(pageSettings);
+            document.Add(section);
             var cellMargin = Cm(0.05);
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
@@ -35,7 +35,7 @@ namespace SharpLayout.Tests
             var rowHeight = Cm(0.49);
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Cm(6.3));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -81,7 +81,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
@@ -92,7 +92,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 table.AddColumn(Px(1146));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -106,7 +106,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 table.AddColumn(Px(1199));
                 var c2 = table.AddColumn(Px(200));
                 var r1 = table.AddRow();
@@ -115,7 +115,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Cm(8));
                 var c2 = table.AddColumn(Px(405));
                 var c3 = table.AddColumn();
@@ -184,7 +184,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
                     table.Columns.Sum(_ => _.Width);
@@ -192,7 +192,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Cm(1.05));
                 var c2 = table.AddColumn();
                 var c3 = table.AddColumn(Cm(2) - Px(1));
@@ -350,7 +350,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(363));
                 var r1 = table.AddRow();
                 r1.Height = Px(41);
@@ -358,7 +358,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Примечание.");
@@ -368,7 +368,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -422,7 +422,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Информация уполномоченного банка");
@@ -432,7 +432,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
                     BorderWidth;

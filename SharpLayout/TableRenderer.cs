@@ -341,7 +341,7 @@ namespace SharpLayout
                 }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
+                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Width;
             });
@@ -380,7 +380,7 @@ namespace SharpLayout
                 }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
+                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Width;
             });
@@ -404,7 +404,7 @@ namespace SharpLayout
             }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
+                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Width;
             });
@@ -429,13 +429,14 @@ namespace SharpLayout
             }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring()}");
+                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Width;
             });
         }
 
-        private static string CellsToSttring(this IEnumerable<CellInfo> cells) => string.Join(",", cells.Select(_ => $"r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
+        private static string CellsToSttring(this IEnumerable<CellInfo> cells, Table table) 
+            => string.Join(", ", cells.Select(_ => $"L{table.Line} r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
 
         private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, double y)
         {

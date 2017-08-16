@@ -1,27 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using static SharpLayout.Tests.Tests;
+using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
 
 namespace SharpLayout.Tests
 {
     public static class PaymentOrder
     {
-        public static void GetContent(out PageSettings pageSettings, out List<Table> tables, bool isHighlightCells)
+        public static void AddSection(Document document)
         {
-            pageSettings = new PageSettings {
+            var pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
-                RightMargin = Cm(1),
-                IsHighlightCells = isHighlightCells
+                RightMargin = Cm(1)
             };
-            tables = new List<Table>();
+            var section = new Section(pageSettings);
+            document.Add(section);
             var cellMargin = Cm(0.05);
             var leftIndent = Cm(0.1);
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(351));
                 table.AddColumn(Px(125));
                 var c3 = table.AddColumn(Px(351));
@@ -85,7 +85,7 @@ namespace SharpLayout.Tests
             }
             {                
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(900));
                 var c2 = table.AddColumn(Px(352));
                 table.AddColumn(Px(49));
@@ -159,7 +159,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(202));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin 
@@ -186,7 +186,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(502));
                 var c2 = table.AddColumn(Px(501));
                 var c3 = table.AddColumn(Px(150));
@@ -595,7 +595,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(452));
                 var c2 = table.AddColumn(Px(300));
                 var c3 = table.AddColumn(Px(100));
@@ -675,7 +675,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
                     - table.Columns.Sum(_ => _.Width);
@@ -705,7 +705,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn(Px(603));
                 var c2 = table.AddColumn(Px(601));
                 var c3 = table.AddColumn();
@@ -770,7 +770,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = new Table(pageSettings.LeftMargin);
-                tables.Add(table);
+                section.Add(table);
                 var c1 = table.AddColumn();
                 var c2 = table.AddColumn(Px(520));
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin

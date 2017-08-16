@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
-using PdfSharp.Pdf;
 using Xunit;
 using static SharpLayout.Util;
+using static SharpLayout.Tests.Styles;
 
 namespace SharpLayout.Tests
 {
@@ -17,26 +14,26 @@ namespace SharpLayout.Tests
         [Fact]
         public void Test1()
         {
-            var pageSettings = new PageSettings {
+            var document = new Document();
+            var section = new Section(new PageSettings {
                 LeftMargin = XUnit.FromCentimeter(3),
                 RightMargin = XUnit.FromCentimeter(1.5),
                 TopMargin = XUnit.FromCentimeter(0),
                 BottomMargin = XUnit.FromCentimeter(0),
-            };
-            var tables = new [] {
-                Table1(pageSettings),
-                Table1(pageSettings),
-                Table2(pageSettings),
-                Table1(pageSettings),
-                Table1(pageSettings),
-                Table1(pageSettings),
-                Table1(pageSettings),
-                Table1(pageSettings),
-                Table2(pageSettings),
-                Table1(pageSettings),
-                Table1(pageSettings),
-            };
-            Assert(nameof(Test1), CreatePng(pageSettings, tables));
+            });
+            document.Add(section);
+            Table1(section);
+            Table1(section);
+            Table2(section);
+            Table1(section);
+            Table1(section);
+            Table1(section);
+            Table1(section);
+            Table1(section);
+            Table2(section);
+            Table1(section);
+            Table1(section);
+            Assert(nameof(Test1), document.CreatePng());
         }
 
         [Fact]
@@ -58,28 +55,27 @@ namespace SharpLayout.Tests
         [Fact]
         public void Test3()
         {
-            var pageSettings = new PageSettings {
+            var document = new Document();
+            var section = new Section(new PageSettings {
                 LeftMargin = XUnit.FromCentimeter(3),
                 RightMargin = XUnit.FromCentimeter(1.5),
                 IsHighlightCells = false
-            };
-            var tables = new[] {
-                Table5(pageSettings),
-                Table6(pageSettings),
-                Table4(pageSettings),
-                Table2(pageSettings),
-                Table1(pageSettings),
-            };
-            Assert(nameof(Test3), CreatePng(pageSettings, tables));
+            });
+            document.Add(section);
+            Table5(section);
+            Table6(section);
+            Table4(section);
+            Table2(section);
+            Table1(section);
+            Assert(nameof(Test3), document.CreatePng());
         }
 
         [Fact]
         public void PaymentOrderTest()
         {
-            PageSettings pageSettings;
-            List<Table> tables;
-            PaymentOrder.GetContent(out pageSettings, out tables, false);
-            Assert(nameof(PaymentOrderTest), CreatePng(pageSettings, tables));
+            var document = new Document();
+            PaymentOrder.AddSection(document);
+            Assert(nameof(PaymentOrderTest), document.CreatePng());
         }
 
         [Fact]
@@ -192,9 +188,11 @@ namespace SharpLayout.Tests
             return table;
         }
 
-        public static Table Table1(PageSettings pageSettings)
+        public static void Table1(Section section)
         {
+            var pageSettings = section.PageSettings;
             var table = new Table(pageSettings.LeftMargin);
+            section.Add(table);
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
             var c3 = table.AddColumn(Px(454));
@@ -271,12 +269,13 @@ namespace SharpLayout.Tests
                 }
                 r5[c4].BottomBorder = BorderWidth;
             }
-            return table;
         }
 
-        public static Table Table2(PageSettings pageSettings)
+        public static void Table2(Section section)
         {
+            var pageSettings = section.PageSettings;
             var table = new Table(pageSettings.LeftMargin);
+            section.Add(table);
             var c0 = table.AddColumn(Px(202));
             var c1 = table.AddColumn(Px(257));
             var c2 = table.AddColumn(Px(257));
@@ -318,7 +317,6 @@ namespace SharpLayout.Tests
                     cell.Paragraph = TimesNewRoman10("Колонка 5");
                 }
             }
-            return table;
         }
 
         public static Table Table3(PageSettings pageSettings)
@@ -390,9 +388,11 @@ namespace SharpLayout.Tests
             return table;
         }
 
-        public static Table Table4(PageSettings pageSettings)
+        public static void Table4(Section section)
         {
+            var pageSettings = section.PageSettings;
             var table = new Table(pageSettings.LeftMargin);
+            section.Add(table);
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
             var КПП = table.AddColumn(Px(454));
@@ -469,12 +469,13 @@ namespace SharpLayout.Tests
                 }
                 row[сумма].BottomBorder = BorderWidth;
             }
-            return table;
         }
 
-        public static Table Table5(PageSettings pageSettings)
+        public static void Table5(Section section)
         {
+            var pageSettings = section.PageSettings;
             var table = new Table(pageSettings.LeftMargin);
+            section.Add(table);
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
             var КПП = table.AddColumn(Px(454));
@@ -489,9 +490,9 @@ namespace SharpLayout.Tests
                     cell.Paragraph = TimesNewRoman10(@"a
 
 aaaaaaaaa ")
-                        .Add(new Span("0123", new XFont("Arial", 12, XFontStyle.Bold, pdfOptions)))
+                        .Add(new Span("0123", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
                         .Add(new Span("у", TimesNewRoman10Font))
-                        .Add(new Span("567", new XFont("Arial", 12, XFontStyle.Bold, pdfOptions)))
+                        .Add(new Span("567", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
                         .Add(new Span("ЙЙЙ", TimesNewRoman10Font));
                 }
                 {
@@ -557,12 +558,13 @@ aaaaaaaaa ")
                 }
                 row[сумма].BottomBorder = BorderWidth;
             }
-            return table;
         }
 
-        public static Table Table6(PageSettings pageSettings)
+        public static void Table6(Section section)
         {
+            var pageSettings = section.PageSettings;
             var table = new Table(pageSettings.LeftMargin);
+            section.Add(table);
             var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
             {
                 var r1 = table.AddRow();
@@ -610,7 +612,7 @@ aaaaaaaaa ")
                         .Add(new Span(" over ", TimesNewRoman10Font))
                         .Add(new Span("abstract", TimesNewRoman10BoldFont))
                         .Add(new Span(" classes. If you ", TimesNewRoman10Font))
-                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, pdfOptions)))
+                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
                         .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
                             TimesNewRoman10Font))
                         .Add(new Span("interface", TimesNewRoman10BoldFont))
@@ -629,7 +631,7 @@ aaaaaaaaa ")
                         .Add(new Span(" over ", TimesNewRoman10Font))
                         .Add(new Span("abstract", TimesNewRoman10BoldFont))
                         .Add(new Span(" classes. If you ", TimesNewRoman10Font))
-                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, pdfOptions)) {
+                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
                             Brush = XBrushes.Red
                         })
                         .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
@@ -641,7 +643,6 @@ aaaaaaaaa ")
                         .Add(new Span(" class.", TimesNewRoman10Font));
                 }
             }
-            return table;
         }
 
         public static Table Table7(PageSettings pageSettings)
@@ -736,25 +737,11 @@ aaaaaaaaa ")
             return table;
         }
 
-        private static readonly XPdfFontOptions pdfOptions = new XPdfFontOptions(PdfFontEncoding.Unicode);
-
         public static Paragraph TimesNewRoman12Bold(string text) =>
             new Paragraph().Add(new Span(text, TimesNewRoman12BoldFont));
 
         public static Paragraph TimesNewRoman10(string text) =>
             new Paragraph().Add(new Span(text, TimesNewRoman10Font));
-
-        public static Paragraph TimesNewRoman10_5(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman10_5Font));
-
-        public static Paragraph TimesNewRoman9_5(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman9_5Font));
-
-        public static Paragraph TimesNewRoman9(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman9Font));
-
-        public static Paragraph TimesNewRoman11_5Bold(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman11_5BoldFont));
 
         public static Paragraph TimesNewRoman8(string text) =>
             new Paragraph().Add(new Span(text, TimesNewRoman8Font));
@@ -762,69 +749,21 @@ aaaaaaaaa ")
         public static Paragraph TimesNewRoman60(string text) =>
             new Paragraph().Add(new Span(text, TimesNewRoman60BoldFont));
 
-        public static readonly XFont TimesNewRoman12BoldFont = new XFont("Times New Roman", 12, XFontStyle.Bold, pdfOptions);
+        public static readonly XFont TimesNewRoman12BoldFont = new XFont("Times New Roman", 12, XFontStyle.Bold, PdfOptions);
 
-        public static readonly XFont TimesNewRoman10Font = new XFont("Times New Roman", 10, XFontStyle.Regular, pdfOptions);
+        public static readonly XFont TimesNewRoman10Font = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
 
-        public static readonly XFont TimesNewRoman8Font = new XFont("Times New Roman", 8, XFontStyle.Regular, pdfOptions);
+        public static readonly XFont TimesNewRoman8Font = new XFont("Times New Roman", 8, XFontStyle.Regular, PdfOptions);
 
-        public static readonly XFont TimesNewRoman10_5Font = new XFont("Times New Roman", 10.5, XFontStyle.Regular, pdfOptions);
+        public static readonly XFont TimesNewRoman10BoldFont = new XFont("Times New Roman", 10, XFontStyle.Bold, PdfOptions);
 
-        public static readonly XFont TimesNewRoman9_5Font = new XFont("Times New Roman", 9.5, XFontStyle.Regular, pdfOptions);
-
-        public static readonly XFont TimesNewRoman9Font = new XFont("Times New Roman", 9, XFontStyle.Regular, pdfOptions);
-
-        public static readonly XFont TimesNewRoman11_5BoldFont = new XFont("Times New Roman", 11.5, XFontStyle.Bold, pdfOptions);
-
-        public static readonly XFont TimesNewRoman10BoldFont = new XFont("Times New Roman", 10, XFontStyle.Bold, pdfOptions);
-
-        public static readonly XFont TimesNewRoman60BoldFont = new XFont("Times New Roman", 60, XFontStyle.Bold, pdfOptions);
+        public static readonly XFont TimesNewRoman60BoldFont = new XFont("Times New Roman", 60, XFontStyle.Bold, PdfOptions);
 
         private static void Assert(string folderName, List<byte[]> pages)
         {
             for (var index = 0; index < pages.Count; index++)
                 Xunit.Assert.True(File.ReadAllBytes(GetPageFileName(folderName, index))
                     .SequenceEqual(pages[index]));
-        }
-
-        public static List<byte[]> CreatePng(PageSettings pageSettings, IEnumerable<Table> tables)
-        {
-            var pages = new List<byte[]> {null};
-            FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, pageSettings,
-                    (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), pageSettings), tables),
-                bitmap => pages[0] = ToBytes(bitmap),
-                pageSettings);
-            return pages;
-        }
-
-        private static void FillBitmap(Action<XGraphics> action, Action<Bitmap> action2, PageSettings pageSettings)
-        {
-            const int resolution = 254;
-            var horzPixels = (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
-            var vertPixels = (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
-            using (var bitmap = new Bitmap(horzPixels, vertPixels))
-            {
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horzPixels, vertPixels);
-                    using (var xGraphics = XGraphics.FromGraphics(graphics, new XSize(horzPixels, vertPixels)))
-                    {
-                        xGraphics.ScaleTransform(resolution / 72d);
-                        action(xGraphics);
-                    }
-                }
-                bitmap.SetResolution(resolution, resolution);
-                action2(bitmap);
-            }
-        }
-
-        private static byte[] ToBytes(Bitmap bitmap)
-        {
-            using (var stream = new MemoryStream())
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-                return stream.ToArray();
-            }
         }
 
         public static void SavePages(string folderName, List<byte[]> pages)
@@ -845,7 +784,5 @@ aaaaaaaaa ")
         }
 
         public static string GetPath([CallerFilePath] string path = "") => new FileInfo(path).Directory.FullName;
-
-        public const double BorderWidth = 0.5D;
     }
 }
