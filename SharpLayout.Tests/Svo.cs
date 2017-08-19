@@ -14,9 +14,7 @@ namespace SharpLayout.Tests
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
                 RightMargin = Cm(2),
-                Orientation = PageOrientation.Landscape,
-                IsHighlightCells = true,
-                IsHighlightCellLine = true
+                Orientation = PageOrientation.Landscape
             };
             var section = new Section(pageSettings);
             document.Add(section);

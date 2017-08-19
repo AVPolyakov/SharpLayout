@@ -47,9 +47,5 @@ namespace SharpLayout
         public double BottomMargin { get; set; } = XUnit.FromCentimeter(1);
 
         public PageOrientation Orientation { get; set; } = PageOrientation.Portrait;
-
-        public bool IsHighlightCells { get; set; } = false;
-
-        public bool IsHighlightCellLine { get; set; } = false;
     }
 }

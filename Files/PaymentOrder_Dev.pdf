@@ -1,15 +1,15 @@
 %PDF-1.4
 %”ÙÃ·
 % PDFsharp Version 1.32.2608.0 (verbose mode)
-% Creation date: 2017-08-19 21:13:48             
-% Creation time: 0.158 seconds                   
+% Creation date: 2017-08-19 22:17:37             
+% Creation time: 0.157 seconds                   
 % File size: 86545 bytes                         
 % Pages: 1                                       
 % Objects: 20                                    
 %--------------------------------------------------------------------------------------------------
 1 0 obj   % PdfSharp.Pdf.PdfDocumentInformation
 <<
-  /CreationDate (D:20170819211348+03'00')
+  /CreationDate (D:20170819221737+03'00')
   /Creator (PDFsharp 1.32.2608-g \(www.pdfsharp.net\))
   /Producer (PDFsharp 1.32.2608-g \(www.pdfsharp.net\))
 >>
@@ -95,7 +95,7 @@ BT
 0 0 1 rg
 /GS2 gs
 /F0 -10 Tf
-34.6929 43.4269 Td <00150018> Tj
+34.6929 43.4269 Td <00150016> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -278,7 +278,7 @@ S
 S
 BT
 0 0 1 rg
-34.6929 76.4637 Td <001B001C> Tj
+34.6929 76.4637 Td <001B001A> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -486,7 +486,7 @@ S
 S
 BT
 0 0 1 rg
-29.6929 113.3755 Td <001400190016> Tj
+29.6929 113.3755 Td <001400190014> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -548,7 +548,7 @@ S
 BT
 0 0 1 rg
 /GS2 gs
-29.6929 154.6944 Td <0014001C0013> Tj
+29.6929 154.6944 Td <0014001B001B> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -1834,7 +1834,7 @@ S
 BT
 0 0 1 rg
 /GS2 gs
-29.6929 407.0251 Td <0018001C001C> Tj
+29.6929 407.0251 Td <0018001C001A> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2044,7 +2044,7 @@ S
 BT
 0 0 1 rg
 /GS2 gs
-29.6929 420.281 Td <0019001A001C> Tj
+29.6929 420.281 Td <0019001A001A> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2095,7 +2095,7 @@ S
 BT
 0 0 1 rg
 /GS2 gs
-29.6929 503.5527 Td <001A0013001C> Tj
+29.6929 503.5527 Td <001A0013001A> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2240,7 +2240,7 @@ S
 S
 BT
 0 0 1 rg
-29.6929 599.3234 Td <001A001A0017> Tj
+29.6929 599.3234 Td <001A001A0015> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2406,7 +2406,7 @@ endobj
   /Flags 32
   /FontBBox [-568 -307 2000 1007]
   /FontFile2 19 0 R
-  /FontName /RGYJCE+TimesNewRoman
+  /FontName /GRTQRP+TimesNewRoman
   /ItalicAngle 0
   /StemV 0
   /Type /FontDescriptor
@@ -2429,15 +2429,15 @@ begincmap
 endcodespacerange
 63 beginbfrange
 <0015><0015><0032>
-<0018><0018><0035>
+<0016><0016><0033>
 <0055><0055><0072>
 <0014><0014><0031>
 <0046><0046><0063>
-<0016><0016><0033>
 <0011><0011><002E>
 <0013><0013><0030>
 <001B><001B><0038>
 <0017><0017><0034>
+<0018><0018><0035>
 <0019><0019><0036>
 <0249><0249><041F>
 <0268><0268><043E>
@@ -2455,7 +2455,6 @@ endcodespacerange
 <024B><024B><0421>
 <0262><0262><0438>
 <0271><0271><0447>
-<001C><001C><0039>
 <001A><001A><0037>
 <0257><0257><042D>
 <025F><025F><0435>
@@ -2473,6 +2472,7 @@ endcodespacerange
 <0263><0263><0439>
 <0242><0242><0418>
 <0247><0247><041D>
+<001C><001C><0039>
 <0244><0244><041A>
 <0010><0010><002D>
 <028B><028B><2116>
@@ -2498,7 +2498,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 12 0 obj   % PdfSharp.Pdf.Advanced.PdfCIDFont
 <<
-  /BaseFont /RGYJCE+TimesNewRoman
+  /BaseFont /GRTQRP+TimesNewRoman
   /CIDSystemInfo
   <<
     /Ordering (Identity)
@@ -2514,7 +2514,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 13 0 obj   % PdfSharp.Pdf.Advanced.PdfType0Font
 <<
-  /BaseFont /RGYJCE+TimesNewRoman
+  /BaseFont /GRTQRP+TimesNewRoman
   /DescendantFonts [12 0 R]
   /Encoding /Identity-H
   /Subtype /Type0
@@ -2538,7 +2538,7 @@ endobj
   /Flags 32
   /FontBBox [-558 -307 2000 1026]
   /FontFile2 20 0 R
-  /FontName /VOSWTU+TimesNewRoman,Bold
+  /FontName /NELPFP+TimesNewRoman,Bold
   /ItalicAngle 0
   /StemV 0
   /Type /FontDescriptor
@@ -2584,7 +2584,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 17 0 obj   % PdfSharp.Pdf.Advanced.PdfCIDFont
 <<
-  /BaseFont /VOSWTU+TimesNewRoman,Bold
+  /BaseFont /NELPFP+TimesNewRoman,Bold
   /CIDSystemInfo
   <<
     /Ordering (Identity)
@@ -2600,7 +2600,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 18 0 obj   % PdfSharp.Pdf.Advanced.PdfType0Font
 <<
-  /BaseFont /VOSWTU+TimesNewRoman,Bold
+  /BaseFont /NELPFP+TimesNewRoman,Bold
   /DescendantFonts [17 0 R]
   /Encoding /Identity-H
   /Subtype /Type0
@@ -2820,7 +2820,7 @@ xref
 0000068733 00000 n 
 trailer
 <<
-  /ID [<C10463165B450A47A389E419727ADE20><C10463165B450A47A389E419727ADE20>]
+  /ID [<7C4741B9F199654E9CC0E747D61EA27F><7C4741B9F199654E9CC0E747D61EA27F>]
   /Info 1 0 R
   /Root 2 0 R
   /Size 21

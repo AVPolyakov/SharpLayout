@@ -8,8 +8,8 @@ namespace SharpLayout
 {
     public static class TableRenderer
     {
-        public static int Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction,
-            IEnumerable<Table> tables)
+        public static int Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
+            Document document)
         {
             var firstOnPage = true;
             var y = pageSettings.TopMargin;
@@ -35,11 +35,11 @@ namespace SharpLayout
             for (var index = 0; index < pages.Count; index++)
                 if (index == 0)
                     foreach (var part in pages[index])
-                        Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, pageSettings);
+                        Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document);
                 else
                     pageAction(index, xGraphics2 => {
                         foreach (var part in pages[index])
-                            Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, pageSettings);
+                            Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document);
                     });
             return pages.Count;
         }
@@ -107,7 +107,7 @@ namespace SharpLayout
             return result;
         }
 
-        private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, PageSettings pageSettings)
+        private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document)
         {
             var firstRow = rows.FirstOrNone();
             if (!firstRow.HasValue) return;
@@ -148,10 +148,10 @@ namespace SharpLayout
                 foreach (var column in info.Table.Columns)
                 {
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
-                    if (pageSettings.IsHighlightCells)
+                    if (document.IsHighlightCells)
                         HighlightCells(xGraphics, info, bottomBorder, row, column, x, y);
                     var cell = info.Table.Rows[row].Cells[column.Index];
-                    if (pageSettings.IsHighlightCellLine)
+                    if (document.IsHighlightCellLine)
                         HighlightCellLine(xGraphics, info, row, column, x, y,
                             column.Width - info.Table.BorderWidth(row, column, column.Index, info.RightBorderFunc),
                             info.MaxHeights[row] - MaxBottomBorder(row, info.Table, info.BottomBorderFunc));
@@ -177,7 +177,7 @@ namespace SharpLayout
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
-                        if (pageSettings.IsHighlightCells)
+                        if (document.IsHighlightCells)
                             HighlightParagraph(cell.Paragraph.Value, column, row, x, y + dy, width, info, xGraphics);
                         ParagraphRenderer.Draw(xGraphics, cell.Paragraph.Value, x, y + dy, width, cell.Paragraph.Value.Alignment);
                     }

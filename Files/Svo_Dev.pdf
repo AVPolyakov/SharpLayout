@@ -1,15 +1,15 @@
 %PDF-1.4
 %”ÙÃ·
 % PDFsharp Version 1.32.2608.0 (verbose mode)
-% Creation date: 2017-08-19 21:15:42             
-% Creation time: 0.182 seconds                   
+% Creation date: 2017-08-19 22:19:30             
+% Creation time: 0.162 seconds                   
 % File size: 83722 bytes                         
 % Pages: 1                                       
 % Objects: 20                                    
 %--------------------------------------------------------------------------------------------------
 1 0 obj   % PdfSharp.Pdf.PdfDocumentInformation
 <<
-  /CreationDate (D:20170819211542+03'00')
+  /CreationDate (D:20170819221930+03'00')
   /Creator (PDFsharp 1.32.2608-g \(www.pdfsharp.net\))
   /Producer (PDFsharp 1.32.2608-g \(www.pdfsharp.net\))
 >>
@@ -90,7 +90,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-34.6929 65.604 Td <00150018> Tj
+34.6929 65.604 Td <00150016> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -123,7 +123,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-34.6929 81.2961 Td <0016001B> Tj
+34.6929 81.2961 Td <00160019> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -228,7 +228,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-34.6929 110.0757 Td <001B0017> Tj
+34.6929 110.0757 Td <001B0015> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -254,7 +254,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-34.6929 134.9216 Td <001C0018> Tj
+34.6929 134.9216 Td <001C0016> Tj
 1 0 0 rg
 11.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -293,7 +293,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-29.6929 152.047 Td <00140013001C> Tj
+29.6929 152.047 Td <00140013001A> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -325,7 +325,7 @@ S
 S
 BT
 0 0 1 rg
-29.6929 160.484 Td <00140014001B> Tj
+29.6929 160.484 Td <001400140019> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -501,7 +501,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-29.6929 189.2636 Td <0014001B001A> Tj
+29.6929 189.2636 Td <0014001B0018> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -556,7 +556,7 @@ S
 S
 BT
 0 0 1 rg
-30.1929 199.6848 Td <0014001C0018> Tj
+30.1929 199.6848 Td <0014001C0016> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2160,7 +2160,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-29.6929 293.5485 Td <001600180016> Tj
+29.6929 293.5485 Td <001600180014> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2179,7 +2179,7 @@ S
 S
 BT
 0 0 1 rg
-29.6929 305.6706 Td <001600190014> Tj
+29.6929 305.6706 Td <00160018001C> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2217,7 +2217,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-30.1929 318.512 Td <0016001A0014> Tj
+30.1929 318.512 Td <00160019001C> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2377,7 +2377,7 @@ S
 S
 BT
 0 0 1 rg
-29.6929 359.1301 Td <001700150018> Tj
+29.6929 359.1301 Td <001700150016> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2413,7 +2413,7 @@ BT
 0 0 1 rg
 /GS1 gs
 /F0 -10 Tf
-30.1929 372.5384 Td <001700160018> Tj
+30.1929 372.5384 Td <001700160016> Tj
 1 0 0 rg
 16.6699 0 Td <00550014> Tj
 10.3301 -11.0742 Td <00460014> Tj
@@ -2459,7 +2459,7 @@ endobj
   /Flags 32
   /FontBBox [-568 -307 2000 1007]
   /FontFile2 19 0 R
-  /FontName /KJNCIF+TimesNewRoman
+  /FontName /URKBPZ+TimesNewRoman
   /ItalicAngle 0
   /StemV 0
   /Type /FontDescriptor
@@ -2482,7 +2482,7 @@ begincmap
 endcodespacerange
 55 beginbfrange
 <0015><0015><0032>
-<0018><0018><0035>
+<0016><0016><0033>
 <0055><0055><0072>
 <0014><0014><0031>
 <0046><0046><0063>
@@ -2502,8 +2502,6 @@ endcodespacerange
 <0017><0017><0034>
 <0019><0019><0036>
 <001C><001C><0039>
-<0016><0016><0033>
-<001B><001B><0038>
 <0247><0247><041D>
 <025A><025A><0430>
 <0262><0262><0438>
@@ -2518,10 +2516,12 @@ endcodespacerange
 <0264><0264><043A>
 <0261><0261><0437>
 <026C><026C><0442>
+<001B><001B><0038>
+<001A><001A><0037>
 <026B><026B><0441>
 <0010><0010><002D>
 <0249><0249><041F>
-<001A><001A><0037>
+<0018><0018><0035>
 <028B><028B><2116>
 <0012><0012><002F>
 <000F><000F><002C>
@@ -2543,7 +2543,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 11 0 obj   % PdfSharp.Pdf.Advanced.PdfCIDFont
 <<
-  /BaseFont /KJNCIF+TimesNewRoman
+  /BaseFont /URKBPZ+TimesNewRoman
   /CIDSystemInfo
   <<
     /Ordering (Identity)
@@ -2559,7 +2559,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 12 0 obj   % PdfSharp.Pdf.Advanced.PdfType0Font
 <<
-  /BaseFont /KJNCIF+TimesNewRoman
+  /BaseFont /URKBPZ+TimesNewRoman
   /DescendantFonts [11 0 R]
   /Encoding /Identity-H
   /Subtype /Type0
@@ -2590,7 +2590,7 @@ endobj
   /Flags 32
   /FontBBox [-558 -307 2000 1026]
   /FontFile2 20 0 R
-  /FontName /KTHKMK+TimesNewRoman,Bold
+  /FontName /BHQHOX+TimesNewRoman,Bold
   /ItalicAngle 0
   /StemV 0
   /Type /FontDescriptor
@@ -2639,7 +2639,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 17 0 obj   % PdfSharp.Pdf.Advanced.PdfCIDFont
 <<
-  /BaseFont /KTHKMK+TimesNewRoman,Bold
+  /BaseFont /BHQHOX+TimesNewRoman,Bold
   /CIDSystemInfo
   <<
     /Ordering (Identity)
@@ -2655,7 +2655,7 @@ endobj
 %--------------------------------------------------------------------------------------------------
 18 0 obj   % PdfSharp.Pdf.Advanced.PdfType0Font
 <<
-  /BaseFont /KTHKMK+TimesNewRoman,Bold
+  /BaseFont /BHQHOX+TimesNewRoman,Bold
   /DescendantFonts [17 0 R]
   /Encoding /Identity-H
   /Subtype /Type0
@@ -2859,7 +2859,7 @@ xref
 0000065065 00000 n 
 trailer
 <<
-  /ID [<9FF3BF1DF7292D49A8321D44D0D1ED8A><9FF3BF1DF7292D49A8321D44D0D1ED8A>]
+  /ID [<80FBDA90F09F9545B2F8B1F995AD9708><80FBDA90F09F9545B2F8B1F995AD9708>]
   /Info 1 0 R
   /Root 2 0 R
   /Size 21

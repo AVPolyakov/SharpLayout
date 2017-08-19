@@ -14,6 +14,10 @@ namespace SharpLayout
 
         public void Add(Section section) => Sections.Add(section);
 
+        public bool IsHighlightCells { get; set; } = false;
+
+        public bool IsHighlightCellLine { get; set; } = false;
+
         public byte[] CreatePdf()
         {
             using (var pdfDocument = new PdfDocument())
@@ -29,7 +33,7 @@ namespace SharpLayout
                             addPage.Orientation = section.PageSettings.Orientation;
                             using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
                                 action(xGraphics2);
-                        }, section.Tables);
+                        }, section.Tables, this);
                 }
                 using (var stream = new MemoryStream())
                 {
@@ -52,7 +56,7 @@ namespace SharpLayout
             {
                 var pages = new List<byte[]> {null};
                 FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section.PageSettings,
-                        (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), section.PageSettings), section.Tables),
+                        (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), section.PageSettings), section.Tables, this),
                     bitmap => pages[0] = ToBytes(bitmap), section.PageSettings);
                 list.AddRange(pages);
             }

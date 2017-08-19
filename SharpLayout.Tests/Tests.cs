@@ -58,8 +58,7 @@ namespace SharpLayout.Tests
             var document = new Document();
             var section = new Section(new PageSettings {
                 LeftMargin = XUnit.FromCentimeter(3),
-                RightMargin = XUnit.FromCentimeter(1.5),
-                IsHighlightCells = false
+                RightMargin = XUnit.FromCentimeter(1.5)
             });
             document.Add(section);
             Table5(section);
