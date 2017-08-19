@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SharpLayout
 {
@@ -18,8 +19,14 @@ namespace SharpLayout
             Index = index;
         }
 
-        public Cell this[Column column] => this[column.Index];
-
-        public Cell this[int column] => Cells[column];
+        public Cell this[Column column, [CallerLineNumber] int line = 0]
+        {
+            get
+            {
+                var cell = Cells[column.Index];
+                if (!cell.Line.HasValue) cell.Line = line;
+                return cell;
+            }
+        }
     }
 }

@@ -36,6 +36,8 @@ namespace SharpLayout
             set { Rowspan = value.Select(_ => _ + 1); }
         }
 
+        public Option<int> Line { get; set; }
+
         internal Cell(Table table, int rowIndex, int columnIndex)
         {
             Table = table;

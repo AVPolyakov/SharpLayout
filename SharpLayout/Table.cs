@@ -43,13 +43,11 @@ namespace SharpLayout
             return row;
         }
 
-        public Cell this[int row, int column] => Rows[row][column];
-
         internal Option<Cell> Find(CellInfo cell)
         {
             if (cell.RowIndex >= Rows.Count) return new Option<Cell>();
             if (cell.ColumnIndex >= Columns.Count) return new Option<Cell>();
-            return Rows[cell.RowIndex][cell.ColumnIndex];
+            return Rows[cell.RowIndex].Cells[cell.ColumnIndex];
         }
     }
 }

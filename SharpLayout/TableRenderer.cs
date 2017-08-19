@@ -150,7 +150,11 @@ namespace SharpLayout
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
                     if (pageSettings.IsHighlightCells)
                         HighlightCells(xGraphics, info, bottomBorder, row, column, x, y);
-                    var cell = info.Table.Rows[row][column];
+                    var cell = info.Table.Rows[row].Cells[column.Index];
+                    if (pageSettings.IsHighlightCellLine)
+                        HighlightCellLine(xGraphics, info, row, column, x, y,
+                            column.Width - info.Table.BorderWidth(row, column, column.Index, info.RightBorderFunc),
+                            info.MaxHeights[row] - MaxBottomBorder(row, info.Table, info.BottomBorderFunc));
                     if (cell.Paragraph.HasValue)
                     {
                         var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
@@ -353,7 +357,7 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var bottomBorder = row[column].BottomBorder;
+                    var bottomBorder = row.Cells[column.Index].BottomBorder;
                     if (bottomBorder.HasValue)
                     {
                         var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan).Match(_ => _ - 1, () => 0);
@@ -563,6 +567,23 @@ namespace SharpLayout
                         Alignment = XStringAlignment.Near,
                         LineAlignment = XLineAlignment.Far
                     });
+        }
+
+        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, int row, Column column, double x, double y, double cellWidth,
+            double cellInnerHeight)
+        {
+            var line = info.Table.Rows[row].Cells[column.Index].Line;
+            if (line.HasValue)
+            {
+                var text = $"{line.Value}";
+                var font = new XFont("Arial", 7, XFontStyle.Regular,
+                    new XPdfFontOptions(PdfFontEncoding.Unicode));
+                xGraphics.DrawString(text,
+                    font,
+                    new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
+                    x + cellWidth - xGraphics.MeasureString(text, font).Width,
+                    y + cellInnerHeight);
+            }
         }
 
         private static void FillRectangle(XGraphics xGraphics, XColor color, double x, double y, double width, double height)

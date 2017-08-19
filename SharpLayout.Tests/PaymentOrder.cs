@@ -13,7 +13,9 @@ namespace SharpLayout.Tests
                 TopMargin = Cm(1.2),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
-                RightMargin = Cm(1)
+                RightMargin = Cm(1),
+                //IsHighlightCells = true,
+                //IsHighlightCellLine = true
             };
             var section = new Section(pageSettings);
             document.Add(section);

@@ -38,13 +38,6 @@
 В итоге получаем вот такое 
 [платежное поручение](Files/PaymentOrder_Dev.pdf?raw=true).
 
-## Справка о валютных операциях
-[Ссылка](http://www.consultant.ru/document/cons_doc_LAW_133766/8408aeb59bc953ca3bbce8a729e5a5dca3bd0705/)
-для скачивания формы справки о валютных операциях (ОКУД 0406009).
-[Копия](Files/LAW191272_0_20170628_171359.RTF).  
-C# код [Svo.cs](SharpLayout.Tests/Svo.cs) для создания справки о валютных операциях
-[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева синим указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
-
 ## Платежное поручение
 See the PDF file created by
 [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs)
@@ -53,3 +46,13 @@ sample:
 Highlighting of cells **r1c1** and paragraphs for development
 [PaymentOrder_Dev.pdf](Files/PaymentOrder_Dev.pdf?raw=true)
 ![PaymentOrder.pdf](Files/PaymentOrder.png?raw=true")
+
+## Справка о валютных операциях
+[Ссылка](http://www.consultant.ru/document/cons_doc_LAW_133766/8408aeb59bc953ca3bbce8a729e5a5dca3bd0705/)
+для скачивания формы справки о валютных операциях (ОКУД 0406009).
+[Копия](Files/LAW191272_0_20170628_171359.RTF).  
+C# код [Svo.cs](SharpLayout.Tests/Svo.cs) для создания справки о валютных операциях
+[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева синим указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
+
+## Номера C# строк для каждой ячейки
+Для того чтобы увидеть номера C# строк для каждой ячейки необходимо установить флаг [IsHighlightCellLine](SharpLayout/PageSettings.cs#L53). В файле [PaymentOrder_CellLines.pdf](Files/PaymentOrder_CellLines.pdf?raw=true)  в каждой ячейке в правом нижнем углу указан номер строки в файле [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs).
