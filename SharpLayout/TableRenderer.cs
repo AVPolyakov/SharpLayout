@@ -113,7 +113,7 @@ namespace SharpLayout
             if (!firstRow.HasValue) return;
             var maxTopBorder = firstRow.Value == 0
                 ? info.Table.Columns.Max(column => info.TopBorderFunc(new CellInfo(firstRow.Value, column.Index)).ValueOr(0))
-                : MaxTopBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
+                : MaxBottomBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
             {
                 var x = info.Table.X0 + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
@@ -156,7 +156,7 @@ namespace SharpLayout
                         var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
                         var rowspan = cell.Rowspan.ValueOr(1);
                         var cellInnerHeight = Enumerable.Range(0, rowspan).Sum(i => info.MaxHeights[row + i]
-                            - MaxTopBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
+                            - MaxBottomBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
                         var paragraphHeight = cell.Paragraph.Value.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc);
                         double dy;
                         switch (cell.VerticalAlignment)
@@ -196,7 +196,7 @@ namespace SharpLayout
             }
         }
 
-        private static double MaxTopBorder(int rowIndex, Table infoTable, Func<CellInfo, Option<double>> bottomBorderFunc)
+        private static double MaxBottomBorder(int rowIndex, Table infoTable, Func<CellInfo, Option<double>> bottomBorderFunc)
         {
             return infoTable.Columns.Max(column => bottomBorderFunc(new CellInfo(rowIndex, column.Index)).ValueOr(0));
         }
@@ -286,7 +286,7 @@ namespace SharpLayout
                         rowHeightByContent = 0;
                     var innerHeight = row.Height.Match(
                         _ => Math.Max(rowHeightByContent, _), () => rowHeightByContent);
-                    var height = innerHeight + MaxTopBorder(row.Index, table, bottomBorderFunc);
+                    var height = innerHeight + MaxBottomBorder(row.Index, table, bottomBorderFunc);
                     if (maxHeight < height)
                         maxHeight = height;
                 }
