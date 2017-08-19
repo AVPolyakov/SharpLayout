@@ -60,17 +60,17 @@ namespace SharpLayout.Tests
                     }
                 }
                 {
-                    var r1 = table.AddRow();
-                    r1.Height = rowHeight;
+                    var r2 = table.AddRow();
+                    r2.Height = rowHeight;
                     {
                         var paragraph = TimesNewRoman9_5("Наименование резидента");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        var cell = r1[c1];
+                        var cell = r2[c1];
                         cell.Paragraph = paragraph;
                         cell.VerticalAlignment = VerticalAlignment.Center;
                     }
                     {
-                        var cell = r1[c2];                        
+                        var cell = r2[c2];                        
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
@@ -144,17 +144,17 @@ namespace SharpLayout.Tests
                     }
                 }
                 {
-                    var r1 = table.AddRow();
-                    r1.Height = rowHeight;                    
+                    var r2 = table.AddRow();
+                    r2.Height = rowHeight;                    
                     {
                         var paragraph = TimesNewRoman9_5("Код страны банка-нерезидента");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        var cell = r1[c1];
+                        var cell = r2[c1];
                         cell.Paragraph = paragraph;
                         cell.VerticalAlignment = VerticalAlignment.Center;
                     }
                     {
-                        var cell = r1[c2];
+                        var cell = r2[c2];
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;                        
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.Alignment = ParagraphAlignment.Center;
@@ -163,7 +163,7 @@ namespace SharpLayout.Tests
                         cell.Paragraph = paragraph;
                     }
                     {
-                        var cell = r1[c3];
+                        var cell = r2[c3];
                         var paragraph = TimesNewRoman9_5("Признак корректировки");
                         paragraph.Alignment = ParagraphAlignment.Right;
                         paragraph.LeftMargin = cellMargin;
@@ -172,7 +172,7 @@ namespace SharpLayout.Tests
                         cell.Paragraph = paragraph;
                     }
                     {
-                        var cell = r1[c4];
+                        var cell = r2[c4];
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;                        
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.Alignment = ParagraphAlignment.Center;
