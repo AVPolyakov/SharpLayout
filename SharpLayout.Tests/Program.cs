@@ -3,14 +3,14 @@ using System.Diagnostics;
 
 namespace SharpLayout.Tests
 {
-	class Program
-	{
-	    static void Main()
-	    {
-	        var document = new Document {IsHighlightCells = true};
-	        Svo.AddSection(document);
-	        Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
-	        //Process.Start(document.SavePng(0, "temp.png"));
+    class Program
+    {
+        static void Main()
+        {
+            var document = new Document {IsHighlightCells = true};
+            Svo.AddSection(document);
+            Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            //Process.Start(document.SavePng(0, "temp.png"));
         }
-	}
+    }
 }
