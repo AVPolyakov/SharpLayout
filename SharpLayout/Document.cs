@@ -23,6 +23,7 @@ namespace SharpLayout
             using (var pdfDocument = new PdfDocument())
             {
                 pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
+                pdfDocument.Info.Creator = "SharpLayout";
                 foreach (var section in Sections)
                 {
                     var page = pdfDocument.AddPage();
