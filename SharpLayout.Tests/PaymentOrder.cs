@@ -38,7 +38,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("23.01.2018");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c3];
@@ -47,7 +47,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("23.01.2018");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c5];
@@ -56,7 +56,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("0401060");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -67,7 +67,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman8("Поступ. в банк плат.");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r2[c3];
@@ -75,7 +75,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman8("Списано со сч. плат.");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -103,7 +103,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman12Bold("ПЛАТЕЖНОЕ ПОРУЧЕНИЕ № 17");
                         paragraph.LeftMargin = Px(1);
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c2];
@@ -112,7 +112,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("17.01.2018");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c4];
@@ -121,7 +121,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Электронно");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c6];
@@ -130,7 +130,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("02");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -141,7 +141,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman8("Дата");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r2[c4];
@@ -149,7 +149,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman8("Вид платежа");
                         paragraph.Alignment = ParagraphAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -172,7 +172,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Сумма прописью");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c2];
@@ -180,7 +180,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Одна тысяча семьсот семьдесят рублей 00 копеек");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
             }
@@ -204,7 +204,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         var paragraph = TimesNewRoman10("ИНН  0123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c2];
@@ -213,7 +213,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("КПП  012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c3];
@@ -222,7 +222,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Сумма");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c4];
@@ -232,7 +232,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("1770-00");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -245,7 +245,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Клиент012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -258,7 +258,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Сч. №");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r3[c4];
@@ -267,7 +267,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("01234567890123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -280,7 +280,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Плательщик");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -293,7 +293,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Клиент012345");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                                                
+                        cell.Add(paragraph);                                                
                     }
                     {
                         var cell = r5[c3];
@@ -302,7 +302,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("БИК");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r5[c4];
@@ -311,7 +311,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -324,7 +324,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Сч. №");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r6[c4];
@@ -334,7 +334,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("01234567890123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -347,7 +347,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Банк плательщика");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -360,7 +360,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("ПАО \"ТЕСТБАНК\" Г.МОСКВА");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                                                
+                        cell.Add(paragraph);                                                
                     }
                     {
                         var cell = r8[c3];
@@ -369,7 +369,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("БИК");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r8[c4];
@@ -378,7 +378,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -391,7 +391,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Сч. №");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r9[c4];
@@ -400,7 +400,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("01234567890123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -413,7 +413,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Банк получателя");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -425,7 +425,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         var paragraph = TimesNewRoman10("ИНН  0123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r11[c2];
@@ -434,7 +434,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("КПП  01234567");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r11[c3];
@@ -443,7 +443,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Сч. №");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r11[c4];
@@ -453,7 +453,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("01234567890123456789");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -466,7 +466,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Клиент012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -479,7 +479,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Вид оп.");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r13[c4];
@@ -488,7 +488,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("01");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r13[c5];
@@ -497,7 +497,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Срок плат.");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r13[c6];
@@ -505,7 +505,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -518,7 +518,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Наз. пл.");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r14[c4];
@@ -527,7 +527,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r14[c5];
@@ -536,7 +536,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Очер. плат.");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r14[c6];
@@ -544,7 +544,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("5");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -557,7 +557,7 @@ namespace SharpLayout.Tests
                         cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10("Получатель");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r15[c3];
@@ -566,7 +566,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Код");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r15[c4];
@@ -575,7 +575,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r15[c5];
@@ -584,7 +584,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Рез. поле");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.LeftMargin = paragraph.LeftMargin.ValueOrDefault() + leftIndent;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r15[c6];
@@ -615,7 +615,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c2];
@@ -624,7 +624,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c3];
@@ -633,7 +633,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c4];
@@ -642,7 +642,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c5];
@@ -651,7 +651,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c6];
@@ -660,7 +660,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                     {
                         var cell = r1[c7];
@@ -669,7 +669,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("2");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
             }
@@ -687,7 +687,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10(@"Тест
 В том числе НДС 270,00");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -699,7 +699,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Bottom;
                         var paragraph = TimesNewRoman10("Назначение платежа");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
             }
@@ -720,7 +720,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Подписи");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r1[c3];
@@ -728,7 +728,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("Отметки банка");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -739,7 +739,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -751,7 +751,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("М.П.");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                     {
                         var cell = r3[c2];
@@ -760,7 +760,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = ParagraphAlignment.Center;
-                        cell.Paragraph = paragraph;                        
+                        cell.Add(paragraph);                        
                     }
                 }
                 {
@@ -783,7 +783,7 @@ namespace SharpLayout.Tests
                         var paragraph = TimesNewRoman10(@"ХХХ ХХХХ ХХХХХХ ХХХХХ
 XXX 012345678");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -798,7 +798,7 @@ XXX 012345678");
 xxx xxxxx Xxxxxx xxxxxxxxx
 23.02.2018", TimesNewRoman10Font));
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
                 {
@@ -808,7 +808,7 @@ xxx xxxxx Xxxxxx xxxxxxxxx
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman10(@"Xxxx xxxxx xxxxxxxx xxxxxx xxxxx xxxxx xxxxxxxxxx xxxxx xxxxxxxx");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        cell.Paragraph = paragraph;
+                        cell.Add(paragraph);
                     }
                 }
             }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace SharpLayout
 {
     public class Cell
@@ -20,7 +22,9 @@ namespace SharpLayout
 
         public Option<double> BottomBorder { get; set; }
 
-        public Option<Paragraph> Paragraph { get; set; }
+        public readonly List<Paragraph> Paragraphs = new List<Paragraph>();
+
+        public void Add(Paragraph value) => Paragraphs.Add(value);
 
         public VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Top;
 

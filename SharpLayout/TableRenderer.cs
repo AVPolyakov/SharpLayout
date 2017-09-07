@@ -155,31 +155,33 @@ namespace SharpLayout
                         HighlightCellLine(xGraphics, info, row, column, x, y,
                             column.Width - info.Table.BorderWidth(row, column, column.Index, info.RightBorderFunc),
                             info.MaxHeights[row] - MaxBottomBorder(row, info.Table, info.BottomBorderFunc));
-                    if (cell.Paragraph.HasValue)
+                    var rowspan = cell.Rowspan.ValueOr(1);
+                    var cellInnerHeight = Enumerable.Range(0, rowspan).Sum(i => info.MaxHeights[row + i]
+                        - MaxBottomBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
+                    var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
+                    var contentHeight = cell.Paragraphs.Sum(_ => _.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc));
+                    double dy;
+                    switch (cell.VerticalAlignment)
                     {
-                        var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
-                        var rowspan = cell.Rowspan.ValueOr(1);
-                        var cellInnerHeight = Enumerable.Range(0, rowspan).Sum(i => info.MaxHeights[row + i]
-                            - MaxBottomBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
-                        var paragraphHeight = cell.Paragraph.Value.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc);
-                        double dy;
-                        switch (cell.VerticalAlignment)
-                        {
-                            case VerticalAlignment.Top:
-                                dy = 0;
-                                break;
-                            case VerticalAlignment.Center:
-                                dy = (cellInnerHeight - paragraphHeight) / 2;
-                                break;
-                            case VerticalAlignment.Bottom:
-                                dy = cellInnerHeight - paragraphHeight;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
+                        case VerticalAlignment.Top:
+                            dy = 0;
+                            break;
+                        case VerticalAlignment.Center:
+                            dy = (cellInnerHeight - contentHeight) / 2;
+                            break;
+                        case VerticalAlignment.Bottom:
+                            dy = cellInnerHeight - contentHeight;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    double paragraphY = 0;
+                    foreach (var paragraph in cell.Paragraphs)
+                    {
                         if (document.IsHighlightCells)
-                            HighlightParagraph(cell.Paragraph.Value, column, row, x, y + dy, width, info, xGraphics);
-                        ParagraphRenderer.Draw(xGraphics, cell.Paragraph.Value, x, y + dy, width, cell.Paragraph.Value.Alignment);
+                            HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics);
+                        ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment);
+                        paragraphY += paragraph.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc);
                     }
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
                     if (rightBorder.HasValue)
@@ -262,13 +264,13 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var paragraph = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Paragraph);
-                    if (paragraph.HasValue)
+                    var paragraphs = table.Rows[row.Index].Cells[column.Index].Paragraphs;
+                    if (paragraphs.Count > 0)
                     {
                         var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan);
                         var rowIndex = rowspan.Match(value => row.Index + value - 1, () => row.Index);
                         cellContentsByBottomRow.Add(new CellInfo(rowIndex, column.Index),
-                            new MaxHeightsTuple(paragraph.Value, rowspan, row));
+                            new MaxHeightsTuple(paragraphs, rowspan, row));
                     }
                 }
             var result = new Dictionary<int, double>();
@@ -281,7 +283,7 @@ namespace SharpLayout
                     MaxHeightsTuple cell;
                     if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column), out cell))
                     {
-                        var paragraphHeight = cell.Paragraph.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc);
+                        var paragraphHeight = cell.Paragraphs.Sum(_ => _.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc));
                         rowHeightByContent = cell.Rowspan.Match(
                             _ => Math.Max(paragraphHeight - Enumerable.Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
                             () => paragraphHeight);
@@ -494,13 +496,13 @@ namespace SharpLayout
 
         private class MaxHeightsTuple
         {
-            public Paragraph Paragraph { get; }
+            public List<Paragraph> Paragraphs { get; }
             public Option<int> Rowspan { get; }
             public Row Row { get; }
 
-            public MaxHeightsTuple(Paragraph paragraph, Option<int> rowspan, Row row)
+            public MaxHeightsTuple(List<Paragraph> paragraphs, Option<int> rowspan, Row row)
             {
-                Paragraph = paragraph;
+                Paragraphs = paragraphs;
                 Rowspan = rowspan;
                 Row = row;
             }
