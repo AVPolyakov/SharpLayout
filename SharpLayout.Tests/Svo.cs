@@ -20,20 +20,20 @@ namespace SharpLayout.Tests
             document.Add(section);
             var cellMargin = Cm(0.05);
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman10_5("Код формы по ОКУД 0406009");
                 paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                paragraph.Alignment = ParagraphAlignment.Right;
+                paragraph.Alignment = HorizontalAlignment.Right;
                 paragraph.BottomMargin = Px(11);
                 r1[c1].Add(paragraph);
             }
             var rowHeight = Cm(0.49);
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(Cm(6.3));
                 var c2 = table.AddColumn();
@@ -79,18 +79,18 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman11_5Bold("СПРАВКА О ВАЛЮТНЫХ ОПЕРАЦИЯХ");
-                paragraph.Alignment = ParagraphAlignment.Center;
+                paragraph.Alignment = HorizontalAlignment.Center;
                 paragraph.TopMargin = Px(41);
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 table.AddColumn(Px(1146));
                 var c2 = table.AddColumn();
@@ -104,7 +104,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 table.AddColumn(Px(1199));
                 var c2 = table.AddColumn(Px(200));
@@ -113,7 +113,7 @@ namespace SharpLayout.Tests
                 r1[c2].TopBorder = BorderWidth;
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(Cm(8));
                 var c2 = table.AddColumn(Px(405));
@@ -136,7 +136,7 @@ namespace SharpLayout.Tests
                         cell.Colspan(c4);
                         cell.LeftBorder = cell.TopBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;
                         var paragraph = TimesNewRoman9_5("");
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         cell.Add(paragraph);
@@ -156,7 +156,7 @@ namespace SharpLayout.Tests
                         var cell = r2[c2];
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;                        
                         var paragraph = TimesNewRoman9_5("");
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         cell.Add(paragraph);
@@ -164,7 +164,7 @@ namespace SharpLayout.Tests
                     {
                         var cell = r2[c3];
                         var paragraph = TimesNewRoman9_5("Признак корректировки");
-                        paragraph.Alignment = ParagraphAlignment.Right;
+                        paragraph.Alignment = HorizontalAlignment.Right;
                         paragraph.LeftMargin = cellMargin;
                         paragraph.RightMargin = Cm(0.2) + cellMargin;
                         cell.VerticalAlignment = VerticalAlignment.Center;
@@ -174,7 +174,7 @@ namespace SharpLayout.Tests
                         var cell = r2[c4];
                         cell.LeftBorder = cell.RightBorder = cell.BottomBorder = BorderWidth;                        
                         var paragraph = TimesNewRoman9_5("");
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         cell.Add(paragraph);
@@ -182,7 +182,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -190,7 +190,7 @@ namespace SharpLayout.Tests
                 table.AddRow().Height = Px(35);
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(Cm(1.05));
                 var c2 = table.AddColumn();
@@ -312,7 +312,7 @@ namespace SharpLayout.Tests
                     foreach (var paragraph in cell.Paragraphs)
                     {
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                     }
                 }
                 for (var i = 0; i < 3; i++)
@@ -340,13 +340,13 @@ namespace SharpLayout.Tests
                         foreach (var paragraph in cell.Paragraphs)
                         {
                             paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                            paragraph.Alignment = ParagraphAlignment.Center;
+                            paragraph.Alignment = HorizontalAlignment.Center;
                         }
                     }
                 }
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(Px(363));
                 var r1 = table.AddRow();
@@ -354,7 +354,7 @@ namespace SharpLayout.Tests
                 r1[c1].BottomBorder = BorderWidth;
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
@@ -364,7 +364,7 @@ namespace SharpLayout.Tests
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
@@ -379,7 +379,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         var paragraph = TimesNewRoman9("№ строки");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         cell.Add(paragraph);
                     }
                     {
@@ -388,7 +388,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         var paragraph = TimesNewRoman9("Содержание");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         cell.Add(paragraph);
                     }
                 }
@@ -406,19 +406,19 @@ namespace SharpLayout.Tests
                     {
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         row[c1].Add(paragraph);
                     }
                     {
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         row[c2].Add(paragraph);
                     }
                 }
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
@@ -428,7 +428,7 @@ namespace SharpLayout.Tests
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table(pageSettings.LeftMargin);
+                var table = new Table();
                 section.Add(table);
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -442,7 +442,7 @@ namespace SharpLayout.Tests
                         cell.VerticalAlignment = VerticalAlignment.Center;
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = ParagraphAlignment.Center;
+                        paragraph.Alignment = HorizontalAlignment.Center;
                         cell.Add(paragraph);
                     }
                 }

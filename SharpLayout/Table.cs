@@ -1,21 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace SharpLayout
 {
-    public class Table
+    public class Table : IElement
     {
         public int Line { get; }
-        internal readonly double X0;
 
         public readonly List<Column> Columns = new List<Column>();
         
         public readonly List<Row> Rows = new List<Row>();
 
-        public Table(double x0,  [CallerLineNumber] int line = 0)
+        public Table([CallerLineNumber] int line = 0)
         {
             Line = line;
-            X0 = x0;
         }
 
         public Column AddColumn()
@@ -49,5 +48,17 @@ namespace SharpLayout
             if (cell.ColumnIndex >= Columns.Count) return new Option<Cell>();
             return Rows[cell.RowIndex].Cells[cell.ColumnIndex];
         }
+
+        public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
+
+        public HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Left;
+
+        public Option<double> TopMargin { get; set; }
+
+        public Option<double> BottomMargin { get; set; }
+
+        public Option<double> LeftMargin { get; set; }
+
+        public Option<double> RightMargin { get; set; }
     }
 }

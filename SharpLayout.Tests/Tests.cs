@@ -94,7 +94,7 @@ namespace SharpLayout.Tests
 
         public static Table Table(PageSettings pageSettings)
         {
-            var table = new Table(pageSettings.LeftMargin); 
+            var table = new Table(); 
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
             var c3 = table.AddColumn(Px(454)); 
@@ -113,7 +113,7 @@ namespace SharpLayout.Tests
                     cell.Colspan(c5);
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     paragraph.LeftMargin = Px(10 * 10 * 5);
                     cell.Add(paragraph);
                 }
@@ -143,7 +143,7 @@ namespace SharpLayout.Tests
                     cell.BottomBorder = cell.TopBorder = BorderWidth;
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10("777-33");
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     cell.Add(paragraph);
                 }
             }
@@ -156,7 +156,7 @@ namespace SharpLayout.Tests
                     cell.MergeDown = 1;
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5)));
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     paragraph.TopMargin = Px(10);
                     paragraph.LeftMargin = Px(60);
                     paragraph.RightMargin = Px(30);
@@ -190,7 +190,7 @@ namespace SharpLayout.Tests
         public static void Table1(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             section.Add(table);
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
@@ -273,7 +273,7 @@ namespace SharpLayout.Tests
         public static void Table2(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             section.Add(table);
             var c0 = table.AddColumn(Px(202));
             var c1 = table.AddColumn(Px(257));
@@ -320,7 +320,7 @@ namespace SharpLayout.Tests
 
         public static Table Table3(PageSettings pageSettings)
         {
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
             var КПП = table.AddColumn(Px(454));
@@ -390,7 +390,7 @@ namespace SharpLayout.Tests
         public static void Table4(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             section.Add(table);
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
@@ -473,7 +473,7 @@ namespace SharpLayout.Tests
         public static void Table5(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             section.Add(table);
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
@@ -562,7 +562,7 @@ aaaaaaaaa ")
         public static void Table6(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             section.Add(table);
             var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
             {
@@ -646,7 +646,7 @@ aaaaaaaaa ")
 
         public static Table Table7(PageSettings pageSettings)
         {
-            var table = new Table(pageSettings.LeftMargin);
+            var table = new Table();
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
             var c3 = table.AddColumn(Px(454));
@@ -665,7 +665,7 @@ aaaaaaaaa ")
                     cell.Colspan(c5);
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     paragraph.LeftMargin = Px(10 * 10 * 5);
                     cell.Add(paragraph);
                 }
@@ -695,7 +695,7 @@ aaaaaaaaa ")
                     cell.BottomBorder = cell.TopBorder = BorderWidth;
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10("777-33");
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     cell.Add(paragraph);
                 }
             }
@@ -708,7 +708,7 @@ aaaaaaaaa ")
                     cell.MergeDown = 1;
                     cell.VerticalAlignment = VerticalAlignment.Center;
                     var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5)));
-                    paragraph.Alignment = ParagraphAlignment.Center;
+                    paragraph.Alignment = HorizontalAlignment.Center;
                     cell.Add(paragraph);
                     cell.RightBorder = BorderWidth;
                 }

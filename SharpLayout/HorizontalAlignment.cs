@@ -1,6 +1,6 @@
 ﻿namespace SharpLayout
 {
-	public enum ParagraphAlignment
+	public enum HorizontalAlignment
 	{
 		Left,
 		Center,

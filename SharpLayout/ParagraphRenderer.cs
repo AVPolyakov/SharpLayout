@@ -8,7 +8,7 @@ namespace SharpLayout
 {
     public static class ParagraphRenderer
     {
-        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, ParagraphAlignment alignment)
+        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlignment alignment)
         {
             var y = y0 + paragraph.TopMargin.ValueOr(0);
             foreach (var softLineParts in GetSoftLines(paragraph))
@@ -22,13 +22,13 @@ namespace SharpLayout
                     double dx;
                     switch (alignment)
                     {
-                        case ParagraphAlignment.Left:
+                        case HorizontalAlignment.Left:
                             dx = 0;
                             break;
-                        case ParagraphAlignment.Center:
+                        case HorizontalAlignment.Center:
                             dx = (innerWidth - lineParts.ContentWidth(softLineParts, graphics)) / 2;
                             break;
-                        case ParagraphAlignment.Right:
+                        case HorizontalAlignment.Right:
                             dx = innerWidth - lineParts.ContentWidth(softLineParts, graphics);
                             break;
                         default:
@@ -43,7 +43,7 @@ namespace SharpLayout
                         graphics.DrawString(text, span.Font, span.Brush, x, y + baseLine);
                         x += graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat).Width;
                     }
-                    y += lineParts.Spans(softLineParts).Max(span => LineSpace(span.Font, graphics));
+                    y += lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace SharpLayout
                 var charInfos = GetCharInfos(softLineParts);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos)
                     .Sum(line => line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => LineSpace(span.Font, graphics)));
+                        .Max(span => span.Font.LineSpace(graphics)));
             });
         }
 
@@ -115,7 +115,7 @@ namespace SharpLayout
 
         private static double BaseLine(Span span, XGraphics graphics)
         {
-            var lineSpace = LineSpace(span.Font, graphics);
+            var lineSpace = span.Font.LineSpace(graphics);
             return (lineSpace +
                     lineSpace * (span.Font.FontFamily.GetCellAscent(span.Font.Style) -
                         span.Font.FontFamily.GetCellDescent(span.Font.Style))
@@ -275,7 +275,7 @@ namespace SharpLayout
             }
         }
 
-        private static XStringFormat MeasureTrailingSpacesStringFormat
+        public static XStringFormat MeasureTrailingSpacesStringFormat
         {
             get
             {
@@ -285,7 +285,7 @@ namespace SharpLayout
             }
         }
 
-        private static double LineSpace(XFont font, XGraphics graphics) => font.GetHeight(graphics);
+        public static double LineSpace(this XFont font, XGraphics graphics) => font.GetHeight(graphics);
 
         public static double GetSpaceWidth(XGraphics graphics, XFont font) 
             => graphics.MeasureString(" ", font, MeasureTrailingSpacesStringFormat).Width;

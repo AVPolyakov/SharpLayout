@@ -16,7 +16,9 @@ namespace SharpLayout
 
         public bool IsHighlightCells { get; set; } = false;
 
-        public bool IsHighlightCellLine { get; set; } = false;
+        public bool IsHighlightParagraphs { get; set; } = false;
+
+        public bool IsHighlightCellLines { get; set; } = false;
 
         public byte[] CreatePdf()
         {

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpLayout
 {
@@ -22,9 +24,13 @@ namespace SharpLayout
 
         public Option<double> BottomBorder { get; set; }
 
-        public readonly List<Paragraph> Paragraphs = new List<Paragraph>();
+        public readonly List<IElement> Elements = new List<IElement>();
 
-        public void Add(Paragraph value) => Paragraphs.Add(value);
+        public IEnumerable<Paragraph> Paragraphs => Elements
+            .Where(_ => _.Match(p => true, t => false))
+            .Select(_ => _.Match(p => p, t => { throw new ApplicationException(); }));
+
+        public void Add(IElement value) => Elements.Add(value);
 
         public VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Top;
 

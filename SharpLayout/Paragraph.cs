@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SharpLayout
 {
-    public class Paragraph
+    public class Paragraph : IElement
     {
         public List<Span> Spans { get; } = new List<Span>();
 
@@ -14,12 +15,14 @@ namespace SharpLayout
 
         public Option<double> BottomMargin { get; set; }
 
-        public ParagraphAlignment Alignment { get; set; } = ParagraphAlignment.Left;
+        public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
         public Paragraph Add(Span span)
         {
             Spans.Add(span);
             return this;
         }
+
+        public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);
     }
 }

@@ -7,7 +7,11 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
-            var document = new Document {IsHighlightCellLine = true};
+            var document = new Document {
+                IsHighlightCells = true,
+                //IsHighlightParagraphs = true,
+                IsHighlightCellLines = true,
+            };
             PaymentOrder.AddSection(document);
             Svo.AddSection(document);
             Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));

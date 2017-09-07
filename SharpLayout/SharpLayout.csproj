@@ -61,11 +61,13 @@
     <Compile Include="CellInfo.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="Document.cs" />
+    <Compile Include="IElement.cs" />
+    <Compile Include="Lazy.cs" />
     <Compile Include="Section.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="PageSettings.cs" />
     <Compile Include="Paragraph.cs" />
-    <Compile Include="ParagraphAlignment.cs" />
+    <Compile Include="HorizontalAlignment.cs" />
     <Compile Include="ParagraphRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableRenderer.cs" />

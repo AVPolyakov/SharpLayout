@@ -1,7 +1,7 @@
 ## Базовые элементы для создания отчета
 **Таблица** представляет собой матрицу `N` на `M`:  
 ![Table.png](Files/Table.png?raw=true)  
-В ячейку можно вставлять **параграф**. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать строку текста и параметры шрифта. Пример параграфа:  
+В ячейку можно вставлять **параграф** или таблицу. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать строку текста и параметры шрифта. Пример параграфа:  
 ![Paragraph.png](Files/Paragraph.png?raw=true)  
 
 ## Процесс создания отчета
@@ -52,7 +52,7 @@ Highlighting of cells **r1c1** and paragraphs for development
 для скачивания формы справки о валютных операциях (ОКУД 0406009).
 [Копия](Files/LAW191272_0_20170628_171359.RTF).  
 C# код [Svo.cs](SharpLayout.Tests/Svo.cs) для создания справки о валютных операциях
-[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева синим указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
+[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева фиолетовым указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
 
 ## Номера C# строк для каждой ячейки
-Для того чтобы увидеть номера C# строк для каждой ячейки необходимо установить флаг [IsHighlightCellLine](SharpLayout/Document.cs#L19). В файле [PaymentOrder_CellLines.pdf](Files/PaymentOrder_CellLines.pdf?raw=true)  в каждой ячейке в правом нижнем углу указан номер строки в файле [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs).
+Для того чтобы увидеть номера C# строк для каждой ячейки необходимо установить флаг [IsHighlightCellLines](SharpLayout/Document.cs#L21). В файле [PaymentOrder_CellLines.pdf](Files/PaymentOrder_CellLines.pdf?raw=true)  в каждой ячейке в правом нижнем углу указан номер строки в файле [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs).
