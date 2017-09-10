@@ -52,29 +52,30 @@ namespace SharpLayout
             return path;
         }
 
-        public List<byte[]> CreatePng()
+        public List<byte[]> CreatePng(int resolution = defaultResolution)
         {
             var list = new List<byte[]>();
             foreach (var section in Sections)
             {
                 var pages = new List<byte[]> {null};
                 FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section.PageSettings,
-                        (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), section.PageSettings), section.Tables, this),
-                    bitmap => pages[0] = ToBytes(bitmap), section.PageSettings);
+                        (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), section.PageSettings, resolution), section.Tables, this),
+                    bitmap => pages[0] = ToBytes(bitmap), section.PageSettings, resolution);
                 list.AddRange(pages);
             }
             return list;
         }
 
-        public string SavePng(int pageNumber, string tempPng)
+        public string SavePng(int pageNumber, string tempPng, int resolution = defaultResolution)
         {
-            File.WriteAllBytes(tempPng, CreatePng()[pageNumber]);
+            File.WriteAllBytes(tempPng, CreatePng(resolution)[pageNumber]);
             return tempPng;
         }
 
-        public static void FillBitmap(Action<XGraphics> action, Action<Bitmap> action2, PageSettings pageSettings)
+        private const int defaultResolution = 254;
+
+        public static void FillBitmap(Action<XGraphics> action, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
         {
-            const int resolution = 254;
             var horzPixels = (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
             var vertPixels = (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
             using (var bitmap = new Bitmap(horzPixels, vertPixels))
