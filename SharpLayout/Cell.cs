@@ -48,6 +48,8 @@ namespace SharpLayout
 
         public Option<int> Line { get; set; }
 
+        public Option<string> FilePath { get; set; }
+
         internal Cell(Table table, int rowIndex, int columnIndex)
         {
             Table = table;

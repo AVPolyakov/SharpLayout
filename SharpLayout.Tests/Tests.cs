@@ -33,7 +33,7 @@ namespace SharpLayout.Tests
             Table2(section);
             Table1(section);
             Table1(section);
-            Assert(nameof(Test1), document.CreatePng());
+            Assert(nameof(Test1), document.CreatePng().Item1);
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace SharpLayout.Tests
             Table4(section);
             Table2(section);
             Table1(section);
-            Assert(nameof(Test3), document.CreatePng());
+            Assert(nameof(Test3), document.CreatePng().Item1);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace SharpLayout.Tests
         {
             var document = new Document();
             PaymentOrder.AddSection(document);
-            Assert(nameof(PaymentOrderTest), document.CreatePng());
+            Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
         }
 
         [Fact]

@@ -19,12 +19,13 @@ namespace SharpLayout
             Index = index;
         }
 
-        public Cell this[Column column, [CallerLineNumber] int line = 0]
+        public Cell this[Column column, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = ""]
         {
             get
             {
                 var cell = Cells[column.Index];
                 if (!cell.Line.HasValue) cell.Line = line;
+                if (!cell.FilePath.HasValue) cell.FilePath = filePath;
                 return cell;
             }
         }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using static System.Linq.Enumerable;
 
 namespace SharpLayout
 {
     public static class TableRenderer
     {
-        public static int Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
+        public static List<SyncPageInfo> Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
             Document document)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
@@ -24,7 +25,7 @@ namespace SharpLayout
                 y = endY;
                 return rowSets.Select((rows, index) => new TablePart(rows, index, tableInfo, tableY));
             }).ToList();
-            if (tableParts.Count == 0) return 0;
+            if (tableParts.Count == 0) return new List<SyncPageInfo>();
             var pages = new List<List<TablePart>>();
             foreach (var part in tableParts.SelectMany(_ => _))
                 if (pages.Count > 0)
@@ -34,16 +35,23 @@ namespace SharpLayout
                         pages.Add(new List<TablePart> {part});
                 else
                     pages.Add(new List<TablePart> {part});
+            var syncPageInfos = new List<SyncPageInfo>();
             for (var index = 0; index < pages.Count; index++)
+            {
+                var syncPageInfo = new SyncPageInfo();
+                syncPageInfos.Add(syncPageInfo);
                 if (index == 0)
                     foreach (var part in pages[index])
-                        Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document, tableInfos, pageSettings.LeftMargin);
+                        Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document, tableInfos,
+                            pageSettings.LeftMargin, syncPageInfo, 0);
                 else
                     pageAction(index, xGraphics2 => {
                         foreach (var part in pages[index])
-                            Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document, tableInfos, pageSettings.LeftMargin);
+                            Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document, tableInfos,
+                                pageSettings.LeftMargin, syncPageInfo, 0);
                     });
-            return pages.Count;
+            }
+            return syncPageInfos;
         }
 
         private static List<IEnumerable<int>> SplitByPages(TableInfo tableInfo, bool firstOnPage, out double endY, PageSettings pageSettings, double tableY)
@@ -68,7 +76,7 @@ namespace SharpLayout
                     var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
                     if (firstMergedRow - start > 0)
                     {
-                        result.Add(Enumerable.Range(start, firstMergedRow - start));
+                        result.Add(Range(start, firstMergedRow - start));
                         lastRowOnPreviousPage = firstMergedRow - 1;
                         row = firstMergedRow;
                     }
@@ -76,14 +84,14 @@ namespace SharpLayout
                     {
                         if (firstMergedRow == 0 && tableFirstPage && !firstOnPage)
                         {
-                            result.Add(Enumerable.Empty<int>());
+                            result.Add(Empty<int>());
                             lastRowOnPreviousPage = new Option<int>();
                             row = 0;
                         }
                         else
                         {
                             var endMergedRow = EndMergedRow(tableInfo.Table, mergedRows, row);
-                            result.Add(Enumerable.Range(start, endMergedRow - start));
+                            result.Add(Range(start, endMergedRow - start));
                             lastRowOnPreviousPage = endMergedRow;
                             row = endMergedRow + 1;
                             if (row >= tableInfo.Table.Rows.Count) break;
@@ -103,14 +111,14 @@ namespace SharpLayout
             {
                 var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
                 if (start < tableInfo.Table.Rows.Count)
-                    result.Add(Enumerable.Range(start, tableInfo.Table.Rows.Count - start));
+                    result.Add(Range(start, tableInfo.Table.Rows.Count - start));
             }
             endY = y;
             return result;
         }
 
         private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document,
-            Dictionary<Table, TableInfo> tableInfos, double x0)
+            Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel)
         {
             var firstRow = rows.FirstOrNone();
             if (!firstRow.HasValue) return;
@@ -151,15 +159,24 @@ namespace SharpLayout
                 var x = x0 + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
                 {
+                    var cell = info.Table.Rows[row].Cells[column.Index];
+                    syncPageInfo.CellInfos.Add(new SyncCellInfo {
+                        X = x,
+                        Y = y,
+                        Height = Range(0, cell.Rowspan.ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
+                        Width = Range(0, cell.Colspan.ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
+                        Line = cell.Line.ToNullable(),
+                        FilePath = cell.FilePath.ToReference(),
+                        TableLevel = tableLevel
+                    });
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
                     if (document.IsHighlightCells)
                         HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY);
-                    var cell = info.Table.Rows[row].Cells[column.Index];
                     if (document.IsHighlightCellLines)
                         HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y);
-                    var rowspan = cell.Rowspan.ValueOr(1);
-                    var cellInnerHeight = Enumerable.Range(0, rowspan).Sum(i => info.MaxHeights[row + i]
-                        - MaxBottomBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
+                    var cellInnerHeight = Range(0, cell.Rowspan.ValueOr(1))
+                        .Sum(i => info.MaxHeights[row + i] -
+                            MaxBottomBorder(row + cell.Rowspan.ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
                     var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
                     var contentHeight = cell.Elements.Sum(_ => _.Match(
                         p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc),
@@ -212,8 +229,8 @@ namespace SharpLayout
                                         throw new ArgumentOutOfRangeException();
                                 }
                                 Draw(tableInfo,
-                                    Enumerable.Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx);
+                                    Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
+                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1);
                                 return new { };
                             });
                         paragraphY += element.Match(
@@ -295,13 +312,13 @@ namespace SharpLayout
         private static double ContentWidth(this Table table, int row, Column column, Func<CellInfo, Option<double>> rightBorderFunc)
             => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Colspan).Match(
                 colspan => column.Width
-                    + Enumerable.Range(column.Index + 1, colspan - 1).Sum(i => table.Columns[i].Width)
+                    + Range(column.Index + 1, colspan - 1).Sum(i => table.Columns[i].Width)
                     - table.BorderWidth(row, column, column.Index + colspan - 1, rightBorderFunc),
                 () => column.Width - table.BorderWidth(row, column, column.Index, rightBorderFunc));
 
         private static double BorderWidth(this Table table, int row, Column column, int rightColumn, Func<CellInfo, Option<double>> rightBorderFunc)
             => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Rowspan).Match(
-                rowspan => Enumerable.Range(row, rowspan)
+                rowspan => Range(row, rowspan)
                     .Max(i => rightBorderFunc(new CellInfo(i, rightColumn)).ValueOr(0)),
                 () => rightBorderFunc(new CellInfo(row, rightColumn)).ValueOr(0));
 
@@ -335,7 +352,7 @@ namespace SharpLayout
                             p => p.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc),
                             t => t.GetTableHeight(graphics, tableInfos)));
                         rowHeightByContent = cell.Rowspan.Match(
-                            _ => Math.Max(paragraphHeight - Enumerable.Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
+                            _ => Math.Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
                             () => paragraphHeight);
                     }
                     else

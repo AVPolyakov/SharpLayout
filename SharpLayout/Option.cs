@@ -70,7 +70,11 @@ namespace SharpLayout
 
         public static Option<T> ToOption<T>(this T it) where T : class => it ?? new Option<T>();
 
+        public static T ToReference<T>(this Option<T> it) where T : class => it.ValueOrDefault();
+
         public static Option<T> ToOption<T>(this T? it) where T : struct => it ?? new Option<T>();
+
+        public static T? ToNullable<T>(this Option<T> it) where T : struct => it.HasValue ? it.Value : new T?();
 
         public static Option<T> None<T>(this T it, Func<T, bool> predicate) => predicate(it) ? new Option<T>() : it;
 

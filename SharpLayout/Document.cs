@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
@@ -52,47 +54,73 @@ namespace SharpLayout
             return path;
         }
 
-        public List<byte[]> CreatePng(int resolution = defaultResolution)
+        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution = defaultResolution)
         {
             var list = new List<byte[]>();
+            var syncBitmapInfos = new List<SyncBitmapInfo>();
             foreach (var section in Sections)
             {
                 var pages = new List<byte[]> {null};
-                FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section.PageSettings,
-                        (pageIndex, action) => FillBitmap(action, bitmap => pages.Add(ToBytes(bitmap)), section.PageSettings, resolution), section.Tables, this),
-                    bitmap => pages[0] = ToBytes(bitmap), section.PageSettings, resolution);
+                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section.PageSettings,
+                        (pageIndex, action) => {
+                            FillBitmap(graphics => {
+                                    action(graphics);
+                                    return new { };
+                                },
+                                bitmap => pages.Add(ToBytes(bitmap)),
+                                section.PageSettings, resolution);
+                        }, section.Tables, this),
+                    bitmap => pages[0] = ToBytes(bitmap),
+                    section.PageSettings, resolution);
+                syncBitmapInfos.AddRange(syncPageInfos.Select(pageInfo => new SyncBitmapInfo {
+                    PageInfo = pageInfo,
+                    Resolution = resolution,
+                    HorizontalPixelCount = HorizontalPixelCount(section.PageSettings, resolution),
+                    VerticalPixelCount = VerticalPixelCount(section.PageSettings, resolution),
+                }));
                 list.AddRange(pages);
             }
-            return list;
+            return Tuple.Create(list, syncBitmapInfos);
         }
 
-        public string SavePng(int pageNumber, string tempPng, int resolution = defaultResolution)
+        public string SavePng(int pageNumber, string path, int resolution = defaultResolution)
         {
-            File.WriteAllBytes(tempPng, CreatePng(resolution)[pageNumber]);
-            return tempPng;
+            var tuple = CreatePng(resolution);
+            File.WriteAllBytes(path, tuple.Item1[pageNumber]);
+            File.WriteAllText(Path.ChangeExtension(path, ".json"),
+                JsonConvert.SerializeObject(tuple.Item2[pageNumber], Formatting.Indented));
+            return path;
         }
 
         private const int defaultResolution = 254;
 
-        public static void FillBitmap(Action<XGraphics> action, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
+        public static T FillBitmap<T>(Func<XGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
         {
-            var horzPixels = (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
-            var vertPixels = (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
-            using (var bitmap = new Bitmap(horzPixels, vertPixels))
+            var horizontalPixelCount = HorizontalPixelCount(pageSettings, resolution);
+            var verticalPixelCount = VerticalPixelCount(pageSettings, resolution);
+            using (var bitmap = new Bitmap(horizontalPixelCount, verticalPixelCount))
             {
+                T result;
                 using (var graphics = Graphics.FromImage(bitmap))
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horzPixels, vertPixels);
-                    using (var xGraphics = XGraphics.FromGraphics(graphics, new XSize(horzPixels, vertPixels)))
+                    graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
+                    using (var xGraphics = XGraphics.FromGraphics(graphics, new XSize(horizontalPixelCount, verticalPixelCount)))
                     {
                         xGraphics.ScaleTransform(resolution / 72d);
-                        action(xGraphics);
+                        result = func(xGraphics);
                     }
                 }
                 bitmap.SetResolution(resolution, resolution);
                 action2(bitmap);
+                return result;
             }
         }
+
+        private static int VerticalPixelCount(PageSettings pageSettings, int resolution) 
+            => (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
+
+        private static int HorizontalPixelCount(PageSettings pageSettings, int resolution) 
+            => (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
 
         public static byte[] ToBytes(Bitmap bitmap)
         {
