@@ -13,7 +13,10 @@ namespace SharpLayout.Tests
                 //IsHighlightCellLines = true,
             };
             Svo.AddSection(document);
-            document.SavePng(0, "temp2.png", 120);
+
+            var fileName = document.SavePng(0, "Temp.png", 120);
+            //Process.Start("LiveViewer", fileName);
+            
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
         }
     }
