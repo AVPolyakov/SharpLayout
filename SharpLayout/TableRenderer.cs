@@ -156,9 +156,7 @@ namespace SharpLayout
                         HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY);
                     var cell = info.Table.Rows[row].Cells[column.Index];
                     if (document.IsHighlightCellLines)
-                        HighlightCellLine(xGraphics, info, row, column, x, y,
-                            column.Width - info.Table.BorderWidth(row, column, column.Index, info.RightBorderFunc),
-                            info.MaxHeights[row] - MaxBottomBorder(row, info.Table, info.BottomBorderFunc));
+                        HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y);
                     var rowspan = cell.Rowspan.ValueOr(1);
                     var cellInnerHeight = Enumerable.Range(0, rowspan).Sum(i => info.MaxHeights[row + i]
                         - MaxBottomBorder(row + rowspan - 1, info.Table, info.BottomBorderFunc));
@@ -628,8 +626,7 @@ namespace SharpLayout
                 xGraphics.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
         }
 
-        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, int row, Column column, double x, double y, double cellWidth,
-            double cellInnerHeight)
+        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y)
         {
             var line = info.Table.Rows[row].Cells[column.Index].Line;
             if (line.HasValue)
@@ -637,11 +634,13 @@ namespace SharpLayout
                 var text = $"{line.Value}";
                 var font = new XFont("Arial", 7, XFontStyle.Regular,
                     new XPdfFontOptions(PdfFontEncoding.Unicode));
+                var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
+                var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
                 xGraphics.DrawString(text,
                     font,
                     new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
-                    x + cellWidth - xGraphics.MeasureString(text, font).Width,
-                    y + cellInnerHeight);
+                    x + width - xGraphics.MeasureString(text, font).Width,
+                    y + height);
             }
         }
 
