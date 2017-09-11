@@ -60,11 +60,14 @@ namespace LiveViewer
                 var textSelection = (TextSelection)dte2.ActiveDocument.Selection;
                 textSelection.GotoLine(firstOrDefault.Line.Value);
                 textSelection.WordRight();
-                dte2.MainWindow.Activate();
+                SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
             }
             else
                 MessageBox.Show(this, "В этой части картинки нет ссылки на исходный код.",
                     "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
