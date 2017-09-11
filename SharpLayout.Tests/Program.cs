@@ -12,7 +12,7 @@ namespace SharpLayout.Tests
                 IsHighlightParagraphs = true,
                 //IsHighlightCellLines = true,
             };
-            Svo.AddSection(document);
+            PaymentOrder.AddSection(document);
 
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
 

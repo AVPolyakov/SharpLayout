@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -39,8 +41,7 @@ namespace LiveViewer
         private void pictureBox_MouseClick(object sender, MouseEventArgs e)
         {
             if (ModifierKeys != Keys.Control) return;
-            var bitmapInfo = JsonConvert.DeserializeObject<SyncBitmapInfo>(
-                File.ReadAllText(Path.ChangeExtension(pictureBox.ImageLocation, ".json")));
+            var bitmapInfo = GetSyncBitmapInfo();
             var firstOrDefault = bitmapInfo.PageInfo.CellInfos.Where(info => {
                     var x = info.X.ToPixel(bitmapInfo);
                     var y = info.Y.ToPixel(bitmapInfo);
@@ -67,7 +68,66 @@ namespace LiveViewer
                     "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private SyncBitmapInfo GetSyncBitmapInfo()
+        {
+            return JsonConvert.DeserializeObject<SyncBitmapInfo>(
+                File.ReadAllText(Path.ChangeExtension(pictureBox.ImageLocation, ".json")));
+        }
+
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            int? value;
+            switch (e.KeyData)
+            {
+                case Keys.W:
+                    value = selectionWidth;
+                    break;
+                case Keys.H:
+                    value = selectionHeight;
+                    break;
+                default:
+                    value = null;
+                    break;
+            }
+            if (value.HasValue)
+            {
+                var textSelection = (TextSelection)dte2.ActiveDocument.Selection;
+                textSelection.Insert((value.Value * 254 / GetSyncBitmapInfo().Resolution).ToString());
+                SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+            }
+        }
+
+        private int selectionX;
+        private int selectionY;
+        private Pen selectionPen;
+        private int selectionWidth;
+        private int selectionHeight;
+
+        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                selectionX = e.X;
+                selectionY = e.Y;
+                selectionPen = new Pen(Color.Black, 1) {DashStyle = DashStyle.DashDot};
+            }
+            pictureBox.Refresh();
+            selectionWidth = 0;
+            selectionHeight = 0;
+        }
+
+        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                pictureBox.Refresh();
+                selectionWidth = e.X - selectionX;
+                selectionHeight = e.Y - selectionY;
+                pictureBox.CreateGraphics().DrawRectangle(selectionPen, selectionX, selectionY, selectionWidth, selectionHeight);
+            }
+        }
     }
 }
