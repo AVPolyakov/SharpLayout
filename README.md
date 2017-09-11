@@ -4,13 +4,11 @@
 
 Компилируем проект [LiveViewer](LiveViewer/LiveViewer.csproj). В переменную окружения PATH добавляем директорию, в которой находится `LiveViewer.exe`.
 
-С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем `LiveViewer Temp.png`. LiveViewer отслеживает изменения файла и автоматически обновляет изображение. 
+С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем [StartLiveViewer](SharpLayout.Tests/Program.cs#L17). LiveViewer отслеживает изменения файла и автоматически обновляет изображение. Если метод `StartLiveViewer` вызывается с параметром `false`, то фокус остается в окне Visual Studio.
 
 `Ctrl + Сlick` – навигация из отчета к строке исходного кода.
 
 Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
-
-Если на экране или экранах умещаются оба окна LiveViewer и Visual Studio, то изображение обновляется в тихом режиме, фокус остается в Visual Studio. Если места на экране мало, то после выполнения метода `SavePng` можно показывать окно LiveViewer. Для этого следует выполнить `Process.Start("LiveViewer", fileName)`.  
 
 [![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
 

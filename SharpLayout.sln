@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout", "SharpLayout\SharpLayout.csproj", "{05E890DE-939F-4E72-A971-2EA897E9B503}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout.Tests", "SharpLayout.Tests\SharpLayout.Tests.csproj", "{632E2AEA-C8E9-461E-8953-97C95E4AEBE8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F} = {1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveViewer", "LiveViewer\LiveViewer.csproj", "{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}"
 EndProject

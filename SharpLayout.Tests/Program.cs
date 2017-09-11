@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace SharpLayout.Tests
 {
-    class Program
+    static class Program
     {
         static void Main()
         {
@@ -14,10 +14,15 @@ namespace SharpLayout.Tests
             };
             Svo.AddSection(document);
 
-            var fileName = document.SavePng(0, "Temp.png", 120);
-            //Process.Start("LiveViewer", fileName);
-            
+            document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
+
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+        }
+
+        private static void StartLiveViewer(this string fileName, bool alwaysShowWindow)
+        {
+            if (alwaysShowWindow || Process.GetProcessesByName("LiveViewer").Length <= 0)
+                Process.Start("LiveViewer", fileName);
         }
     }
 }
