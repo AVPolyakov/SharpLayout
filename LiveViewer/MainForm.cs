@@ -94,9 +94,12 @@ namespace LiveViewer
             }
             if (value.HasValue)
             {
-                var textSelection = (TextSelection)dte2.ActiveDocument.Selection;
-                textSelection.Insert((value.Value * 254 / GetSyncBitmapInfo().Resolution).ToString());
+                var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
+                var text = (value.Value * 254 / GetSyncBitmapInfo().Resolution).ToString();
+                textSelection.Insert(text);
+                textSelection.CharLeft(true, text.Length);
                 SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+                dte2.ExecuteCommand("Debug.StartWithoutDebugging");
             }
         }
 
