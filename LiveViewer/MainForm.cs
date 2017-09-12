@@ -9,6 +9,7 @@ using EnvDTE;
 using EnvDTE80;
 using Newtonsoft.Json;
 using SharpLayout;
+using static System.Math;
 
 namespace LiveViewer
 {
@@ -95,7 +96,8 @@ namespace LiveViewer
             if (value.HasValue)
             {
                 var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
-                var text = (value.Value * 254 / GetSyncBitmapInfo().Resolution).ToString();
+                var text = ((int) Round(1.0 * value.Value * 254 / GetSyncBitmapInfo().Resolution,
+                    MidpointRounding.AwayFromZero)).ToString();
                 textSelection.Insert(text);
                 textSelection.CharLeft(true, text.Length);
                 SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
@@ -127,9 +129,13 @@ namespace LiveViewer
             if (e.Button == MouseButtons.Left)
             {
                 pictureBox.Refresh();
-                selectionWidth = e.X - selectionX;
-                selectionHeight = e.Y - selectionY;
-                pictureBox.CreateGraphics().DrawRectangle(selectionPen, selectionX, selectionY, selectionWidth, selectionHeight);
+                selectionWidth = Abs(e.X - selectionX);
+                selectionHeight = Abs(e.Y - selectionY);
+                pictureBox.CreateGraphics().DrawRectangle(selectionPen,
+                    Min(e.X, selectionX),
+                    Min(e.Y, selectionY), 
+                    selectionWidth, 
+                    selectionHeight);
             }
         }
     }
