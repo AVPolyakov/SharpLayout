@@ -12,6 +12,10 @@
 
 [![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
 
+Изменение размеров мышкой:
+
+[![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
+
 ## Базовые элементы для создания отчета
 **Таблица** представляет собой матрицу `N` на `M`:  
 ![Table.png](Files/Table.png?raw=true)  
