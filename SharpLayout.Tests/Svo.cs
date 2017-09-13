@@ -368,24 +368,25 @@ namespace SharpLayout.Tests
                 {
                     var row = table.AddRow();
                     row.Height = Cm(0.46);
-                    row[c1].LeftBorder = BorderWidth;
-                    foreach (var column in table.Columns)
                     {
-                        var cell = row[column];
-                        cell.RightBorder = cell.BottomBorder = BorderWidth;
-                        cell.VerticalAlignment = VerticalAlignment.Center;
-                    }
-                    {
+                        var cell = row[c1];
+                        cell.LeftBorder = BorderWidth;
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = HorizontalAlignment.Center;
-                        row[c1].Add(paragraph);
+                        cell.Add(paragraph);
                     }
                     {
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                         paragraph.Alignment = HorizontalAlignment.Center;
                         row[c2].Add(paragraph);
+                    }
+                    foreach (var column in table.Columns)
+                    {
+                        var cell = row[column];
+                        cell.RightBorder = cell.BottomBorder = BorderWidth;
+                        cell.VerticalAlignment = VerticalAlignment.Center;
                     }
                 }
             }
