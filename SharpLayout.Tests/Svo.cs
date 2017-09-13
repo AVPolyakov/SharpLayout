@@ -379,7 +379,6 @@ namespace SharpLayout.Tests
                     {
                         var paragraph = TimesNewRoman9_5("");
                         paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
-                        paragraph.Alignment = HorizontalAlignment.Center;
                         row[c2].Add(paragraph);
                     }
                     foreach (var column in table.Columns)
