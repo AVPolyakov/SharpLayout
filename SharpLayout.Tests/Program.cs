@@ -14,7 +14,7 @@ namespace SharpLayout.Tests
             };
             PaymentOrder.AddSection(document);
 
-            document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
+            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
 
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
         }

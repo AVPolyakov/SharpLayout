@@ -107,7 +107,6 @@ namespace LiveViewer
 
         private int selectionX;
         private int selectionY;
-        private Pen selectionPen;
         private int selectionWidth;
         private int selectionHeight;
 
@@ -117,7 +116,6 @@ namespace LiveViewer
             {
                 selectionX = e.X;
                 selectionY = e.Y;
-                selectionPen = new Pen(Color.Black, 1) {DashStyle = DashStyle.DashDot};
             }
             pictureBox.Refresh();
             selectionWidth = 0;
@@ -131,7 +129,7 @@ namespace LiveViewer
                 pictureBox.Refresh();
                 selectionWidth = Abs(e.X - selectionX);
                 selectionHeight = Abs(e.Y - selectionY);
-                pictureBox.CreateGraphics().DrawRectangle(selectionPen,
+                pictureBox.CreateGraphics().DrawRectangle(new Pen(Color.Black, 1) { DashStyle = DashStyle.DashDot },
                     Min(e.X, selectionX),
                     Min(e.Y, selectionY), 
                     selectionWidth, 
