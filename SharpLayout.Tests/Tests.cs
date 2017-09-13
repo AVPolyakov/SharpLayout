@@ -100,96 +100,86 @@ namespace SharpLayout.Tests
 
         public static Table Table(PageSettings pageSettings)
         {
-            var table = new Table(); 
+            var table = new Table();
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
-            var c3 = table.AddColumn(Px(454)); 
+            var c3 = table.AddColumn(Px(454));
             var c4 = table.AddColumn(Px(144));
             var c5 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
                 - table.Columns.Sum(_ => _.Width));
+            var r1 = table.AddRow();
             {
-                var r1 = table.AddRow();
-                {
-                    var cell = r1[c1];
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма прописью"));
-                }
-                {
-                    var cell = r1[c2];
-                    cell.Colspan(c5);
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    paragraph.LeftMargin = Px(10 * 10 * 5);
-                    cell.Add(paragraph);
-                }
+                var cell = r1[c1];
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
-                var r2 = table.AddRow();
-                {
-                    var cell = r2[c1];
-                    cell.Colspan(c2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("ИНН"));
-                }
-                {
-                    var cell = r2[c3];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("КПП"));
-                }
-                {
-                    var cell = r2[c4];
-                    cell.MergeDown = 1;
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма"));
-                }
-                {
-                    var cell = r2[c5];
-                    cell.MergeDown = 1;
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10("777-33");
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    cell.Add(paragraph);
-                }
+                var cell = r1[c2];
+                cell.Colspan(c5);
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
+                paragraph.Alignment = HorizontalAlignment.Center;
+                paragraph.LeftMargin = Px(10 * 10 * 5);
+                cell.Add(paragraph);
+            }
+            var r2 = table.AddRow();
+            {
+                var cell = r2[c1];
+                cell.Colspan(c2);
+                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("ИНН"));
             }
             {
-                var r3 = table.AddRow();
-                r3.Height = Px(100);
-                {
-                    var cell = r3[c1];
-                    cell.Colspan(c3);
-                    cell.MergeDown = 1;
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5)));
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    paragraph.TopMargin = Px(10);
-                    paragraph.LeftMargin = Px(60);
-                    paragraph.RightMargin = Px(30);
-                    cell.Add(paragraph);
-                    cell.RightBorder = BorderWidth;
-                }
+                var cell = r2[c3];
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("КПП"));
             }
             {
-                var r4 = table.AddRow();
-                r4.Height = Px(100);
-                {
-                    var cell = r4[c4];
-                    cell.MergeDown = 1;
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сч. №"));
-                }
+                var cell = r2[c4];
+                cell.MergeDown = 1;
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма"));
             }
             {
-                var r5 = table.AddRow();
-                {
-                    var cell = r5[c1];
-                    cell.Colspan(c3);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Плательщик"));
-                }
-                r5[c4].BottomBorder = BorderWidth;
+                var cell = r2[c5];
+                cell.MergeDown = 1;
+                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10("777-33");
+                paragraph.Alignment = HorizontalAlignment.Center;
+                cell.Add(paragraph);
             }
+            var r3 = table.AddRow();
+            r3.Height = Px(100);
+            {
+                var cell = r3[c1];
+                cell.Colspan(c3);
+                cell.MergeDown = 1;
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5)));
+                paragraph.Alignment = HorizontalAlignment.Center;
+                paragraph.TopMargin = Px(10);
+                paragraph.LeftMargin = Px(60);
+                paragraph.RightMargin = Px(30);
+                cell.Add(paragraph);
+                cell.RightBorder = BorderWidth;
+            }
+            var r4 = table.AddRow();
+            r4.Height = Px(100);
+            {
+                var cell = r4[c4];
+                cell.MergeDown = 1;
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сч. №"));
+            }
+            var r5 = table.AddRow();
+            {
+                var cell = r5[c1];
+                cell.Colspan(c3);
+                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Плательщик"));
+            }
+            r5[c4].BottomBorder = BorderWidth;
             return table;
         }
 
@@ -203,76 +193,66 @@ namespace SharpLayout.Tests
             var c4 = table.AddColumn(Px(144));
             var c5 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
                 - table.Columns.Sum(_ => _.Width));
+            var r1 = table.AddRow();
             {
-                var r1 = table.AddRow();
-                {
-                    var cell = r1[c1];
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма прописью"));
-                }
-                {
-                    var cell = r1[c2];
-                    cell.Colspan(c5);
-                    cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1))));
-                }
+                var cell = r1[c1];
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
-                var r2 = table.AddRow();
-                {
-                    var cell = r2[c1];
-                    cell.Colspan(c2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("ИНН"));
-                }
-                {
-                    var cell = r2[c3];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("КПП"));
-                }
-                {
-                    var cell = r2[c4];
-                    cell.MergeDown = 1;
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма"));
-                }
-                {
-                    var cell = r2[c5];
-                    cell.MergeDown = 1;
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("777-33"));
-                }
+                var cell = r1[c2];
+                cell.Colspan(c5);
+                cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1))));
+            }
+            var r2 = table.AddRow();
+            {
+                var cell = r2[c1];
+                cell.Colspan(c2);
+                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("ИНН"));
             }
             {
-                var r3 = table.AddRow();
-                r3.Height = Px(100);
-                {
-                    var cell = r3[c1];
-                    cell.Colspan(c3);
-                    cell.MergeDown = 1;
-                    cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5))));
-                    cell.RightBorder = BorderWidth;
-                }
+                var cell = r2[c3];
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("КПП"));
             }
             {
-                var r4 = table.AddRow();
-                r4.Height = Px(100);
-                {
-                    var cell = r4[c4];
-                    cell.MergeDown = 1;
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сч. №"));
-                }
+                var cell = r2[c4];
+                cell.MergeDown = 1;
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма"));
             }
             {
-                var r5 = table.AddRow();
-                {
-                    var cell = r5[c1];
-                    cell.Colspan(c3);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Плательщик"));
-                }
-                r5[c4].BottomBorder = BorderWidth;
+                var cell = r2[c5];
+                cell.MergeDown = 1;
+                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("777-33"));
             }
+            var r3 = table.AddRow();
+            r3.Height = Px(100);
+            {
+                var cell = r3[c1];
+                cell.Colspan(c3);
+                cell.MergeDown = 1;
+                cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5))));
+                cell.RightBorder = BorderWidth;
+            }
+            var r4 = table.AddRow();
+            r4.Height = Px(100);
+            {
+                var cell = r4[c4];
+                cell.MergeDown = 1;
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сч. №"));
+            }
+            var r5 = table.AddRow();
+            {
+                var cell = r5[c1];
+                cell.Colspan(c3);
+                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Плательщик"));
+            }
+            r5[c4].BottomBorder = BorderWidth;
         }
 
         public static void Table2(Section section)
@@ -566,82 +546,72 @@ aaaaaaaaa ")
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
             var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
+            var r1 = table.AddRow();
             {
-                var r1 = table.AddRow();
-                {
-                    r1[c1].Add(new Paragraph().Add(new Span(
-                        "Choose composition first when creating new classes from existing classes. Only if " +
-                        "inheritance is required by your design should it be used. If you use inheritance where " +
-                        "composition will work, your designs will become needlessly complicated.",
-                        TimesNewRoman10Font)));
-                }
+                r1[c1].Add(new Paragraph().Add(new Span(
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated.",
+                    TimesNewRoman10Font)));
             }
+            var r2 = table.AddRow();
             {
-                var r2 = table.AddRow();
-                {
-                    r2[c1].Add(new Paragraph().Add(new Span(
-                        "Choose interfaces over abstract classes. If you know something is going to be a base" +
-                        "class, your first choice should be to make it an interface, and only if you’re forced to" +
-                        "have method definitions or member variables should you change to an abstract class.",
-                        TimesNewRoman10Font)));
-                }
+                r2[c1].Add(new Paragraph().Add(new Span(
+                    "Choose interfaces over abstract classes. If you know something is going to be a base" +
+                    "class, your first choice should be to make it an interface, and only if you’re forced to" +
+                    "have method definitions or member variables should you change to an abstract class.",
+                    TimesNewRoman10Font)));
             }
+            var r3 = table.AddRow();
             {
-                var r3 = table.AddRow();
-                {
-                    r3[c1].Add(new Paragraph()
-                        .Add(new Span("Choose ", TimesNewRoman10Font))
-                        .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                        .Add(new Span(" over ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" classes. If you know something is going to be a baseclass, your" +
-                            " first choice should be to make it an ", TimesNewRoman10Font))
-                        .Add(new Span("interface", TimesNewRoman10BoldFont))
-                        .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                            "variables should you change to an ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" class.", TimesNewRoman10Font)));
-                }
+                r3[c1].Add(new Paragraph()
+                    .Add(new Span("Choose ", TimesNewRoman10Font))
+                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
+                    .Add(new Span(" over ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" classes. If you know something is going to be a baseclass, your" +
+                        " first choice should be to make it an ", TimesNewRoman10Font))
+                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                    .Add(new Span(", and only if you’re forced tohave method definitions or member " +
+                        "variables should you change to an ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" class.", TimesNewRoman10Font)));
             }
+            var r4 = table.AddRow();
             {
-                var r4 = table.AddRow();
-                {
-                    r4[c1].Add(new Paragraph()
-                        .Add(new Span("Choose ", TimesNewRoman10Font))
-                        .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                        .Add(new Span(" over ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" classes. If you ", TimesNewRoman10Font))
-                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
-                        .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
-                            TimesNewRoman10Font))
-                        .Add(new Span("interface", TimesNewRoman10BoldFont))
-                        .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                            "variables should you change to an ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" class.", TimesNewRoman10Font)));
-                }
+                r4[c1].Add(new Paragraph()
+                    .Add(new Span("Choose ", TimesNewRoman10Font))
+                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
+                    .Add(new Span(" over ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" classes. If you ", TimesNewRoman10Font))
+                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
+                    .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
+                        TimesNewRoman10Font))
+                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                    .Add(new Span(", and only if you’re forced tohave method definitions or member " +
+                        "variables should you change to an ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" class.", TimesNewRoman10Font)));
             }
+            var r5 = table.AddRow();
             {
-                var r5 = table.AddRow();
-                {
-                    r5[c1].Add(new Paragraph()
-                        .Add(new Span("Choose ", TimesNewRoman10Font))
-                        .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                        .Add(new Span(" over ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" classes. If you ", TimesNewRoman10Font))
-                        .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
-                            Brush = XBrushes.Red
-                        })
-                        .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
-                            TimesNewRoman10Font))
-                        .Add(new Span("interface", TimesNewRoman10BoldFont))
-                        .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                            "variables should you change to an ", TimesNewRoman10Font))
-                        .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                        .Add(new Span(" class.", TimesNewRoman10Font)));
-                }
+                r5[c1].Add(new Paragraph()
+                    .Add(new Span("Choose ", TimesNewRoman10Font))
+                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
+                    .Add(new Span(" over ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" classes. If you ", TimesNewRoman10Font))
+                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
+                        Brush = XBrushes.Red
+                    })
+                    .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
+                        TimesNewRoman10Font))
+                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                    .Add(new Span(", and only if you’re forced tohave method definitions or member " +
+                        "variables should you change to an ", TimesNewRoman10Font))
+                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span(" class.", TimesNewRoman10Font)));
             }
         }
 
@@ -654,86 +624,76 @@ aaaaaaaaa ")
             var c4 = table.AddColumn(Px(144));
             var c5 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
                 - table.Columns.Sum(_ => _.Width));
+            var r1 = table.AddRow();
             {
-                var r1 = table.AddRow();
-                {
-                    var cell = r1[c1];
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма прописью"));
-                }
-                {
-                    var cell = r1[c2];
-                    cell.Colspan(c5);
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    paragraph.LeftMargin = Px(10 * 10 * 5);
-                    cell.Add(paragraph);
-                }
+                var cell = r1[c1];
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
-                var r2 = table.AddRow();
-                {
-                    var cell = r2[c1];
-                    cell.Colspan(c2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("ИНН"));
-                }
-                {
-                    var cell = r2[c3];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("КПП"));
-                }
-                {
-                    var cell = r2[c4];
-                    cell.MergeDown = 1;
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сумма"));
-                }
-                {
-                    var cell = r2[c5];
-                    cell.MergeDown = 1;
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10("777-33");
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    cell.Add(paragraph);
-                }
+                var cell = r1[c2];
+                cell.Colspan(c5);
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
+                paragraph.Alignment = HorizontalAlignment.Center;
+                paragraph.LeftMargin = Px(10 * 10 * 5);
+                cell.Add(paragraph);
+            }
+            var r2 = table.AddRow();
+            {
+                var cell = r2[c1];
+                cell.Colspan(c2);
+                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("ИНН"));
             }
             {
-                var r3 = table.AddRow();
-                r3.Height = Px(100);
-                {
-                    var cell = r3[c1];
-                    cell.Colspan(c3);
-                    cell.MergeDown = 1;
-                    cell.VerticalAlignment = VerticalAlignment.Center;
-                    var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5)));
-                    paragraph.Alignment = HorizontalAlignment.Center;
-                    cell.Add(paragraph);
-                    cell.RightBorder = BorderWidth;
-                }
+                var cell = r2[c3];
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("КПП"));
             }
             {
-                var r4 = table.AddRow();
-                r4.Height = Px(100);
-                {
-                    var cell = r4[c4];
-                    cell.MergeDown = 1;
-                    cell.RightBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Сч. №"));
-                }
+                var cell = r2[c4];
+                cell.MergeDown = 1;
+                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сумма"));
             }
             {
-                var r5 = table.AddRow();
-                {
-                    var cell = r5[c1];
-                    cell.Colspan(c3);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
-                    cell.Add(TimesNewRoman10("Плательщик"));
-                }
-                r5[c4].BottomBorder = BorderWidth;
+                var cell = r2[c5];
+                cell.MergeDown = 1;
+                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10("777-33");
+                paragraph.Alignment = HorizontalAlignment.Center;
+                cell.Add(paragraph);
             }
+            var r3 = table.AddRow();
+            r3.Height = Px(100);
+            {
+                var cell = r3[c1];
+                cell.Colspan(c3);
+                cell.MergeDown = 1;
+                cell.VerticalAlignment = VerticalAlignment.Center;
+                var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5)));
+                paragraph.Alignment = HorizontalAlignment.Center;
+                cell.Add(paragraph);
+                cell.RightBorder = BorderWidth;
+            }
+            var r4 = table.AddRow();
+            r4.Height = Px(100);
+            {
+                var cell = r4[c4];
+                cell.MergeDown = 1;
+                cell.RightBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Сч. №"));
+            }
+            var r5 = table.AddRow();
+            {
+                var cell = r5[c1];
+                cell.Colspan(c3);
+                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Add(TimesNewRoman10("Плательщик"));
+            }
+            r5[c4].BottomBorder = BorderWidth;
             return table;
         }
 
