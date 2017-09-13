@@ -15,13 +15,11 @@ namespace SharpLayout.Tests
                 LeftMargin = Cm(2),
                 RightMargin = Cm(1)
             };
-            var section = new Section(pageSettings);
-            document.Add(section);
+            var section = document.Add(new Section(pageSettings));
             var cellMargin = Cm(0.05);
             var leftIndent = Cm(0.1);
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(351));
                 table.AddColumn(Px(125));
                 var c3 = table.AddColumn(Px(351));
@@ -83,9 +81,8 @@ namespace SharpLayout.Tests
                     r3.Height = Px(40);
                 }
             }
-            {                
-                var table = new Table();
-                section.Add(table);
+            {
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(900));
                 var c2 = table.AddColumn(Px(352));
                 table.AddColumn(Px(49));
@@ -158,8 +155,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(202));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin 
@@ -185,8 +181,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(502));
                 var c2 = table.AddColumn(Px(501));
                 var c3 = table.AddColumn(Px(150));
@@ -594,8 +589,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(452));
                 var c2 = table.AddColumn(Px(300));
                 var c3 = table.AddColumn(Px(100));
@@ -674,8 +668,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
                     - table.Columns.Sum(_ => _.Width);
@@ -704,8 +697,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(603));
                 var c2 = table.AddColumn(Px(601));
                 var c3 = table.AddColumn();

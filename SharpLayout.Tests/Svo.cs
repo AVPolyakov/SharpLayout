@@ -16,12 +16,10 @@ namespace SharpLayout.Tests
                 RightMargin = Cm(2),
                 Orientation = PageOrientation.Landscape
             };
-            var section = new Section(pageSettings);
-            document.Add(section);
+            var section = document.Add(new Section(pageSettings));
             var cellMargin = Cm(0.05);
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
@@ -33,8 +31,7 @@ namespace SharpLayout.Tests
             }
             var rowHeight = Cm(0.49);
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Cm(6.3));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -79,8 +76,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
                 var r1 = table.AddRow();
@@ -90,8 +86,7 @@ namespace SharpLayout.Tests
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 table.AddColumn(Px(1146));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -104,8 +99,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 table.AddColumn(Px(1199));
                 var c2 = table.AddColumn(Px(200));
                 var r1 = table.AddRow();
@@ -113,8 +107,7 @@ namespace SharpLayout.Tests
                 r1[c2].TopBorder = BorderWidth;
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Cm(8));
                 var c2 = table.AddColumn(Px(405));
                 var c3 = table.AddColumn();
@@ -182,16 +175,14 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
                     table.Columns.Sum(_ => _.Width);
                 table.AddRow().Height = Px(35);
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Cm(1.05));
                 var c2 = table.AddColumn();
                 var c3 = table.AddColumn(Cm(2) - Px(1));
@@ -346,16 +337,14 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(363));
                 var r1 = table.AddRow();
                 r1.Height = Px(41);
                 r1[c1].BottomBorder = BorderWidth;
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Примечание.");
@@ -364,8 +353,7 @@ namespace SharpLayout.Tests
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
@@ -418,8 +406,7 @@ namespace SharpLayout.Tests
                 }
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Информация уполномоченного банка");
@@ -428,8 +415,7 @@ namespace SharpLayout.Tests
                 r1[c1].Add(paragraph);
             }
             {
-                var table = new Table();
-                section.Add(table);
+                var table = section.AddTable();
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
                     BorderWidth;

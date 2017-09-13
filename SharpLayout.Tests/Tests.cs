@@ -15,13 +15,12 @@ namespace SharpLayout.Tests
         public void Test1()
         {
             var document = new Document();
-            var section = new Section(new PageSettings {
+            var section = document.Add(new Section(new PageSettings {
                 LeftMargin = XUnit.FromCentimeter(3),
                 RightMargin = XUnit.FromCentimeter(1.5),
                 TopMargin = XUnit.FromCentimeter(0),
                 BottomMargin = XUnit.FromCentimeter(0),
-            });
-            document.Add(section);
+            }));
             Table1(section);
             Table1(section);
             Table2(section);
@@ -56,11 +55,10 @@ namespace SharpLayout.Tests
         public void Test3()
         {
             var document = new Document();
-            var section = new Section(new PageSettings {
+            var section = document.Add(new Section(new PageSettings {
                 LeftMargin = XUnit.FromCentimeter(3),
                 RightMargin = XUnit.FromCentimeter(1.5)
-            });
-            document.Add(section);
+            }));
             Table5(section);
             Table6(section);
             Table4(section);
@@ -75,6 +73,14 @@ namespace SharpLayout.Tests
             var document = new Document();
             PaymentOrder.AddSection(document);
             Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
+        }
+
+        [Fact]
+        public void SvoTest()
+        {
+            var document = new Document();
+            Svo.AddSection(document);
+            Assert(nameof(SvoTest), document.CreatePng().Item1);
         }
 
         [Fact]
@@ -190,8 +196,7 @@ namespace SharpLayout.Tests
         public static void Table1(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table();
-            section.Add(table);
+            var table = section.AddTable();
             var c1 = table.AddColumn(Px(202));
             var c2 = table.AddColumn(Px(257));
             var c3 = table.AddColumn(Px(454));
@@ -273,8 +278,7 @@ namespace SharpLayout.Tests
         public static void Table2(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table();
-            section.Add(table);
+            var table = section.AddTable();
             var c0 = table.AddColumn(Px(202));
             var c1 = table.AddColumn(Px(257));
             var c2 = table.AddColumn(Px(257));
@@ -390,8 +394,7 @@ namespace SharpLayout.Tests
         public static void Table4(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table();
-            section.Add(table);
+            var table = section.AddTable();
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
             var КПП = table.AddColumn(Px(454));
@@ -473,8 +476,7 @@ namespace SharpLayout.Tests
         public static void Table5(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table();
-            section.Add(table);
+            var table = section.AddTable();
             var ИНН1 = table.AddColumn(Px(202));
             var ИНН2 = table.AddColumn(Px(257));
             var КПП = table.AddColumn(Px(454));
@@ -562,8 +564,7 @@ aaaaaaaaa ")
         public static void Table6(Section section)
         {
             var pageSettings = section.PageSettings;
-            var table = new Table();
-            section.Add(table);
+            var table = section.AddTable();
             var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
             {
                 var r1 = table.AddRow();

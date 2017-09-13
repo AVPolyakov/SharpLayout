@@ -14,7 +14,11 @@ namespace SharpLayout
     {
         public List<Section> Sections { get; } = new List<Section>();
 
-        public void Add(Section section) => Sections.Add(section);
+        public Section Add(Section section)
+        {
+            Sections.Add(section);
+            return section;
+        }
 
         public bool IsHighlightCells { get; set; } = false;
 
