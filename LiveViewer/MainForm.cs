@@ -18,8 +18,32 @@ namespace LiveViewer
         public MainForm()
         {
             InitializeComponent();
+            ApplySettings();
             LoadFile(Environment.GetCommandLineArgs());
         }
+
+        private void ApplySettings()
+        {
+            FormClosing += (sender, args) => {
+                File.WriteAllText(SettingsPath,
+                    JsonConvert.SerializeObject(new Settings {
+                        WindowState = WindowState,
+                        Location = Location,
+                        Size = Size
+                    }, Formatting.Indented));
+            };
+            Load += (sender, args) => {
+                if (File.Exists(SettingsPath))
+                {
+                    var settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsPath));
+                    WindowState = settings.WindowState;
+                    Location = settings.Location;
+                    Size = settings.Size;
+                }
+            };
+        }
+
+        private static string SettingsPath => Path.ChangeExtension(typeof(Program).Assembly.Location, ".json");
 
         public void LoadFile(string[] lineArgs)
         {
