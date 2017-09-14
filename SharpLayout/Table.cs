@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static SharpLayout.Direction;
 
 namespace SharpLayout
 {
@@ -52,7 +53,7 @@ namespace SharpLayout
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
 
-        public HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Left;
+        public HorizontalAlign HorizontalAlign { get; set; }
 
         public Option<double> TopMargin { get; set; }
 
@@ -61,6 +62,15 @@ namespace SharpLayout
         public Option<double> LeftMargin { get; set; }
 
         public Option<double> RightMargin { get; set; }
+
+        public Table Margin(Direction direction, double value)
+        {
+            if (direction.HasFlag(Left)) LeftMargin = value;
+            if (direction.HasFlag(Right)) RightMargin = value;
+            if (direction.HasFlag(Top)) TopMargin = value;
+            if (direction.HasFlag(Bottom)) BottomMargin = value;
+            return this;
+        }
 
         public double ColumnsWidth => Columns.Sum(_ => _.Width);
     }

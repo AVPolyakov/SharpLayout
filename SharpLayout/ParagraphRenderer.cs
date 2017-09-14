@@ -8,7 +8,7 @@ namespace SharpLayout
 {
     public static class ParagraphRenderer
     {
-        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlignment alignment)
+        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment)
         {
             var y = y0 + paragraph.TopMargin.ValueOr(0);
             foreach (var softLineParts in GetSoftLines(paragraph))
@@ -22,13 +22,13 @@ namespace SharpLayout
                     double dx;
                     switch (alignment)
                     {
-                        case HorizontalAlignment.Left:
+                        case HorizontalAlign.Left:
                             dx = 0;
                             break;
-                        case HorizontalAlignment.Center:
+                        case HorizontalAlign.Center:
                             dx = (innerWidth - lineParts.ContentWidth(softLineParts, graphics)) / 2;
                             break;
-                        case HorizontalAlignment.Right:
+                        case HorizontalAlign.Right:
                             dx = innerWidth - lineParts.ContentWidth(softLineParts, graphics);
                             break;
                         default:

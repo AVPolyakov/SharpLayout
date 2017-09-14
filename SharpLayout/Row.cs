@@ -11,7 +11,15 @@ namespace SharpLayout
         
         internal readonly List<Cell> Cells = new List<Cell>();
 
-        public Option<double> Height { get; set; }
+        private Option<double> height;
+
+        public Row Height(double value)
+        {
+            height = value;
+            return this;
+        }
+
+        public Option<double> Height() => height;
 
         internal Row(Table table, int index)
         {

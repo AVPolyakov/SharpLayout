@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static SharpLayout.Direction;
 
 namespace SharpLayout
 {
@@ -12,9 +13,25 @@ namespace SharpLayout
         
         public int ColumnIndex { get; }
 
-        public Option<int> Rowspan { get; set; }
+        private Option<int> rowspan;
 
-        public Option<int> Colspan { get; set; }
+        public Cell Rowspan(Option<int> value)
+        {
+            rowspan = value;
+            return this;
+        }
+
+        public Option<int> Rowspan() => rowspan;
+
+        private Option<int> colspan;
+
+        public Cell Colspan(int value)
+        {
+            colspan = value;
+            return this;
+        }
+
+        public Option<int> Colspan() => colspan;
 
         public Option<double> LeftBorder { get; set; }
 
@@ -24,27 +41,36 @@ namespace SharpLayout
 
         public Option<double> BottomBorder { get; set; }
 
+        public Cell Border(Direction direction, double value)
+        {
+            if (direction.HasFlag(Left)) LeftBorder = value;
+            if (direction.HasFlag(Right)) RightBorder = value;
+            if (direction.HasFlag(Top)) TopBorder = value;
+            if (direction.HasFlag(Bottom)) BottomBorder = value;
+            return this;
+        }
+
         public readonly List<IElement> Elements = new List<IElement>();
 
         public IEnumerable<Paragraph> Paragraphs => Elements
             .Where(_ => _.Match(p => true, t => false))
             .Select(_ => _.Match(p => p, t => { throw new ApplicationException(); }));
 
-        public void Add(IElement value) => Elements.Add(value);
-
-        public VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Top;
-
-        public Option<int> MergeRight
+        public Cell Add(IElement value)
         {
-            get { return Colspan.Select(_ => _ - 1); }
-            set { Colspan = value.Select(_ => _ + 1); }
+            Elements.Add(value);
+            return this;
         }
 
-        public Option<int> MergeDown
+        private VerticalAlign verticalAlign;
+
+        public Cell VerticalAlign(VerticalAlign value)
         {
-            get { return Rowspan.Select(_ => _ - 1); }
-            set { Rowspan = value.Select(_ => _ + 1); }
+            verticalAlign = value;
+            return this;
         }
+
+        public VerticalAlign VerticalAlign() => verticalAlign;
 
         public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
 

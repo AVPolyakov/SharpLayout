@@ -19,6 +19,8 @@ namespace SharpLayout.Tests
 
         public const double BorderWidth = 0.5D;
 
+        public static Cell Border(this Cell cell, Direction direction) => cell.Border(direction, BorderWidth);
+
         public static XPdfFontOptions PdfOptions => new XPdfFontOptions(PdfFontEncoding.Unicode);
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace SharpLayout
+namespace SharpLayout
 {
-    public enum VerticalAlignment
+    public enum VerticalAlign
     {
         Top,
         Center,
