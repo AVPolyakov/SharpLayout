@@ -47,5 +47,7 @@ namespace SharpLayout
         public double BottomMargin { get; set; } = XUnit.FromCentimeter(1);
 
         public PageOrientation Orientation { get; set; } = PageOrientation.Portrait;
+
+        public double PageWidthWithoutMargins => PageWidth - LeftMargin - RightMargin;
     }
 }

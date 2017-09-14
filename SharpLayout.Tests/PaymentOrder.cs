@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using static SharpLayout.Tests.Tests;
+﻿using static SharpLayout.Tests.Tests;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
 
@@ -25,8 +24,7 @@ namespace SharpLayout.Tests
                 var c3 = table.AddColumn(Px(351));
                 var c4 = table.AddColumn();
                 var c5 = table.AddColumn(Px(150));
-                c4.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c4.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 {
                     var cell = r1[c1];
@@ -83,15 +81,13 @@ namespace SharpLayout.Tests
                 var c4 = table.AddColumn(Px(351));
                 var c5 = table.AddColumn();
                 var c6 = table.AddColumn(Px(70));
-                c5.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c5.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Px(63);
                 {
                     var cell = r1[c1];
                     cell.VerticalAlignment = VerticalAlignment.Bottom;
                     var paragraph = TimesNewRoman12Bold("ПЛАТЕЖНОЕ ПОРУЧЕНИЕ № 17");
-                    paragraph.LeftMargin = Px(1);
                     paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
                     cell.Add(paragraph);
                 }
@@ -146,8 +142,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Px(202));
                 var c2 = table.AddColumn();
-                c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c2.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Px(144);
                 {
@@ -174,8 +169,7 @@ namespace SharpLayout.Tests
                 var c4 = table.AddColumn(Px(200));
                 var c5 = table.AddColumn(Px(200));
                 var c6 = table.AddColumn();
-                c6.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c6.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Px(45);
                 {
@@ -553,8 +547,7 @@ namespace SharpLayout.Tests
                 var c5 = table.AddColumn(Px(350));
                 var c6 = table.AddColumn(Px(250));
                 var c7 = table.AddColumn();
-                c7.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c7.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Px(45);
                 {
@@ -624,8 +617,7 @@ namespace SharpLayout.Tests
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn();
-                c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c1.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Px(246);
                 {
@@ -651,8 +643,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn(Px(603));
                 var c2 = table.AddColumn(Px(601));
                 var c3 = table.AddColumn();
-                c3.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin
-                    - table.Columns.Sum(_ => _.Width);
+                c3.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var height = Px(25);
                 var r1 = table.AddRow();
                 r1.Height = Px(102) - height;

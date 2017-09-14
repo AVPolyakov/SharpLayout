@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace SharpLayout
@@ -60,5 +61,7 @@ namespace SharpLayout
         public Option<double> LeftMargin { get; set; }
 
         public Option<double> RightMargin { get; set; }
+
+        public double ColumnsWidth => Columns.Sum(_ => _.Width);
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using PdfSharp;
+﻿using PdfSharp;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
 
@@ -20,8 +19,7 @@ namespace SharpLayout.Tests
             var cellMargin = Cm(0.05);
             {
                 var table = section.AddTable();
-                var c1 = table.AddColumn();
-                c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
+                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman10_5("Код формы по ОКУД 0406009");
                 paragraph.LeftMargin = paragraph.RightMargin = cellMargin;
@@ -34,8 +32,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Cm(6.3));
                 var c2 = table.AddColumn();
-                c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    table.Columns.Sum(_ => _.Width);
+                c2.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = rowHeight;
                 {
@@ -73,8 +70,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = section.AddTable();
-                var c1 = table.AddColumn();
-                c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin;
+                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman11_5Bold("СПРАВКА О ВАЛЮТНЫХ ОПЕРАЦИЯХ");
                 paragraph.Alignment = HorizontalAlignment.Center;
@@ -85,8 +81,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 table.AddColumn(Px(1146));
                 var c2 = table.AddColumn();
-                c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    table.Columns.Sum(_ => _.Width);
+                c2.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 {
                     var paragraph = TimesNewRoman11_5Bold("от  ");
@@ -108,8 +103,7 @@ namespace SharpLayout.Tests
                 var c2 = table.AddColumn(Px(405));
                 var c3 = table.AddColumn();
                 var c4 = table.AddColumn(Px(325));
-                c3.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    table.Columns.Sum(_ => _.Width);
+                c3.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = rowHeight;
                 {
@@ -169,8 +163,7 @@ namespace SharpLayout.Tests
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn();
-                c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    table.Columns.Sum(_ => _.Width);
+                c1.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 table.AddRow().Height = Px(35);
             }
             {
@@ -187,8 +180,7 @@ namespace SharpLayout.Tests
                 var c10 = table.AddColumn(Cm(4.5) - Px(225) - Px(1));
                 var c11 = table.AddColumn(Cm(2.2) - Px(1));
                 var c12 = table.AddColumn(Cm(2.2) - Px(1));
-                c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    BorderWidth - table.Columns.Sum(_ => _.Width);
+                c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 {
                     var cell = r1[c1];
@@ -334,7 +326,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
+                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Примечание.");
                 paragraph.TopMargin = Px(1);
@@ -345,8 +337,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
-                c2.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    BorderWidth - table.Columns.Sum(_ => _.Width);
+                c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1.Height = Cm(0.46);
                 {
@@ -394,7 +385,7 @@ namespace SharpLayout.Tests
             }
             {
                 var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin);
+                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 var paragraph = TimesNewRoman9_5("Информация уполномоченного банка");
                 paragraph.TopMargin = Px(3);
@@ -404,8 +395,7 @@ namespace SharpLayout.Tests
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn();
-                c1.Width = pageSettings.PageWidth - pageSettings.LeftMargin - pageSettings.RightMargin -
-                    BorderWidth;
+                c1.Width = pageSettings.PageWidthWithoutMargins - BorderWidth;
                 var r1 = table.AddRow();
                 r1.Height = Cm(0.46);
                 {
