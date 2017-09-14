@@ -165,15 +165,13 @@ namespace SharpLayout
                         Y = y,
                         Height = Range(0, cell.Rowspan.ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
                         Width = Range(0, cell.Colspan.ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
-                        Line = cell.Line.ToNullable(),
-                        FilePath = cell.FilePath.ToReference(),
+                        CallerInfos = cell.CallerInfos,
                         TableLevel = tableLevel
                     });
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
                     if (document.IsHighlightCells)
                         HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY);
-                    if (document.IsHighlightCellLines)
-                        HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y);
+                    HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y, document);
                     var cellInnerHeight = Range(0, cell.Rowspan.ValueOr(1))
                         .Sum(i => info.MaxHeights[row + i] -
                             MaxBottomBorder(row + cell.Rowspan.ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
@@ -643,22 +641,21 @@ namespace SharpLayout
                 xGraphics.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
         }
 
-        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y)
+        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, Document document)
         {
-            var line = info.Table.Rows[row].Cells[column.Index].Line;
-            if (line.HasValue)
-            {
-                var text = $"{line.Value}";
-                var font = new XFont("Arial", 7, XFontStyle.Regular,
-                    new XPdfFontOptions(PdfFontEncoding.Unicode));
-                var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
-                var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
-                xGraphics.DrawString(text,
-                    font,
-                    new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
-                    x + width - xGraphics.MeasureString(text, font).Width,
-                    y + height);
-            }
+            if (!document.ShowCellLineNumbers) return;
+            var cell = info.Table.Rows[row].Cells[column.Index];
+            if (cell.CallerInfos.Count <= 0) return;
+            var text = string.Join(" ", cell.CallerInfos.Select(_ => _.Line));
+            var font = new XFont("Arial", 7, XFontStyle.Regular,
+                new XPdfFontOptions(PdfFontEncoding.Unicode));
+            var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
+            var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
+            xGraphics.DrawString(text,
+                font,
+                new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
+                x + width - xGraphics.MeasureString(text, font).Width,
+                y + height);
         }
 
         private static void FillRectangle(XGraphics xGraphics, XColor color, double x, double y, double width, double height)

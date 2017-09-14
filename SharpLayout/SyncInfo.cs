@@ -21,8 +21,7 @@ namespace SharpLayout
         public double Y { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
-        public int? Line { get; set; }
-        public string FilePath { get; set; }
         public int TableLevel { get; set; }
+        public List<CallerInfo> CallerInfos { get; set; }
     }
 }

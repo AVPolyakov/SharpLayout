@@ -74,23 +74,38 @@ namespace LiveViewer
                     var heigth = info.Height.ToPixel(bitmapInfo);
                     return x <= e.X && e.X <= x + width &&
                         y <= e.Y && e.Y <= y + heigth &&
-                        info.Line.HasValue && info.FilePath != null;
+                        info.CallerInfos.Count > 0;
                 })
                 .OrderByDescending(_ => _.TableLevel)
                 .FirstOrDefault();
             if (firstOrDefault != null)
             {
-                dte2.ItemOperations.OpenFile(
-                    firstOrDefault.FilePath,
-                    Constants.vsViewKindTextView);
-                var textSelection = (TextSelection)dte2.ActiveDocument.Selection;
-                textSelection.GotoLine(firstOrDefault.Line.Value);
-                textSelection.WordRight();
-                SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+                multipleLineMenuStrip.Items.Clear();
+                var callerInfos = firstOrDefault.CallerInfos.Select(_ => new {_.Line, _.FilePath}).Distinct().ToList();
+                var enumerable = callerInfos;
+                if (enumerable.Count == 1)
+                    GotoLine(enumerable[0].Line, enumerable[0].FilePath);
+                else
+                    foreach (var callerInfo in enumerable)
+                    {
+                        var text = File.ReadAllLines(callerInfo.FilePath)[callerInfo.Line - 1].Trim();
+                        multipleLineMenuStrip.Items.Add($"{callerInfo.Line} {text}", null,
+                            (o, args) => GotoLine(callerInfo.Line, callerInfo.FilePath));
+                    }
+                multipleLineMenuStrip.Show(pictureBox, new Point(e.X, e.Y));
             }
             else
                 MessageBox.Show(this, "В этой части картинки нет ссылки на исходный код.",
                     "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void GotoLine(int line, string filePath)
+        {
+            dte2.ItemOperations.OpenFile(filePath, Constants.vsViewKindTextView);
+            var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
+            textSelection.GotoLine(line);
+            textSelection.WordRight();
+            SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
         }
 
         private SyncBitmapInfo GetSyncBitmapInfo()

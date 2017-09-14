@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.fileSystemWatcher = new System.IO.FileSystemWatcher();
+            this.multipleLineMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.SuspendLayout();
@@ -52,6 +54,11 @@
             this.fileSystemWatcher.SynchronizingObject = this;
             this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.fileSystemWatcher_Changed);
             // 
+            // multipleLineMenuStrip
+            // 
+            this.multipleLineMenuStrip.Name = "multipleLineMenuStrip";
+            this.multipleLineMenuStrip.Size = new System.Drawing.Size(153, 26);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -73,6 +80,7 @@
 
         private System.Windows.Forms.PictureBox pictureBox;
         private System.IO.FileSystemWatcher fileSystemWatcher;
+        private System.Windows.Forms.ContextMenuStrip multipleLineMenuStrip;
     }
 }
 

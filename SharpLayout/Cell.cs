@@ -46,9 +46,7 @@ namespace SharpLayout
             set { Rowspan = value.Select(_ => _ + 1); }
         }
 
-        public Option<int> Line { get; set; }
-
-        public Option<string> FilePath { get; set; }
+        public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
 
         internal Cell(Table table, int rowIndex, int columnIndex)
         {

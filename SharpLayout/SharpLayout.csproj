@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CallerInfo.cs" />
     <Compile Include="Cell.cs" />
     <Compile Include="CellInfo.cs" />
     <Compile Include="Column.cs" />

@@ -274,13 +274,13 @@ namespace SharpLayout.Tests
                     cell.Add(TimesNewRoman9("сумма"));
                 }
                 var r3 = table.AddRow();
-                r3[c1].LeftBorder = BorderWidth;
                 for (var i = 0; i < table.Columns.Count; i++)
                 {
                     var cell = r3[table.Columns[i]];
                     cell.RightBorder = cell.BottomBorder = BorderWidth;
                     cell.Add(TimesNewRoman9($"{i + 1}"));
                 }
+                r3[c1].LeftBorder = BorderWidth;
                 foreach (var row in new[] {r1, r2, r3})
                 foreach (var column in table.Columns)
                 {
@@ -296,8 +296,11 @@ namespace SharpLayout.Tests
                 {
                     var row = table.AddRow();
                     row.Height = Cm(0.46);
-                    row[c1].LeftBorder = BorderWidth;
-                    row[c1].Add(TimesNewRoman9_5($"{i + 1}"));
+                    {
+                        var cell = row[c1];
+                        cell.LeftBorder = BorderWidth;
+                        cell.Add(TimesNewRoman9_5($"{i + 1}"));
+                    }
                     row[c2].Add(TimesNewRoman9_5(""));
                     row[c3].Add(TimesNewRoman9_5(""));
                     row[c4].Add(TimesNewRoman9_5(""));

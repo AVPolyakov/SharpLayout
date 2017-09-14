@@ -10,7 +10,7 @@ namespace SharpLayout.Tests
             var document = new Document {
                 IsHighlightCells = true,
                 IsHighlightParagraphs = true,
-                //IsHighlightCellLines = true,
+                //ShowCellLine = true
             };
             PaymentOrder.AddSection(document);
 

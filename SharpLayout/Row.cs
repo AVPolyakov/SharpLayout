@@ -24,8 +24,7 @@ namespace SharpLayout
             get
             {
                 var cell = Cells[column.Index];
-                if (!cell.Line.HasValue) cell.Line = line;
-                if (!cell.FilePath.HasValue) cell.FilePath = filePath;
+                cell.CallerInfos.Add(new CallerInfo {Line = line, FilePath = filePath});
                 return cell;
             }
         }
