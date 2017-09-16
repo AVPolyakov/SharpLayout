@@ -5,17 +5,15 @@ namespace SharpLayout.Tests
 {
     public static class Styles
     {
-        public static Paragraph TimesNewRoman10_5(string text) =>
-            new Paragraph().Add(new Span(text, new XFont("Times New Roman", 10.5, XFontStyle.Regular, PdfOptions)));
-
-        public static Paragraph TimesNewRoman9_5(string text) =>
-            new Paragraph().Add(new Span(text, new XFont("Times New Roman", 9.5, XFontStyle.Regular, PdfOptions)));
-
-        public static Paragraph TimesNewRoman11_5Bold(string text) =>
-            new Paragraph().Add(new Span(text, new XFont("Times New Roman", 11.5, XFontStyle.Bold, PdfOptions)));
-
-        public static Paragraph TimesNewRoman9(string text) =>
-            new Paragraph().Add(new Span(text, new XFont("Times New Roman", 9, XFontStyle.Regular, PdfOptions)));
+        public static XFont TimesNewRoman10_5 => new XFont("Times New Roman", 10.5, XFontStyle.Regular, PdfOptions);
+        public static XFont TimesNewRoman9_5 => new XFont("Times New Roman", 9.5, XFontStyle.Regular, PdfOptions);
+        public static XFont TimesNewRoman11_5Bold => new XFont("Times New Roman", 11.5, XFontStyle.Bold, PdfOptions);
+        public static XFont TimesNewRoman9 => new XFont("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
+        public static XFont TimesNewRoman12Bold => new XFont("Times New Roman", 12, XFontStyle.Bold, PdfOptions);
+        public static XFont TimesNewRoman10 => new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+        public static XFont TimesNewRoman8 => new XFont("Times New Roman", 8, XFontStyle.Regular, PdfOptions);
+        public static XFont TimesNewRoman10Bold => new XFont("Times New Roman", 10, XFontStyle.Bold, PdfOptions);
+        public static XFont TimesNewRoman60Bold => new XFont("Times New Roman", 60, XFontStyle.Bold, PdfOptions);
 
         public const double BorderWidth = 0.5D;
 

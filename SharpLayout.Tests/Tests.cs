@@ -72,7 +72,7 @@ namespace SharpLayout.Tests
         {
             var document = new Document();
             PaymentOrder.AddSection(document);
-            Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
+            SavePages(nameof(PaymentOrderTest), document.CreatePng().Item1);
         }
 
         [Fact]
@@ -391,7 +391,7 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[ИНН2];
                     cell.Colspan(суммаValue);
-                    cell.Add(TimesNewRoman60(string.Join(" ", Enumerable.Repeat("Сто рублей", 1))));
+                    cell.Add(TimesNewRoman60Bold(string.Join(" ", Enumerable.Repeat("Сто рублей", 1))));
                 }
             }
             {
@@ -417,7 +417,7 @@ namespace SharpLayout.Tests
                     var cell = row[суммаValue];
                     cell.Rowspan(2);
                     cell.BottomBorder = cell.TopBorder = BorderWidth;
-                    cell.Add(TimesNewRoman60("777-33"));
+                    cell.Add(TimesNewRoman60Bold("777-33"));
                 }
             }
             {
@@ -472,9 +472,9 @@ namespace SharpLayout.Tests
 
 aaaaaaaaa ")
                         .Add(new Span("0123", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
-                        .Add(new Span("у", TimesNewRoman10Font))
+                        .Add(new Span("у", Styles.TimesNewRoman10))
                         .Add(new Span("567", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
-                        .Add(new Span("ЙЙЙ", TimesNewRoman10Font)));
+                        .Add(new Span("ЙЙЙ", Styles.TimesNewRoman10)));
                 }
                 {
                     var cell = row[ИНН2];
@@ -552,7 +552,7 @@ aaaaaaaaa ")
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated.",
-                    TimesNewRoman10Font)));
+                    Styles.TimesNewRoman10)));
             }
             var r2 = table.AddRow();
             {
@@ -560,58 +560,58 @@ aaaaaaaaa ")
                     "Choose interfaces over abstract classes. If you know something is going to be a base" +
                     "class, your first choice should be to make it an interface, and only if you’re forced to" +
                     "have method definitions or member variables should you change to an abstract class.",
-                    TimesNewRoman10Font)));
+                    Styles.TimesNewRoman10)));
             }
             var r3 = table.AddRow();
             {
                 r3[c1].Add(new Paragraph()
-                    .Add(new Span("Choose ", TimesNewRoman10Font))
-                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                    .Add(new Span(" over ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
+                    .Add(new Span("Choose ", Styles.TimesNewRoman10))
+                    .Add(new Span("interfaces", TimesNewRoman10Bold))
+                    .Add(new Span(" over ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
                     .Add(new Span(" classes. If you know something is going to be a baseclass, your" +
-                        " first choice should be to make it an ", TimesNewRoman10Font))
-                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                        " first choice should be to make it an ", Styles.TimesNewRoman10))
+                    .Add(new Span("interface", TimesNewRoman10Bold))
                     .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                        "variables should you change to an ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                    .Add(new Span(" class.", TimesNewRoman10Font)));
+                        "variables should you change to an ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
+                    .Add(new Span(" class.", Styles.TimesNewRoman10)));
             }
             var r4 = table.AddRow();
             {
                 r4[c1].Add(new Paragraph()
-                    .Add(new Span("Choose ", TimesNewRoman10Font))
-                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                    .Add(new Span(" over ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                    .Add(new Span(" classes. If you ", TimesNewRoman10Font))
+                    .Add(new Span("Choose ", Styles.TimesNewRoman10))
+                    .Add(new Span("interfaces", TimesNewRoman10Bold))
+                    .Add(new Span(" over ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
+                    .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
                     .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
                     .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
-                        TimesNewRoman10Font))
-                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                        Styles.TimesNewRoman10))
+                    .Add(new Span("interface", TimesNewRoman10Bold))
                     .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                        "variables should you change to an ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                    .Add(new Span(" class.", TimesNewRoman10Font)));
+                        "variables should you change to an ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
+                    .Add(new Span(" class.", Styles.TimesNewRoman10)));
             }
             var r5 = table.AddRow();
             {
                 r5[c1].Add(new Paragraph()
-                    .Add(new Span("Choose ", TimesNewRoman10Font))
-                    .Add(new Span("interfaces", TimesNewRoman10BoldFont))
-                    .Add(new Span(" over ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                    .Add(new Span(" classes. If you ", TimesNewRoman10Font))
+                    .Add(new Span("Choose ", Styles.TimesNewRoman10))
+                    .Add(new Span("interfaces", TimesNewRoman10Bold))
+                    .Add(new Span(" over ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
+                    .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
                     .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
                         Brush = XBrushes.Red
                     })
                     .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
-                        TimesNewRoman10Font))
-                    .Add(new Span("interface", TimesNewRoman10BoldFont))
+                        Styles.TimesNewRoman10))
+                    .Add(new Span("interface", TimesNewRoman10Bold))
                     .Add(new Span(", and only if you’re forced tohave method definitions or member " +
-                        "variables should you change to an ", TimesNewRoman10Font))
-                    .Add(new Span("abstract", TimesNewRoman10BoldFont))
-                    .Add(new Span(" class.", TimesNewRoman10Font)));
+                        "variables should you change to an ", Styles.TimesNewRoman10))
+                    .Add(new Span("abstract", TimesNewRoman10Bold))
+                    .Add(new Span(" class.", Styles.TimesNewRoman10)));
             }
         }
 
@@ -697,27 +697,9 @@ aaaaaaaaa ")
             return table;
         }
 
-        public static Paragraph TimesNewRoman12Bold(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman12BoldFont));
+        public static Paragraph TimesNewRoman10(string text) => new Paragraph().Add(text, Styles.TimesNewRoman10);
 
-        public static Paragraph TimesNewRoman10(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman10Font));
-
-        public static Paragraph TimesNewRoman8(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman8Font));
-
-        public static Paragraph TimesNewRoman60(string text) =>
-            new Paragraph().Add(new Span(text, TimesNewRoman60BoldFont));
-
-        public static readonly XFont TimesNewRoman12BoldFont = new XFont("Times New Roman", 12, XFontStyle.Bold, PdfOptions);
-
-        public static readonly XFont TimesNewRoman10Font = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
-
-        public static readonly XFont TimesNewRoman8Font = new XFont("Times New Roman", 8, XFontStyle.Regular, PdfOptions);
-
-        public static readonly XFont TimesNewRoman10BoldFont = new XFont("Times New Roman", 10, XFontStyle.Bold, PdfOptions);
-
-        public static readonly XFont TimesNewRoman60BoldFont = new XFont("Times New Roman", 60, XFontStyle.Bold, PdfOptions);
+        public static Paragraph TimesNewRoman60Bold(string text) => new Paragraph().Add(text, Styles.TimesNewRoman60Bold);
 
         private static void Assert(string folderName, List<byte[]> pages)
         {

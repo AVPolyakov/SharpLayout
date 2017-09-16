@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
 namespace SharpLayout
@@ -40,6 +41,8 @@ namespace SharpLayout
             Spans.Add(span);
             return this;
         }
+
+        public Paragraph Add(string text, XFont font) => Add(new Span(text, font));
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);
     }
