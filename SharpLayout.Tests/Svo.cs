@@ -34,7 +34,7 @@ namespace SharpLayout.Tests
                 var r1 = table.AddRow().Height(rowHeight);
                 r1[c1].VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("Наименование уполномоченного банка", font));
-                r1[c2].Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c2].Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("", font));
                 var r2 = table.AddRow().Height(rowHeight);
                 r2[c1].VerticalAlign(VerticalAlign.Center)
@@ -70,7 +70,7 @@ namespace SharpLayout.Tests
                 var r1 = table.AddRow().Height(rowHeight);
                 r1[c1].VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("Номер счета резидента в уполномоченном банке", font));
-                r1[c2].Colspan(c4).Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c2].Colspan(c4).Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("", font).Alignment(HorizontalAlign.Center));
                 var r2 = table.AddRow().Height(rowHeight);
                 r2[c1].Add(Paragraph.Add("Код страны банка-нерезидента", font)).VerticalAlign(VerticalAlign.Center);
@@ -102,7 +102,7 @@ namespace SharpLayout.Tests
                 var c12 = table.AddColumn(Cm(2.2) - Px(1));
                 c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow();
-                r1[c1].Rowspan(2).Border(Left | Top | Right | Bottom)
+                r1[c1].Rowspan(2).Border(All)
                     .Add(Paragraph.Add("№ п/п", headerFont));
                 r1[c2].Rowspan(2).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add("Уведомление, распоряжение, расчетный или иной документ", headerFont));
@@ -179,7 +179,7 @@ namespace SharpLayout.Tests
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow().Height(Cm(0.46));
-                r1[c1].Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c1].Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("№ строки", headerFont).Alignment(HorizontalAlign.Center));
                 r1[c2].Border(Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("Содержание", headerFont).Alignment(HorizontalAlign.Center));
@@ -203,7 +203,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn();
                 c1.Width = pageSettings.PageWidthWithoutMargins - BorderWidth;
                 var r1 = table.AddRow().Height(Cm(0.46));
-                r1[c1].Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c1].Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("", font).Alignment(HorizontalAlign.Center));
             }
         }

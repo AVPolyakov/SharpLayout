@@ -29,7 +29,7 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("23.01.2018", font).Alignment(HorizontalAlign.Center));
                 r1[c3].Border(Bottom).VerticalAlign(VerticalAlign.Bottom)
                     .Add(Paragraph.Add("23.01.2018", font).Alignment(HorizontalAlign.Center));
-                r1[c5].Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c5].Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("0401060", font).Alignment(HorizontalAlign.Center));
                 var r2 = table.AddRow();
                 r2[c1].VerticalAlign(VerticalAlign.Top)
@@ -54,7 +54,7 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("17.01.2018", font).Alignment(HorizontalAlign.Center));
                 r1[c4].Border(Bottom).VerticalAlign(VerticalAlign.Bottom)
                     .Add(Paragraph.Add("Электронно", font).Alignment(HorizontalAlign.Center));
-                r1[c6].Border(Left | Top | Right | Bottom).VerticalAlign(VerticalAlign.Bottom)
+                r1[c6].Border(All).VerticalAlign(VerticalAlign.Bottom)
                     .Add(Paragraph.Add("02", font).Alignment(HorizontalAlign.Center));
                 var r2 = table.AddRow();
                 r2[c2].VerticalAlign(VerticalAlign.Top)
@@ -237,7 +237,7 @@ namespace SharpLayout.Tests
             var table = new Table {HorizontalAlign = HorizontalAlign.Right};
             var c1 = table.AddColumn(Px(520));
             var r1 = table.AddRow();
-            r1[c1].Border(Left | Top | Right | Bottom)
+            r1[c1].Border(All)
                 .Add(Paragraph.Add(@"ХХХ ХХХХ ХХХХХХ ХХХХХ
 XXX 012345678", font));
             var r2 = table.AddRow();

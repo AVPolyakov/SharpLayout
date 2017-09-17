@@ -5,9 +5,10 @@ namespace SharpLayout
     [Flags]
     public enum Direction
     {
-        Left = 0x1,
-        Right = 0x2,
-        Top = 0x4,
-        Bottom = 0x8,
+        Top = 0x1,
+        Bottom = 0x2,
+        Left = 0x4,
+        Right = 0x8,
+        All = Top | Bottom | Left | Right
     }
 }
