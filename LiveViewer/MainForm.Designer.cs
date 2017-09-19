@@ -32,8 +32,10 @@
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.fileSystemWatcher = new System.IO.FileSystemWatcher();
             this.multipleLineMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.panel1 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox
@@ -57,7 +59,17 @@
             // multipleLineMenuStrip
             // 
             this.multipleLineMenuStrip.Name = "multipleLineMenuStrip";
-            this.multipleLineMenuStrip.Size = new System.Drawing.Size(153, 26);
+            this.multipleLineMenuStrip.Size = new System.Drawing.Size(61, 4);
+            // 
+            // panel1
+            // 
+            this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.pictureBox);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(909, 497);
+            this.panel1.TabIndex = 1;
             // 
             // MainForm
             // 
@@ -65,14 +77,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(909, 497);
-            this.Controls.Add(this.pictureBox);
+            this.Controls.Add(this.panel1);
             this.Name = "MainForm";
             this.Text = "Live Viewer";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -81,6 +93,7 @@
         private System.Windows.Forms.PictureBox pictureBox;
         private System.IO.FileSystemWatcher fileSystemWatcher;
         private System.Windows.Forms.ContextMenuStrip multipleLineMenuStrip;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 

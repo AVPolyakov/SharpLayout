@@ -18,6 +18,8 @@ namespace LiveViewer
         public MainForm()
         {
             InitializeComponent();
+            pictureBox.MouseEnter += (sender, args) => panel1.Focus();
+            panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
             LoadFile(Environment.GetCommandLineArgs());
         }
@@ -117,7 +119,7 @@ namespace LiveViewer
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        private void Panel1OnKeyDown(object sender, KeyEventArgs e)
         {
             int? value;
             switch (e.KeyData)
