@@ -1,7 +1,5 @@
 ## Live Viewer
 
-Обновляем nuget пакет до версии SharpLayout.1.0.1
-
 Компилируем проект [LiveViewer](LiveViewer/LiveViewer.csproj). В переменную окружения PATH добавляем директорию, в которой находится `LiveViewer.exe`.
 
 С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем [StartLiveViewer](SharpLayout.Tests/Program.cs#L17). LiveViewer отслеживает изменения файла и автоматически обновляет изображение. Если метод `StartLiveViewer` вызывается с параметром `false`, то фокус остается в окне Visual Studio.
