@@ -265,9 +265,9 @@ namespace SharpLayout
                 tableInfo.Table.LeftMargin.ValueOr(0) + tableInfo.Table.RightMargin.ValueOr(0);
         }
 
-        private static double MaxBottomBorder(int rowIndex, Table infoTable, Func<CellInfo, Option<double>> bottomBorderFunc)
+        private static double MaxBottomBorder(int rowIndex, Table table, Func<CellInfo, Option<double>> bottomBorderFunc)
         {
-            return infoTable.Columns.Max(column => bottomBorderFunc(new CellInfo(rowIndex, column.Index)).ValueOr(0));
+            return table.Columns.Max(column => bottomBorderFunc(new CellInfo(rowIndex, column.Index)).ValueOr(0));
         }
 
         private static int EndMergedRow(Table table, HashSet<int> mergedRows, int row)
@@ -327,10 +327,11 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var elements = table.Rows[row.Index].Cells[column.Index].Elements;
+                    var cell = table.Rows[row.Index].Cells[column.Index];
+                    var elements = cell.Elements;
                     if (elements.Count > 0)
                     {
-                        var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan());
+                        var rowspan = cell.Rowspan();
                         var rowIndex = rowspan.Match(value => row.Index + value - 1, () => row.Index);
                         cellContentsByBottomRow.Add(new CellInfo(rowIndex, column.Index),
                             new MaxHeightsTuple(elements, rowspan, row));
