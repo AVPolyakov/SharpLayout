@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
 namespace SharpLayout
@@ -49,6 +50,16 @@ namespace SharpLayout
             if (direction.HasFlag(Bottom)) BottomBorder = value;
             return this;
         }
+
+        private Option<XColor> backgroundColor;
+
+        public Cell BackgroundColor(XColor value)
+        {
+            backgroundColor = value;
+            return this;
+        }
+
+        public Option<XColor> BackgroundColor() => backgroundColor;
 
         public readonly List<IElement> Elements = new List<IElement>();
 

@@ -72,7 +72,7 @@ namespace SharpLayout.Tests
         {
             var document = new Document();
             PaymentOrder.AddSection(document);
-            SavePages(nameof(PaymentOrderTest), document.CreatePng().Item1);
+            Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
         }
 
         [Fact]
@@ -84,18 +84,29 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
-        public void Test4()
+        public void BackgroundColor()
         {
-            //var pageSettings = new PageSettings {
-            //    LeftMargin = XUnit.FromCentimeter(3),
-            //    RightMargin = XUnit.FromCentimeter(1.5),
-            //    PageHeight = Px(700),
-            //    IsHighlightCells = true
-            //};
-            //var tables = new [] {
-            //    Table7(pageSettings),
-            //};
-            //Assert(nameof(Test4), CreatePng(pageSettings, tables));
+            var document = new Document();
+            var pageSettings = new PageSettings {
+                TopMargin = Cm(2),
+                BottomMargin = Cm(2),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            var table = section.AddTable();
+            var c1 = table.AddColumn(Cm(1));
+            var c2 = table.AddColumn(Cm(1));
+            var r1 = table.AddRow().Height(Cm(1));
+            r1[c1].Colspan(c2).Rowspan(2).BackgroundColor(XColors.LightGray)
+                .Add(TimesNewRoman10("123456789012345678901234567890123456789012345678901234567890"));
+            table.AddRow().Height(Cm(1));
+            var r3 = table.AddRow().Height(Cm(1));
+            r3[c1].Border(Direction.Top, BorderWidth * 10)
+                .Add(TimesNewRoman10("1"));
+            r3[c2].Border(Direction.Top, BorderWidth)
+                .Add(TimesNewRoman10("2"));
+            Assert(nameof(BackgroundColor), document.CreatePng().Item1);
         }
 
         public static Table Table(PageSettings pageSettings)

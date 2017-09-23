@@ -8,7 +8,8 @@ namespace SharpLayout
 {
     public static class ParagraphRenderer
     {
-        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment)
+        public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment,
+            Drawer drawer)
         {
             var y = y0 + paragraph.TopMargin.ValueOr(0);
             foreach (var softLineParts in GetSoftLines(paragraph))
@@ -40,7 +41,7 @@ namespace SharpLayout
                     {
                         var text = part.Text(softLineParts);
                         var span = part.GetSoftLinePart(softLineParts).Span;
-                        graphics.DrawString(text, span.Font, span.Brush, x, y + baseLine);
+                        drawer.DrawString(text, span.Font, span.Brush, x, y + baseLine);
                         x += graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat).Width;
                     }
                     y += lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));

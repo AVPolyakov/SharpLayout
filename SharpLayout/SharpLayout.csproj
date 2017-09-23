@@ -67,6 +67,7 @@
     <Compile Include="Column.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="Document.cs" />
+    <Compile Include="Drawer.cs" />
     <Compile Include="HorizontalAlign.cs" />
     <Compile Include="IElement.cs" />
     <Compile Include="Lazy.cs" />

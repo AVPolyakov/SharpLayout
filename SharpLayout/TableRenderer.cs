@@ -41,14 +41,20 @@ namespace SharpLayout
                 var syncPageInfo = new SyncPageInfo();
                 syncPageInfos.Add(syncPageInfo);
                 if (index == 0)
+                {
+                    var drawer = new Drawer(xGraphics);
                     foreach (var part in pages[index])
                         Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document, tableInfos,
-                            pageSettings.LeftMargin, syncPageInfo, 0);
+                            pageSettings.LeftMargin, syncPageInfo, 0, drawer);
+                    drawer.Flush();
+                }
                 else
                     pageAction(index, xGraphics2 => {
+                        var drawer = new Drawer(xGraphics2);
                         foreach (var part in pages[index])
                             Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document, tableInfos,
-                                pageSettings.LeftMargin, syncPageInfo, 0);
+                                pageSettings.LeftMargin, syncPageInfo, 0, drawer);
+                        drawer.Flush();
                     });
             }
             return syncPageInfos;
@@ -118,7 +124,7 @@ namespace SharpLayout
         }
 
         private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document,
-            Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel)
+            Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel, Drawer drawer)
         {
             var firstRow = rows.FirstOrNone();
             if (!firstRow.HasValue) return;
@@ -139,7 +145,7 @@ namespace SharpLayout
                         var leftBorder = column.Index == 0
                             ? info.LeftBorderFunc(new CellInfo(firstRow.Value, 0)).ValueOr(0)
                             : info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index - 1)).ValueOr(0);
-                        xGraphics.DrawLine(new XPen(XColors.Black, topBorder.Value),
+                        drawer.DrawLine(new XPen(XColors.Black, topBorder.Value),
                             x - leftBorder, borderY,
                             x + column.Width, borderY);
                     }
@@ -153,7 +159,7 @@ namespace SharpLayout
                 if (leftBorder.HasValue)
                 {
                     var borderX = x0 + info.MaxLeftBorder - leftBorder.Value/2;
-                    xGraphics.DrawLine(new XPen(XColors.Black, leftBorder.Value),
+                    drawer.DrawLine(new XPen(XColors.Black, leftBorder.Value),
                         borderX, y, borderX, y + info.MaxHeights[row]);
                 }
                 var x = x0 + info.MaxLeftBorder;
@@ -169,9 +175,15 @@ namespace SharpLayout
                         TableLevel = tableLevel
                     });
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
+                    var backgroundColor = info.BackgroundColor(new CellInfo(cell));
+                    if (backgroundColor.HasValue)
+                        drawer.DrawRectangle(new XSolidBrush(backgroundColor.Value), x, y,
+                            column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0),
+                            info.MaxHeights[row] - bottomBorder.ValueOr(0),
+                            DrawType.Background);
                     if (document.IsHighlightCells)
-                        HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY);
-                    HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y, document);
+                        HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY, drawer);
+                    HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y, document, drawer);
                     var cellInnerHeight = Range(0, cell.Rowspan().ValueOr(1))
                         .Sum(i => info.MaxHeights[row + i] -
                             MaxBottomBorder(row + cell.Rowspan().ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
@@ -200,13 +212,13 @@ namespace SharpLayout
                         if (document.IsHighlightParagraphs)
                             element.Match(
                                 paragraph => {
-                                    HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics);
+                                    HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics, drawer);
                                     return new { };
                                 },
                                 table => new { });
                         element.Match(
                             paragraph => {
-                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment());
+                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment(), drawer);
                                 return new { };
                             },
                             table => {
@@ -228,7 +240,7 @@ namespace SharpLayout
                                 }
                                 Draw(tableInfo,
                                     Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1);
+                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer);
                                 return new { };
                             });
                         paragraphY += element.Match(
@@ -239,13 +251,13 @@ namespace SharpLayout
                     if (rightBorder.HasValue)
                     {
                         var borderX = x + column.Width - rightBorder.Value/2;
-                        xGraphics.DrawLine(new XPen(XColors.Black, rightBorder.Value),
+                        drawer.DrawLine(new XPen(XColors.Black, rightBorder.Value),
                             borderX, y, borderX, y + info.MaxHeights[row]);
                     }
                     if (bottomBorder.HasValue)
                     {
                         var borderY = y + info.MaxHeights[row] - bottomBorder.Value/2;
-                        xGraphics.DrawLine(new XPen(XColors.Black, bottomBorder.Value),
+                        drawer.DrawLine(new XPen(XColors.Black, bottomBorder.Value),
                             x, borderY, x + column.Width, borderY);
                     }
                     x += column.Width;
@@ -519,6 +531,39 @@ namespace SharpLayout
             });
         }
 
+        private static Func<CellInfo, Option<XColor>> BackgroundColor(this Table table)
+        {
+            var result = new Dictionary<CellInfo, List<BackgroundTuple>>();
+            foreach (var row in table.Rows)
+            foreach (var column in table.Columns)
+            {
+                var cell = row.Cells[column.Index];
+                if (cell.BackgroundColor().HasValue)
+                    for (var i = 0; i < cell.Rowspan().ValueOr(1); i++)
+                    for (var j = 0; j < cell.Colspan().ValueOr(1); j++)
+                        result.Add(new CellInfo(row.Index + i, column.Index + j),
+                            new BackgroundTuple(cell.BackgroundColor().Value, new CellInfo(cell)));
+            }
+            return cell => result.Get(cell).Select(list => {
+                if (list.Count > 1)
+                    throw new Exception($"The background color is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                else
+                    return list[0].Color;
+            });
+        }
+
+        private class BackgroundTuple
+        {
+            public XColor Color { get; }
+            public CellInfo CellInfo { get; }
+
+            public BackgroundTuple(XColor color, CellInfo cellInfo)
+            {
+                Color = color;
+                CellInfo = cellInfo;
+            }
+        }
+
         private static string CellsToSttring(this IEnumerable<CellInfo> cells, Table table) 
             => string.Join(", ", cells.Select(_ => $"L{table.Line} r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
 
@@ -528,7 +573,7 @@ namespace SharpLayout
             var bottomBorderFunc = table.BottomBorder();
             return new TableInfo(table, table.TopBorder(), bottomBorderFunc,
                 table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos), table.LeftBorder(),
-                rightBorderFunc);
+                rightBorderFunc, table.BackgroundColor());
         }
 
         private class TablePart
@@ -553,6 +598,7 @@ namespace SharpLayout
         {
             public Table Table { get; }
             public Func<CellInfo, Option<double>> RightBorderFunc { get; }
+            public Func<CellInfo, Option<XColor>> BackgroundColor { get; }
             public Func<CellInfo, Option<double>> LeftBorderFunc { get; }
             public Func<CellInfo, Option<double>> TopBorderFunc { get; }
             public Func<CellInfo, Option<double>> BottomBorderFunc { get; }
@@ -560,10 +606,12 @@ namespace SharpLayout
             public double MaxLeftBorder { get; }
 
             public TableInfo(Table table, Func<CellInfo, Option<double>> topBorderFunc, Func<CellInfo, Option<double>> bottomBorderFunc,
-                Dictionary<int, double> maxHeights, Func<CellInfo, Option<double>> leftBorderFunc, Func<CellInfo, Option<double>> rightBorderFunc)
+                Dictionary<int, double> maxHeights, Func<CellInfo, Option<double>> leftBorderFunc, Func<CellInfo, Option<double>> rightBorderFunc,
+                Func<CellInfo, Option<XColor>> backgroundColor)
             {
                 Table = table;
                 RightBorderFunc = rightBorderFunc;
+                BackgroundColor = backgroundColor;
                 LeftBorderFunc = leftBorderFunc;
                 TopBorderFunc = topBorderFunc;
                 BottomBorderFunc = bottomBorderFunc;
@@ -586,7 +634,7 @@ namespace SharpLayout
             }
         }
 
-        public class BorderTuple
+        private class BorderTuple
         {
             public double Width { get; }
             public CellInfo CellInfo { get; }
@@ -598,25 +646,26 @@ namespace SharpLayout
             }
         }
 
-        private static void HighlightParagraph(Paragraph paragraph, Column column, int row, double x, double y, double width, TableInfo info, XGraphics xGraphics)
+        private static void HighlightParagraph(Paragraph paragraph, Column column, int row, double x, double y, double width, TableInfo info, XGraphics xGraphics, Drawer drawer)
         {
             var innerHeight = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc);
             var innerWidth = paragraph.GetInnerWidth(width);
             if (innerWidth > 0 && innerHeight > 0)
-                FillRectangle(xGraphics, XColor.FromArgb(32, 0, 0, 255),
+                FillRectangle(drawer, XColor.FromArgb(32, 0, 0, 255),
                     x + paragraph.LeftMargin.ValueOr(0),
                     y + paragraph.TopMargin.ValueOr(0),
                     innerWidth, innerHeight);
         }
 
-        private static void HighlightCells(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, double tableY)
+        private static void HighlightCells(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, double tableY,
+            Drawer drawer)
         {
             var color = (row + column.Index) % 2 == 1
                 ? XColor.FromArgb(32, 127, 127, 127)
                 : XColor.FromArgb(32, 0, 255, 0);
             var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
             var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
-            FillRectangle(xGraphics, color, x, y, width, height);
+            FillRectangle(drawer, color, x, y, width, height);
             var font = new XFont("Times New Roman", 10, XFontStyle.Regular,
                 new XPdfFontOptions(PdfFontEncoding.Unicode));
             var redBrush = new XSolidBrush(XColor.FromArgb(128, 255, 0, 0));
@@ -627,11 +676,11 @@ namespace SharpLayout
                 var lineSpace = font.LineSpace(xGraphics);
                 var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
                 var rnX = x - xGraphics.MeasureString(text, font).Width;
-                xGraphics.DrawString(text, font, redBrush, rnX, y + rnHeight);
+                drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
                 if (row == 0)
                 {
                     var lineText = $"{info.Table.Line}";
-                    xGraphics.DrawString(lineText,
+                    drawer.DrawString(lineText,
                         font,
                         purpleBrush,
                         rnX - xGraphics.MeasureString($"{lineText} ", font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
@@ -639,10 +688,11 @@ namespace SharpLayout
                 }
             }
             if (row == 0)
-                xGraphics.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
+                drawer.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
         }
 
-        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, Document document)
+        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, Document document,
+            Drawer drawer)
         {
             if (!document.ShowCellLineNumbers) return;
             var cell = info.Table.Rows[row].Cells[column.Index];
@@ -652,18 +702,18 @@ namespace SharpLayout
                 new XPdfFontOptions(PdfFontEncoding.Unicode));
             var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
             var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
-            xGraphics.DrawString(text,
+            drawer.DrawString(text,
                 font,
                 new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
                 x + width - xGraphics.MeasureString(text, font).Width,
                 y + height);
         }
 
-        private static void FillRectangle(XGraphics xGraphics, XColor color, double x, double y, double width, double height)
+        private static void FillRectangle(Drawer drawer, XColor color, double x, double y, double width, double height)
         {
             var lineY = y + height / 2;
             //DrawRectangle does not draw the last pixel sometimes
-            xGraphics.DrawLine(new XPen(color, height), x, lineY, x + width, lineY);
+            drawer.DrawLine(new XPen(color, height), x, lineY, x + width, lineY);
         }
     }
 }
