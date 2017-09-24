@@ -224,7 +224,7 @@ namespace SharpLayout
                             table => {
                                 var tableInfo = GetTableInfo(tableInfos, xGraphics).GetValue(table);
                                 double dx;
-                                switch (table.HorizontalAlign)
+                                switch (table.HorizontalAlign())
                                 {
                                     case HorizontalAlign.Left:
                                         dx = 0;

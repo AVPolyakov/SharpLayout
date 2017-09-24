@@ -234,7 +234,7 @@ namespace SharpLayout.Tests
 
         private static Table Stamp()
         {
-            var table = new Table {HorizontalAlign = HorizontalAlign.Right};
+            var table = new Table().HorizontalAlign(HorizontalAlign.Right);
             var c1 = table.AddColumn(Px(520));
             var r1 = table.AddRow();
             r1[c1].Border(All)

@@ -53,7 +53,18 @@ namespace SharpLayout
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
 
-        public HorizontalAlign HorizontalAlign { get; set; }
+        private HorizontalAlign horizontalAlign;
+
+        public Table HorizontalAlign(HorizontalAlign value)
+        {
+            horizontalAlign = value;
+            return this;
+        }
+
+        public HorizontalAlign HorizontalAlign()
+        {
+            return horizontalAlign;
+        }
 
         public Option<double> TopMargin { get; set; }
 
