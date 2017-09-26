@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using PdfSharp.Drawing;
 
@@ -323,12 +322,7 @@ namespace SharpLayout
 
         public static IEnumerable<string> SplitToLines(this string text)
         {
-            using (var reader = new StringReader(text))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    yield return line;
-            }
+            return text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         }
     }
 }
