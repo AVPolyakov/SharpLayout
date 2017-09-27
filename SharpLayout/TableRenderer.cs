@@ -181,8 +181,7 @@ namespace SharpLayout
                             column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0),
                             info.MaxHeights[row] - bottomBorder.ValueOr(0),
                             DrawType.Background);
-                    if (document.IsHighlightCells)
-                        HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY, drawer);
+                    HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY, drawer, document);
                     HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y, document, drawer);
                     var cellInnerHeight = Range(0, cell.Rowspan().ValueOr(1))
                         .Sum(i => info.MaxHeights[row + i] -
@@ -209,7 +208,7 @@ namespace SharpLayout
                     double paragraphY = 0;
                     foreach (var element in cell.Elements)
                     {
-                        if (document.IsHighlightParagraphs)
+                        if (document.ParagraphsAreHighlighted)
                             element.Match(
                                 paragraph => {
                                     HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics, drawer);
@@ -657,44 +656,50 @@ namespace SharpLayout
                     innerWidth, innerHeight);
         }
 
-        private static void HighlightCells(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, double tableY,
-            Drawer drawer)
+        private static void HighlightCells(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y,
+            double tableY, Drawer drawer, Document document)
         {
-            var color = (row + column.Index) % 2 == 1
-                ? XColor.FromArgb(32, 127, 127, 127)
-                : XColor.FromArgb(32, 0, 255, 0);
-            var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
-            var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
-            FillRectangle(drawer, color, x, y, width, height);
-            var font = new XFont("Times New Roman", 10, XFontStyle.Regular,
-                new XPdfFontOptions(PdfFontEncoding.Unicode));
-            var redBrush = new XSolidBrush(XColor.FromArgb(128, 255, 0, 0));
-            var purpleBrush = new XSolidBrush(XColor.FromArgb(128, 87, 0, 127));
-            if (column.Index == 0)
+            if (document.CellsAreHighlighted)
             {
-                var text = $"r{row + 1}";
-                var lineSpace = font.LineSpace(xGraphics);
-                var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
-                var rnX = x - xGraphics.MeasureString(text, font).Width;
-                drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
-                if (row == 0)
-                {
-                    var lineText = $"{info.Table.Line}";
-                    drawer.DrawString(lineText,
-                        font,
-                        purpleBrush,
-                        rnX - xGraphics.MeasureString($"{lineText} ", font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
-                        y + rnHeight);
-                }
+                var color = (row + column.Index) % 2 == 1
+                    ? XColor.FromArgb(32, 127, 127, 127)
+                    : XColor.FromArgb(32, 0, 255, 0);
+                var height = info.MaxHeights[row] - bottomBorder.ValueOr(0);
+                var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).ValueOr(0);
+                FillRectangle(drawer, color, x, y, width, height);
             }
-            if (row == 0)
-                drawer.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
+            if (document.R1C1AreVisible)
+            {
+                var font = new XFont("Times New Roman", 10, XFontStyle.Regular,
+                    new XPdfFontOptions(PdfFontEncoding.Unicode));
+                var redBrush = new XSolidBrush(XColor.FromArgb(128, 255, 0, 0));
+                var purpleBrush = new XSolidBrush(XColor.FromArgb(128, 87, 0, 127));
+                if (column.Index == 0)
+                {
+                    var text = $"r{row + 1}";
+                    var lineSpace = font.LineSpace(xGraphics);
+                    var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
+                    var rnX = x - xGraphics.MeasureString(text, font).Width;
+                    drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
+                    if (row == 0)
+                    {
+                        var lineText = $"{info.Table.Line}";
+                        drawer.DrawString(lineText,
+                            font,
+                            purpleBrush,
+                            rnX - xGraphics.MeasureString($"{lineText} ", font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
+                            y + rnHeight);
+                    }
+                }
+                if (row == 0)
+                    drawer.DrawString($"c{column.Index + 1}", font, redBrush, x, tableY - 1);
+            }
         }
 
         private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<double> bottomBorder, int row, Column column, double x, double y, Document document,
             Drawer drawer)
         {
-            if (!document.ShowCellLineNumbers) return;
+            if (!document.CellLineNumbersAreVisible) return;
             var cell = info.Table.Rows[row].Cells[column.Index];
             if (cell.CallerInfos.Count <= 0) return;
             var text = string.Join(" ", cell.CallerInfos.Select(_ => _.Line));

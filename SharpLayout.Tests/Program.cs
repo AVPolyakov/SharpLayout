@@ -8,9 +8,10 @@ namespace SharpLayout.Tests
         static void Main()
         {
             var document = new Document {
-                IsHighlightCells = true,
-                IsHighlightParagraphs = true,
-                //ShowCellLine = true
+                //CellsAreHighlighted = true,
+                R1C1AreVisible = true,
+                //ParagraphsAreHighlighted = true,
+                //CellLineNumbersAreVisible = true
             };
             PaymentOrder.AddSection(document);
 

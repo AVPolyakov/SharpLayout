@@ -20,11 +20,13 @@ namespace SharpLayout
             return section;
         }
 
-        public bool IsHighlightCells { get; set; }
+        public bool CellsAreHighlighted { get; set; }
 
-        public bool IsHighlightParagraphs { get; set; }
+        public bool R1C1AreVisible { get; set; }
 
-        public bool ShowCellLineNumbers { get; set; }
+        public bool ParagraphsAreHighlighted { get; set; }
+
+        public bool CellLineNumbersAreVisible { get; set; }
 
         public byte[] CreatePdf()
         {
