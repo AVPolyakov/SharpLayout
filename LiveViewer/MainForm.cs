@@ -22,6 +22,8 @@ namespace LiveViewer
             panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
             LoadFile(Environment.GetCommandLineArgs());
+            dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE.14.0");
+            MessageFilter.Register();
         }
 
         private void ApplySettings()
@@ -63,7 +65,7 @@ namespace LiveViewer
                 pictureBox.ImageLocation = pictureBox.ImageLocation;
         }
 
-        private readonly DTE2 dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE.14.0");
+        private readonly DTE2 dte2;
 
         private void pictureBox_MouseClick(object sender, MouseEventArgs e)
         {
