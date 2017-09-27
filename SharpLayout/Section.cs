@@ -22,7 +22,7 @@ namespace SharpLayout
 
         public Section Add(Paragraph paragraph, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
         {
-            var table = AddTable();
+            var table = AddTable(line);
             var c1 = table.AddColumn(PageSettings.PageWidthWithoutMargins);
             var r1 = table.AddRow();
             r1[c1, line, filePath].Add(paragraph);
