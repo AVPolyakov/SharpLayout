@@ -172,7 +172,8 @@ namespace SharpLayout
                         Height = Range(0, cell.Rowspan().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
                         Width = Range(0, cell.Colspan().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
                         CallerInfos = cell.CallerInfos,
-                        TableLevel = tableLevel
+                        TableLevel = tableLevel,
+                        Level = 0
                     });
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
                     var backgroundColor = info.BackgroundColor(new CellInfo(cell));
@@ -217,6 +218,15 @@ namespace SharpLayout
                                 table => new { });
                         element.Match(
                             paragraph => {
+                                syncPageInfo.CellInfos.Add(new SyncCellInfo {
+                                    X = x,
+                                    Y = y + dy + paragraphY,
+                                    Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc),
+                                    Width = paragraph.GetInnerWidth(width),
+                                    CallerInfos = paragraph.CallerInfos,
+                                    TableLevel = tableLevel,
+                                    Level = 1
+                                });
                                 ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment(), drawer);
                                 return new { };
                             },

@@ -23,5 +23,6 @@ namespace SharpLayout
         public double Width { get; set; }
         public int TableLevel { get; set; }
         public List<CallerInfo> CallerInfos { get; set; }
+        public int Level { get; set; }
     }
 }

@@ -80,7 +80,7 @@ namespace LiveViewer
                         y <= e.Y && e.Y <= y + heigth &&
                         info.CallerInfos.Count > 0;
                 })
-                .OrderByDescending(_ => _.TableLevel)
+                .OrderByDescending(_ => _.TableLevel).ThenByDescending(_ => _.Level)
                 .FirstOrDefault();
             if (firstOrDefault != null)
             {
