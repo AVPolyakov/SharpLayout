@@ -20,12 +20,8 @@ namespace SharpLayout.Tests
             var headerFont = TimesNewRoman9;
             var section = document.Add(new Section(pageSettings));
             var rowHeight = Cm(0.49);
-            {
-                var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
-                table.AddRow()[c1].Add(Paragraph.Add("Код формы по ОКУД 0406009", TimesNewRoman10_5)
-                    .Margin(Bottom, Px(11)).Alignment(HorizontalAlign.Right));
-            }
+            section.Add(Paragraph.Add("Код формы по ОКУД 0406009", TimesNewRoman10_5)
+                .Margin(Bottom, Px(11)).Alignment(HorizontalAlign.Right));
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Cm(6.3));
@@ -42,12 +38,8 @@ namespace SharpLayout.Tests
                 r2[c2].Border(Left | Right | Bottom).VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("", font));
             }
-            {
-                var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
-                table.AddRow()[c1].Add(new Paragraph().Add("СПРАВКА О ВАЛЮТНЫХ ОПЕРАЦИЯХ", TimesNewRoman11_5Bold)
-                    .Alignment(HorizontalAlign.Center).Margin(Top, Px(41)));
-            }
+            section.Add(new Paragraph().Add("СПРАВКА О ВАЛЮТНЫХ ОПЕРАЦИЯХ", TimesNewRoman11_5Bold)
+                .Alignment(HorizontalAlign.Center).Margin(Top, Px(41)));
             {
                 var table = section.AddTable();
                 table.AddColumn(Px(1146));
@@ -112,8 +104,8 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("Признак платежа", headerFont));
                 r1[c5].Rowspan(2).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add("Код вида валютной операции", headerFont));
-                r1[c6].Colspan(c7).Border(Top | Right | Bottom, BorderWidth
-                    ).Add(Paragraph.Add("Сумма операции", headerFont));
+                r1[c6].Colspan(c7).Border(Top | Right | Bottom, BorderWidth)
+                    .Add(Paragraph.Add("Сумма операции", headerFont));
                 r1[c8].Rowspan(2).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add(@"Номер ПС
 или номер и (или) дата договора (контракта)", headerFont));
@@ -168,11 +160,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn(Px(363));
                 table.AddRow().Height(Px(41))[c1].Border(Bottom);
             }
-            {
-                var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
-                table.AddRow()[c1].Add(new Paragraph().Add("Примечание.", font).Margin(Top, Px(1)).Margin(Bottom, Px(4)));
-            }
+            section.Add(new Paragraph().Add("Примечание.", font).Margin(Top, Px(1)).Margin(Bottom, Px(4)));
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Px(255));
@@ -193,11 +181,7 @@ namespace SharpLayout.Tests
                         row[column].Border(Right | Bottom).VerticalAlign(VerticalAlign.Center);
                 }
             }
-            {
-                var table = section.AddTable();
-                var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins);
-                table.AddRow()[c1].Add(new Paragraph().Add("Информация уполномоченного банка", font).Margin(Top, Px(3)).Margin(Bottom, Px(4)));
-            }
+            section.Add(new Paragraph().Add("Информация уполномоченного банка", font).Margin(Top, Px(3)).Margin(Bottom, Px(4)));
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn();
@@ -209,7 +193,6 @@ namespace SharpLayout.Tests
         }
 
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
-
         private static readonly double cellMargin = Cm(0.05);
     }
 }

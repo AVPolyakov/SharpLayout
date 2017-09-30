@@ -13,7 +13,7 @@ namespace SharpLayout.Tests
                 //ParagraphsAreHighlighted = true,
                 //CellLineNumbersAreVisible = true
             };
-            PaymentOrder.AddSection(document);
+            Svo.AddSection(document);
 
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
 
