@@ -22,7 +22,15 @@ namespace LiveViewer
             panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
             LoadFile(Environment.GetCommandLineArgs());
-            dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE.14.0");
+            try
+            {
+                dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE.15.0");
+            }
+            catch
+            {
+                MessageBox.Show("А running Visual Studio 2017 is required for fully-featured operation of Live Viewer.",
+                    "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             MessageFilter.Register();
         }
 
