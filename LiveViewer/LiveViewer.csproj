@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTEFinder.cs" />
     <Compile Include="MessageFilter.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

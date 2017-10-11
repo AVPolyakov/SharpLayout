@@ -22,16 +22,47 @@ namespace LiveViewer
             panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
             LoadFile(Environment.GetCommandLineArgs());
-            try
-            {
-                dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE.15.0");
-            }
-            catch
-            {
-                MessageBox.Show("А running Visual Studio 2017 is required for fully-featured operation of Live Viewer.",
-                    "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            dte2 = GetDTE();
             MessageFilter.Register();
+        }
+
+        private static DTE2 GetDTE()
+        {
+            var lineArgs = Environment.GetCommandLineArgs();
+            if (lineArgs.Length >= 3)
+            {
+                var processId = int.Parse(lineArgs[2]);
+                DTE2 result;
+                try
+                {
+                    result = DTEFinder.GetDTE(processId);
+                }
+                catch
+                {
+                    ShowRunningVisualStudioIsRequired();
+                    return null;
+                }
+                if (result == null)
+                    MessageBox.Show($"Visual Studio 2017 with process id {processId} not found.",
+                        "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return result;
+            }
+            else
+                try
+                {
+                    return (DTE2) Marshal.GetActiveObject(DTEFinder.ProgId);
+                }
+                catch
+                {
+                    ShowRunningVisualStudioIsRequired();
+                    return null;
+                }
+        }
+
+        private static void ShowRunningVisualStudioIsRequired()
+        {
+            MessageBox.Show("А running Visual Studio 2017 is required for fully-featured operation of Live Viewer.",
+                "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void ApplySettings()
