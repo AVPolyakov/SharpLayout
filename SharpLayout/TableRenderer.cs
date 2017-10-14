@@ -682,8 +682,8 @@ namespace SharpLayout
             {
                 var font = new XFont("Times New Roman", 10, XFontStyle.Regular,
                     new XPdfFontOptions(PdfFontEncoding.Unicode));
-                var redBrush = new XSolidBrush(XColor.FromArgb(128, 255, 0, 0));
-                var purpleBrush = new XSolidBrush(XColor.FromArgb(128, 87, 0, 127));
+                var redBrush = new XSolidBrush(XColor.FromArgb(200, 255, 0, 0));
+                var purpleBrush = new XSolidBrush(XColor.FromArgb(200, 87, 0, 127));
                 if (column.Index == 0)
                 {
                     var text = $"r{row + 1}";
