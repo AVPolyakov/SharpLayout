@@ -110,7 +110,7 @@ namespace LiveViewer
         {
             if (ModifierKeys != Keys.Control) return;
             var bitmapInfo = GetSyncBitmapInfo();
-            var firstOrDefault = bitmapInfo.PageInfo.CellInfos.Where(info => {
+            var firstOrDefault = bitmapInfo.PageInfo.ItemInfos.Where(info => {
                     var x = info.X.ToPixel(bitmapInfo);
                     var y = info.Y.ToPixel(bitmapInfo);
                     var width = info.Width.ToPixel(bitmapInfo);
@@ -125,11 +125,10 @@ namespace LiveViewer
             {
                 multipleLineMenuStrip.Items.Clear();
                 var callerInfos = firstOrDefault.CallerInfos.Select(_ => new {_.Line, _.FilePath}).Distinct().ToList();
-                var enumerable = callerInfos;
-                if (enumerable.Count == 1)
-                    GotoLine(enumerable[0].Line, enumerable[0].FilePath);
+                if (callerInfos.Count == 1)
+                    GotoLine(callerInfos[0].Line, callerInfos[0].FilePath);
                 else
-                    foreach (var callerInfo in enumerable)
+                    foreach (var callerInfo in callerInfos)
                     {
                         var text = File.ReadAllLines(callerInfo.FilePath)[callerInfo.Line - 1].Trim();
                         multipleLineMenuStrip.Items.Add($"{callerInfo.Line} {text}", null,

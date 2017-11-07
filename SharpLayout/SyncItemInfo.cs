@@ -12,10 +12,10 @@ namespace SharpLayout
 
     public class SyncPageInfo
     {
-        public List<SyncCellInfo> CellInfos = new List<SyncCellInfo>();
+        public List<SyncItemInfo> ItemInfos = new List<SyncItemInfo>();
     }
 
-    public class SyncCellInfo
+    public class SyncItemInfo
     {
         public double X { get; set; }
         public double Y { get; set; }

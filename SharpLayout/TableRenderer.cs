@@ -166,7 +166,7 @@ namespace SharpLayout
                 foreach (var column in info.Table.Columns)
                 {
                     var cell = info.Table.Rows[row].Cells[column.Index];
-                    syncPageInfo.CellInfos.Add(new SyncCellInfo {
+                    syncPageInfo.ItemInfos.Add(new SyncItemInfo {
                         X = x,
                         Y = y,
                         Height = Range(0, cell.Rowspan().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
@@ -218,7 +218,7 @@ namespace SharpLayout
                                 table => new { });
                         element.Match(
                             paragraph => {
-                                syncPageInfo.CellInfos.Add(new SyncCellInfo {
+                                syncPageInfo.ItemInfos.Add(new SyncItemInfo {
                                     X = x,
                                     Y = y + dy + paragraphY,
                                     Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc),
