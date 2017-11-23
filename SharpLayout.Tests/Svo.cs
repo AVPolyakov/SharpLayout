@@ -50,7 +50,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 table.AddColumn(Px(1199));
                 var c2 = table.AddColumn(Px(200));
-                table.AddRow().Height(Px(28))[c2].TopBorder = BorderWidth;
+                table.AddRow().Height(Px(28))[c2].Border(Top, BorderWidth);
             }
             {
                 var table = section.AddTable();

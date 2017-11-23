@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
@@ -35,15 +34,15 @@ namespace SharpLayout
 
         public Option<int> Colspan() => colspan;
 
-        public Option<double> LeftBorder { get; set; }
+        public Option<XPen> LeftBorder { get; set; }
 
-        public Option<double> RightBorder { get; set; }
+        public Option<XPen> RightBorder { get; set; }
 
-        public Option<double> TopBorder { get; set; }
+        public Option<XPen> TopBorder { get; set; }
 
-        public Option<double> BottomBorder { get; set; }
+        public Option<XPen> BottomBorder { get; set; }
 
-        public Cell Border(Direction direction, double value)
+        public Cell Border(Direction direction, XPen value)
         {
             if (direction.HasFlag(Left)) LeftBorder = value;
             if (direction.HasFlag(Right)) RightBorder = value;
@@ -51,6 +50,8 @@ namespace SharpLayout
             if (direction.HasFlag(Bottom)) BottomBorder = value;
             return this;
         }
+
+        public Cell Border(Direction direction, double value) => Border(direction, new XPen(XColors.Black, value));
 
         private Option<XColor> backgroundColor;
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using Xunit;
+using static SharpLayout.Direction;
 using static SharpLayout.Util;
 using static SharpLayout.Tests.Styles;
 
@@ -11,6 +12,37 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void DashBorders()
+        {
+            var document = new Document {
+                //CellsAreHighlighted = true,
+                //R1C1AreVisible = true,
+                //ParagraphsAreHighlighted = true,
+                //CellLineNumbersAreVisible = true
+            };
+            var pageSettings = new PageSettings {
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            var table = section.AddTable();
+            var c1 = table.AddColumn(Px(651));
+            var r1 = table.AddRow();
+            var r2 = table.AddRow();
+            var r3 = table.AddRow();
+            r1[c1].Border(Bottom, new XPen(XColors.Black, BorderWidth * 2) {DashStyle = XDashStyle.Dash})
+                .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            //How to: Draw a Custom Dashed Line https://docs.microsoft.com/en-us/dotnet/framework/winforms/advanced/how-to-draw-a-custom-dashed-line
+            r2[c1].Border(Bottom, new XPen(XColors.Black, BorderWidth * 2) {DashPattern = new[] {3d, 3d}})
+                .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            r3[c1].Border(Bottom, new XPen(XColors.Black, BorderWidth * 2) {DashPattern = new[] {5d, 5d}})
+                .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            Assert(nameof(DashBorders), document.CreatePng().Item1);
+        }
+
         [Fact]
         public void Test1()
         {
@@ -102,9 +134,9 @@ namespace SharpLayout.Tests
                 .Add(TimesNewRoman10("123456789012345678901234567890123456789012345678901234567890"));
             table.AddRow().Height(Cm(1));
             var r3 = table.AddRow().Height(Cm(1));
-            r3[c1].Border(Direction.Top, BorderWidth * 10)
+            r3[c1].Border(Top, BorderWidth * 10)
                 .Add(TimesNewRoman10("1"));
-            r3[c2].Border(Direction.Top, BorderWidth)
+            r3[c2].Border(Top, BorderWidth)
                 .Add(TimesNewRoman10("2"));
             Assert(nameof(BackgroundColor), document.CreatePng().Item1);
         }
@@ -121,7 +153,7 @@ namespace SharpLayout.Tests
             var r1 = table.AddRow();
             {
                 var cell = r1[c1];
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
@@ -137,24 +169,31 @@ namespace SharpLayout.Tests
             {
                 var cell = r2[c1];
                 cell.Colspan(c2);
-                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("ИНН"));
             }
             {
                 var cell = r2[c3];
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("КПП"));
             }
             {
                 var cell = r2[c4];
                 cell.Rowspan(2);
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма"));
             }
             {
                 var cell = r2[c5];
                 cell.Rowspan(2);
-                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.Border(Top, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
                 cell.VerticalAlign(VerticalAlign.Center);
                 var paragraph = TimesNewRoman10("777-33");
                 paragraph.Alignment(HorizontalAlign.Center);
@@ -173,24 +212,25 @@ namespace SharpLayout.Tests
                 paragraph.LeftMargin = Px(60);
                 paragraph.RightMargin = Px(30);
                 cell.Add(paragraph);
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
             }
             var r4 = table.AddRow();
             r4.Height(Px(100));
             {
                 var cell = r4[c4];
                 cell.Rowspan(2);
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сч. №"));
             }
             var r5 = table.AddRow();
             {
                 var cell = r5[c1];
                 cell.Colspan(c3);
-                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Плательщик"));
             }
-            r5[c4].BottomBorder = BorderWidth;
+            r5[c4].Border(Bottom, BorderWidth);
             return table;
         }
 
@@ -207,7 +247,7 @@ namespace SharpLayout.Tests
             var r1 = table.AddRow();
             {
                 var cell = r1[c1];
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
@@ -219,24 +259,31 @@ namespace SharpLayout.Tests
             {
                 var cell = r2[c1];
                 cell.Colspan(c2);
-                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("ИНН"));
             }
             {
                 var cell = r2[c3];
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("КПП"));
             }
             {
                 var cell = r2[c4];
                 cell.Rowspan(2);
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма"));
             }
             {
                 var cell = r2[c5];
                 cell.Rowspan(2);
-                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.Border(Top, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
                 cell.Add(TimesNewRoman10("777-33"));
             }
             var r3 = table.AddRow();
@@ -246,24 +293,25 @@ namespace SharpLayout.Tests
                 cell.Colspan(c3);
                 cell.Rowspan(2);
                 cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5))));
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
             }
             var r4 = table.AddRow();
             r4.Height(Px(100));
             {
                 var cell = r4[c4];
                 cell.Rowspan(2);
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сч. №"));
             }
             var r5 = table.AddRow();
             {
                 var cell = r5[c1];
                 cell.Colspan(c3);
-                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Плательщик"));
             }
-            r5[c4].BottomBorder = BorderWidth;
+            r5[c4].Border(Bottom, BorderWidth);
         }
 
         public static void Table2(Section section)
@@ -281,33 +329,33 @@ namespace SharpLayout.Tests
                 var row = table.AddRow();
                 {
                     var cell = row[c0];
-                    cell.BottomBorder = BorderWidth;
-                    cell.LeftBorder = BorderWidth;
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Left, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10($"№ {i}"));
                 }
                 {
                     var cell = row[c1];
-                    cell.BottomBorder = BorderWidth;
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Колонка 2"));
                 }
                 {
                     var cell = row[c2];
-                    cell.BottomBorder = BorderWidth;
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Колонка 3"));
                 }
                 {
                     var cell = row[c3];
-                    cell.BottomBorder = BorderWidth;
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Колонка 4"));
                 }
                 {
                     var cell = row[c4];
-                    cell.BottomBorder = BorderWidth;
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Колонка 5"));
                 }
             }
@@ -327,24 +375,31 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(ИНН2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("ИНН"));
                 }
                 {
                     var cell = row[КПП];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("КПП"));
                 }
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("Сумма"));
                 }
                 {
                     var cell = row[суммаValue];
                     cell.Rowspan(2);
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
                     cell.Add(TimesNewRoman10("777-33"));
                 }
             }
@@ -356,7 +411,7 @@ namespace SharpLayout.Tests
                     cell.Colspan(КПП);
                     cell.Rowspan(2);
                     cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*25))));
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                 }
             }
             {
@@ -365,7 +420,7 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Сч. №"));
                 }
             }
@@ -374,10 +429,11 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(КПП);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Плательщик"));
                 }
-                row[сумма].BottomBorder = BorderWidth;
+                row[сумма].Border(Bottom, BorderWidth);
             }
             return table;
         }
@@ -396,7 +452,7 @@ namespace SharpLayout.Tests
                 var row = table.AddRow();
                 {
                     var cell = row[ИНН1];
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Сумма прописью"));
                 }
                 {
@@ -410,24 +466,31 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(ИНН2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("ИНН"));
                 }
                 {
                     var cell = row[КПП];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("КПП"));
                 }
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("Сумма"));
                 }
                 {
                     var cell = row[суммаValue];
                     cell.Rowspan(2);
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
                     cell.Add(TimesNewRoman60Bold("777-33"));
                 }
             }
@@ -439,7 +502,7 @@ namespace SharpLayout.Tests
                     cell.Colspan(КПП);
                     cell.Rowspan(2);
                     cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5))));
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                 }
             }
             {
@@ -448,7 +511,7 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Сч. №"));
                 }
             }
@@ -457,10 +520,11 @@ namespace SharpLayout.Tests
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(КПП);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Плательщик"));
                 }
-                row[сумма].BottomBorder = BorderWidth;
+                row[сумма].Border(Bottom, BorderWidth);
             }
         }
 
@@ -478,7 +542,7 @@ namespace SharpLayout.Tests
                 var row = table.AddRow();
                 {
                     var cell = row[ИНН1];
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10(@"a
 
 aaaaaaaaa ")
@@ -498,24 +562,31 @@ aaaaaaaaa ")
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(ИНН2);
-                    cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("ИНН"));
                 }
                 {
                     var cell = row[КПП];
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("КПП"));
                 }
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Top, BorderWidth);
                     cell.Add(TimesNewRoman10("Сумма"));
                 }
                 {
                     var cell = row[суммаValue];
                     cell.Rowspan(2);
-                    cell.BottomBorder = cell.TopBorder = BorderWidth;
+                    cell.Border(Top, BorderWidth);
+                    cell.Border(Bottom, BorderWidth);
                     cell.Add(TimesNewRoman10("777-33"));
                 }
             }
@@ -527,7 +598,7 @@ aaaaaaaaa ")
                     cell.Colspan(КПП);
                     cell.Rowspan(2);
                     cell.Add(TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4*5))));
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                 }
             }
             {
@@ -536,7 +607,7 @@ aaaaaaaaa ")
                 {
                     var cell = row[сумма];
                     cell.Rowspan(2);
-                    cell.RightBorder = BorderWidth;
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Сч. №"));
                 }
             }
@@ -545,10 +616,11 @@ aaaaaaaaa ")
                 {
                     var cell = row[ИНН1];
                     cell.Colspan(КПП);
-                    cell.RightBorder = cell.BottomBorder = BorderWidth;
+                    cell.Border(Bottom, BorderWidth);
+                    cell.Border(Right, BorderWidth);
                     cell.Add(TimesNewRoman10("Плательщик"));
                 }
-                row[сумма].BottomBorder = BorderWidth;
+                row[сумма].Border(Bottom, BorderWidth);
             }
         }
 
@@ -638,7 +710,7 @@ aaaaaaaaa ")
             var r1 = table.AddRow();
             {
                 var cell = r1[c1];
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма прописью"));
             }
             {
@@ -654,24 +726,31 @@ aaaaaaaaa ")
             {
                 var cell = r2[c1];
                 cell.Colspan(c2);
-                cell.RightBorder = cell.TopBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("ИНН"));
             }
             {
                 var cell = r2[c3];
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("КПП"));
             }
             {
                 var cell = r2[c4];
                 cell.Rowspan(2);
-                cell.TopBorder = cell.BottomBorder = cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Top, BorderWidth);
                 cell.Add(TimesNewRoman10("Сумма"));
             }
             {
                 var cell = r2[c5];
                 cell.Rowspan(2);
-                cell.BottomBorder = cell.TopBorder = BorderWidth;
+                cell.Border(Top, BorderWidth);
+                cell.Border(Bottom, BorderWidth);
                 cell.VerticalAlign(VerticalAlign.Center);
                 var paragraph = TimesNewRoman10("777-33");
                 paragraph.Alignment(HorizontalAlign.Center);
@@ -687,24 +766,25 @@ aaaaaaaaa ")
                 var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5)));
                 paragraph.Alignment(HorizontalAlign.Center);
                 cell.Add(paragraph);
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
             }
             var r4 = table.AddRow();
             r4.Height(Px(100));
             {
                 var cell = r4[c4];
                 cell.Rowspan(2);
-                cell.RightBorder = BorderWidth;
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Сч. №"));
             }
             var r5 = table.AddRow();
             {
                 var cell = r5[c1];
                 cell.Colspan(c3);
-                cell.RightBorder = cell.BottomBorder = BorderWidth;
+                cell.Border(Bottom, BorderWidth);
+                cell.Border(Right, BorderWidth);
                 cell.Add(TimesNewRoman10("Плательщик"));
             }
-            r5[c4].BottomBorder = BorderWidth;
+            r5[c4].Border(Bottom, BorderWidth);
             return table;
         }
 
