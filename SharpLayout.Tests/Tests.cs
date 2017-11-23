@@ -44,6 +44,40 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
+        public void SpanBackgroundColor()
+        {
+            var document = new Document {
+                //CellsAreHighlighted = true,
+                //R1C1AreVisible = true,
+                //ParagraphsAreHighlighted = true,
+                //CellLineNumbersAreVisible = true
+            };
+            var pageSettings = new PageSettings {
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            section.Add(new Paragraph()
+                .Add(new Span("Choose ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
+                .Add(new Span("interfaces", TimesNewRoman10Bold))
+                .Add(new Span(" over ", Styles.TimesNewRoman10))
+                .Add(new Span("abstract", TimesNewRoman10Bold))
+                .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
+                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
+                    Brush = XBrushes.Red
+                })
+                .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
+                .Add(new Span(" interface", TimesNewRoman10Bold))
+                .Add(new Span(", and only if you’re forced tohave method definitions or member " +
+                    "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
+                .Add(new Span("abstract", TimesNewRoman10Bold))
+                .Add(new Span(" class.", Styles.TimesNewRoman10)));
+            Assert(nameof(SpanBackgroundColor), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void Test1()
         {
             var document = new Document();

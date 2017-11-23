@@ -36,14 +36,21 @@ namespace SharpLayout
                     }
                     var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics));
                     var x = x0 + paragraph.LeftMargin.ValueOr(0) + dx;
+                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
                     foreach (var part in lineParts)
                     {
                         var text = part.Text(softLineParts);
                         var span = part.GetSoftLinePart(softLineParts).Span;
+                        var measureString = graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat);
+                        if (span.BackgroundColor().HasValue)
+                            drawer.DrawRectangle(new XSolidBrush(span.BackgroundColor().Value), x, y,
+                                measureString.Width,
+                                maxLineSpace,
+                                DrawType.Background);
                         drawer.DrawString(text, span.Font, span.Brush, x, y + baseLine);
-                        x += graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat).Width;
+                        x += measureString.Width;
                     }
-                    y += lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
+                    y += maxLineSpace;
                 }
             }
         }
