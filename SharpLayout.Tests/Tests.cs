@@ -15,19 +15,8 @@ namespace SharpLayout.Tests
         [Fact]
         public void DashBorders()
         {
-            var document = new Document {
-                //CellsAreHighlighted = true,
-                //R1C1AreVisible = true,
-                //ParagraphsAreHighlighted = true,
-                //CellLineNumbersAreVisible = true
-            };
-            var pageSettings = new PageSettings {
-                TopMargin = Cm(1.2),
-                BottomMargin = Cm(1),
-                LeftMargin = Cm(2),
-                RightMargin = Cm(1)
-            };
-            var section = document.Add(new Section(pageSettings));
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
             var table = section.AddTable();
             var c1 = table.AddColumn(Px(651));
             var r1 = table.AddRow();
@@ -46,19 +35,13 @@ namespace SharpLayout.Tests
         [Fact]
         public void SpanBackgroundColor()
         {
-            var document = new Document {
-                //CellsAreHighlighted = true,
-                //R1C1AreVisible = true,
-                //ParagraphsAreHighlighted = true,
-                //CellLineNumbersAreVisible = true
-            };
-            var pageSettings = new PageSettings {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
                 TopMargin = Cm(1.2),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(2),
-                RightMargin = Cm(1)
-            };
-            var section = document.Add(new Section(pageSettings));
+                RightMargin = Cm(1)                
+            }));
             section.Add(new Paragraph()
                 .Add(new Span("Choose ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("interfaces", TimesNewRoman10Bold))
@@ -74,7 +57,7 @@ namespace SharpLayout.Tests
                     "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" class.", Styles.TimesNewRoman10)));
-            Assert(nameof(SpanBackgroundColor), document.CreatePng().Item1);
+            SavePages(nameof(SpanBackgroundColor), document.CreatePng().Item1);
         }
 
         [Fact]
