@@ -78,6 +78,50 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
+        public void ParagraphLineSpacingFunc()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            section.Add(new Paragraph()
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            section.Add(new Paragraph()
+                .LineSpacingFunc(_ => _ * 1.5)
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if ",
+                    Styles.TimesNewRoman10)
+                .Add(new Span("inheritance", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
+                .Add(" is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            section.Add(new Paragraph()
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            Assert(nameof(ParagraphLineSpacingFunc), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void Test1()
         {
             var document = new Document();

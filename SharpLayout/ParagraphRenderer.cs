@@ -50,7 +50,7 @@ namespace SharpLayout
                         drawer.DrawString(text, span.Font, span.Brush, x, y + baseLine);
                         x += measureString.Width;
                     }
-                    y += maxLineSpace;
+                    y += paragraph.LineSpacingFunc()(maxLineSpace);
                 }
             }
         }
@@ -101,8 +101,8 @@ namespace SharpLayout
             return GetSoftLines(paragraph).Sum(softLineParts => {
                 var charInfos = GetCharInfos(softLineParts);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos)
-                    .Sum(line => line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => span.Font.LineSpace(graphics)));
+                    .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
+                        .Max(span => span.Font.LineSpace(graphics))));
             });
         }
 

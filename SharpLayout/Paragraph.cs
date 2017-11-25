@@ -18,6 +18,16 @@ namespace SharpLayout
 
         public Option<double> BottomMargin { get; set; }
 
+        private Func<double, double> lineSpacingFunc = _ => _;
+
+        public Paragraph LineSpacingFunc(Func<double, double> value)
+        {
+            lineSpacingFunc = value;
+            return this;
+        }
+
+        public Func<double, double> LineSpacingFunc() => lineSpacingFunc;
+
         public Paragraph Margin(Direction direction, double value)
         {
             if (direction.HasFlag(Left)) LeftMargin = value;
