@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
@@ -37,10 +38,12 @@ namespace SharpLayout
                 foreach (var section in Sections)
                 {
                     var page = pdfDocument.AddPage();
+                    page.Size = PageSize.A4;
                     page.Orientation = section.PageSettings.Orientation;
                     using (var xGraphics = XGraphics.FromPdfPage(page))
                         TableRenderer.Draw(xGraphics, section.PageSettings, (pageIndex, action) => {
                             var addPage = pdfDocument.AddPage();
+                            addPage.Size = PageSize.A4;
                             addPage.Orientation = section.PageSettings.Orientation;
                             using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
                                 action(xGraphics2);

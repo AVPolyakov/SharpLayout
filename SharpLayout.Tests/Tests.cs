@@ -57,7 +57,7 @@ namespace SharpLayout.Tests
                     "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" class.", Styles.TimesNewRoman10)));
-            SavePages(nameof(SpanBackgroundColor), document.CreatePng().Item1);
+            Assert(nameof(SpanBackgroundColor), document.CreatePng().Item1);
         }
 
         [Fact]
