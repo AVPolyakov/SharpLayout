@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SharpLayout</PackageId>
+    <PackageVersion>1.0.4-alpha01</PackageVersion>
+    <Title>C# library for creating PDF.</Title>
+    <Authors>Alexander Polyakov</Authors>
+    <PackageLicenseUrl>https://github.com/AVPolyakov/SharpLayout/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/AVPolyakov/SharpLayout</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/AVPolyakov/SharpLayout/master/Files/icon.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>C# library for creating PDF.</Description>
+    <PackageReleaseNotes>Update to .NET Standard 2.0</PackageReleaseNotes>
+    <Copyright>Copyright 2017 (c) Alexander Polyakov</Copyright>
+    <PackageTags>PDF CSharp PDFsharp</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
