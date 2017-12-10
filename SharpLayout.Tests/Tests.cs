@@ -334,7 +334,7 @@ namespace SharpLayout.Tests
             return table;
         }
 
-        public static void Table1(Section section)
+        private static void Table1(Section section)
         {
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
@@ -414,7 +414,7 @@ namespace SharpLayout.Tests
             r5[c4].Border(Bottom, BorderWidth);
         }
 
-        public static void Table2(Section section)
+        private static void Table2(Section section)
         {
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
@@ -538,7 +538,7 @@ namespace SharpLayout.Tests
             return table;
         }
 
-        public static void Table4(Section section)
+        private static void Table4(Section section)
         {
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
@@ -628,7 +628,7 @@ namespace SharpLayout.Tests
             }
         }
 
-        public static void Table5(Section section)
+        private static void Table5(Section section)
         {
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
@@ -724,7 +724,7 @@ aaaaaaaaa ")
             }
         }
 
-        public static void Table6(Section section)
+        private static void Table6(Section section)
         {
             var pageSettings = section.PageSettings;
             var table = section.AddTable();
@@ -899,7 +899,7 @@ aaaaaaaaa ")
                     .SequenceEqual(pages[index]));
         }
 
-        public static void SavePages(string folderName, List<byte[]> pages)
+        private static void SavePages(string folderName, List<byte[]> pages)
         {
             for (var index = 0; index < pages.Count; index++)
                 File.WriteAllBytes(
