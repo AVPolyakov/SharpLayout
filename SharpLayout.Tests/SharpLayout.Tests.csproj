@@ -40,14 +40,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PdfSharp, Version=1.32.3057.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="PdfSharp.Charting, Version=1.32.3057.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -89,6 +81,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PdfSharp\PdfSharp.csproj">
+      <Project>{5384ce57-1f94-4d22-860d-2e9c1ac12ddf}</Project>
+      <Name>PdfSharp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharpLayout\SharpLayout.csproj">
       <Project>{05e890de-939f-4e72-a971-2ea897e9b503}</Project>
       <Name>SharpLayout</Name>
