@@ -32,5 +32,7 @@ namespace SharpLayout
     {
         public static Lazy<TKey, TValue> Create<TKey, TValue>(Dictionary<TKey, TValue> dictionary, Func<TKey, TValue> func)
             => new Lazy<TKey, TValue>(dictionary, func);
+
+        public static Lazy<T> Create<T>(Func<T> func) => new Lazy<T>(func);
     }
 }

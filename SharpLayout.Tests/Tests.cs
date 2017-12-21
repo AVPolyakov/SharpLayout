@@ -61,6 +61,45 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
+        public void HorizontalAlign_Justify()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(3),
+                RightMargin = Cm(1.5)                
+            }));
+            section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+            section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+                .Add(new Span("Choose ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
+                .Add(new Span("interfaces", TimesNewRoman10Bold))
+                .Add(new Span(" over ", Styles.TimesNewRoman10))
+                .Add(new Span("abstract", TimesNewRoman10Bold))
+                .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
+                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
+                    Brush = XBrushes.Red
+                })
+                .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
+                .Add(new Span(" interface", TimesNewRoman10Bold))
+                .Add(new Span(", and only if you’re forced tohave method definitions or member " +
+                    "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
+                .Add(new Span("abstract", TimesNewRoman10Bold))
+                .Add(new Span(" class.", Styles.TimesNewRoman10)));
+            Assert(nameof(HorizontalAlign_Justify), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void ParagraphLineSpacingFunc()
         {
             var document = new Document();

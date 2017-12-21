@@ -11,6 +11,8 @@ namespace SharpLayout
             Drawer drawer)
         {
             var y = y0 + paragraph.TopMargin.ValueOr(0);
+            var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width));
+            var lineIndex = 0;
             foreach (var softLineParts in GetSoftLines(paragraph))
             {
                 var charInfos = GetCharInfos(softLineParts);
@@ -23,6 +25,7 @@ namespace SharpLayout
                     switch (alignment)
                     {
                         case HorizontalAlign.Left:
+                        case HorizontalAlign.Justify:
                             dx = 0;
                             break;
                         case HorizontalAlign.Center:
@@ -37,20 +40,124 @@ namespace SharpLayout
                     var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics));
                     var x = x0 + paragraph.LeftMargin.ValueOr(0) + dx;
                     var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
+                    var deltaInfo = Lazy.Create(() => GetSpaces(lineParts, softLineParts).FirstOrNone().Select(tuple => {
+                        var firstSpaceWidth = graphics.MeasureString(new string(tuple.Item2.Char, 1),
+                            tuple.Item1.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width;
+                        return new {
+                            firstSpaceWidth,
+                            multiplier = (innerWidth - lineParts.ContentWidth(softLineParts, graphics)) *
+                            firstSpaceWidth /
+                            GetSpaces(lineParts, softLineParts).Sum(tuple1 => graphics.MeasureString(new string(tuple1.Item2.Char, 1),
+                                tuple1.Item1.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width)
+                        };
+                    }));
                     foreach (var part in lineParts)
                     {
                         var text = part.Text(softLineParts);
                         var span = part.GetSoftLinePart(softLineParts).Span;
-                        var measureString = graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat);
+                        var rectangleWidth = 0d;
+                        var rectangleX = x;
+                        if (alignment == HorizontalAlign.Justify)
+                            foreach (var drawTextPart in GetDrawTextParts(text))
+                            {
+                                double stringWidth;
+                                switch (drawTextPart)
+                                {
+                                    case DrawTextPart.Space space:
+                                    {
+                                        var measureString = graphics.MeasureString(new string(space.Char, 1), span.Font, MeasureTrailingSpacesStringFormat);
+                                        if (deltaInfo.Value.HasValue)
+                                            if (lineIndex < lineCount.Value - 1)
+                                                stringWidth = measureString.Width + measureString.Width * deltaInfo.Value.Value.multiplier /
+                                                    deltaInfo.Value.Value.firstSpaceWidth;
+                                            else
+                                                stringWidth = measureString.Width;
+                                        else
+                                            stringWidth = measureString.Width;
+                                        break;
+                                    }
+                                    case DrawTextPart.Word word:
+                                    {
+                                        var measureString = graphics.MeasureString(word.Text, span.Font, MeasureTrailingSpacesStringFormat);
+                                        drawer.DrawString(word.Text, span.Font, span.Brush, x, y + baseLine);
+                                        stringWidth = measureString.Width;
+                                    }
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                                x += stringWidth;
+                                rectangleWidth += stringWidth;
+                            }
+                        else
+                        {
+                            var measureString = graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat);
+                            drawer.DrawString(text, span.Font, span.Brush, x, y + baseLine);
+                            x += measureString.Width;
+                            rectangleWidth += measureString.Width;
+                        }
                         if (span.BackgroundColor().HasValue)
-                            drawer.DrawRectangle(new XSolidBrush(span.BackgroundColor().Value), x, y,
-                                measureString.Width,
+                            drawer.DrawRectangle(new XSolidBrush(span.BackgroundColor().Value), rectangleX, y,
+                                rectangleWidth,
                                 maxLineSpace,
                                 DrawType.Background);
-                        drawer.DrawString(text, span.Font, span.Brush, x, y + baseLine);
-                        x += measureString.Width;
                     }
                     y += paragraph.LineSpacingFunc()(maxLineSpace);
+                    lineIndex++;
+                }
+            }
+        }
+
+        private static IEnumerable<Tuple<LinePart, DrawTextPart.Space>> GetSpaces(List<LinePart> lineParts, List<SoftLinePart> softLineParts)
+        {
+            foreach (var part in lineParts)
+            foreach (var drawTextPart in GetDrawTextParts(part.Text(softLineParts)))
+                switch (drawTextPart)
+                {
+                    case DrawTextPart.Space space:
+                        yield return Tuple.Create(part, space);
+                        break;
+                    case DrawTextPart.Word _:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+        }
+
+        private static IEnumerable<DrawTextPart> GetDrawTextParts(string text)
+        {
+            var previousSpaceIndex = -1;
+            for (var i = 0; i < text.Length; i++)
+                if (char.IsWhiteSpace(text[i]))
+                {
+                    if (i - previousSpaceIndex - 1 > 0)
+                        yield return new DrawTextPart.Word(text.Substring(previousSpaceIndex + 1, i - previousSpaceIndex - 1));
+                    yield return new DrawTextPart.Space(text[i]);
+                    previousSpaceIndex = i;
+                }
+            if (previousSpaceIndex + 1 < text.Length)
+                yield return new DrawTextPart.Word(text.Substring(previousSpaceIndex + 1));
+        }
+
+        private class DrawTextPart
+        {
+            public class Word: DrawTextPart
+            {
+                public string Text { get; }
+
+                public Word(string text)
+                {
+                    Text = text;
+                }
+            }
+
+            public class Space: DrawTextPart
+            {
+                public char Char { get; }
+
+                public Space(char @char)
+                {
+                    Char = @char;
                 }
             }
         }
@@ -94,6 +201,14 @@ namespace SharpLayout
         { 
             return lineParts.Sum(part => graphics.MeasureString(part.Text(softLineParts),
                 part.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width);
+        }
+
+        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width)
+        {
+            return GetSoftLines(paragraph).SelectMany(
+                softLineParts => GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
+                    GetCharInfos(softLineParts))
+            ).Count();
         }
 
         public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width)
