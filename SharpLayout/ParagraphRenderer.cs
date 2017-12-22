@@ -40,17 +40,14 @@ namespace SharpLayout
                     var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics));
                     var x = x0 + paragraph.LeftMargin.ValueOr(0) + dx;
                     var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
-                    var deltaInfo = Lazy.Create(() => GetSpaces(lineParts, softLineParts).FirstOrNone().Select(tuple => {
-                        var firstSpaceWidth = graphics.MeasureString(new string(tuple.Item2.Char, 1),
-                            tuple.Item1.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width;
-                        return new {
-                            firstSpaceWidth,
-                            multiplier = (innerWidth - lineParts.ContentWidth(softLineParts, graphics)) *
-                            firstSpaceWidth /
-                            GetSpaces(lineParts, softLineParts).Sum(tuple1 => graphics.MeasureString(new string(tuple1.Item2.Char, 1),
+                    var multiplier = Lazy.Create(() => {
+                        var spaces = GetSpaces(lineParts, softLineParts);
+                        return spaces.Any()
+                            ? (innerWidth - lineParts.ContentWidth(softLineParts, graphics)) /
+                            spaces.Sum(tuple1 => graphics.MeasureString(new string(tuple1.Item2.Char, 1),
                                 tuple1.Item1.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width)
-                        };
-                    }));
+                            : new double?();
+                    });
                     foreach (var part in lineParts)
                     {
                         var text = part.Text(softLineParts);
@@ -64,24 +61,18 @@ namespace SharpLayout
                                 switch (drawTextPart)
                                 {
                                     case DrawTextPart.Space space:
-                                    {
-                                        var measureString = graphics.MeasureString(new string(space.Char, 1), span.Font, MeasureTrailingSpacesStringFormat);
-                                        if (deltaInfo.Value.HasValue)
+                                        var measureWidth = graphics.MeasureString(new string(space.Char, 1), span.Font, MeasureTrailingSpacesStringFormat).Width;
+                                        if (multiplier.Value.HasValue)
                                             if (lineIndex < lineCount.Value - 1)
-                                                stringWidth = measureString.Width + measureString.Width * deltaInfo.Value.Value.multiplier /
-                                                    deltaInfo.Value.Value.firstSpaceWidth;
+                                                stringWidth = measureWidth + measureWidth * multiplier.Value.Value;
                                             else
-                                                stringWidth = measureString.Width;
+                                                stringWidth = measureWidth;
                                         else
-                                            stringWidth = measureString.Width;
+                                            stringWidth = measureWidth;
                                         break;
-                                    }
                                     case DrawTextPart.Word word:
-                                    {
-                                        var measureString = graphics.MeasureString(word.Text, span.Font, MeasureTrailingSpacesStringFormat);
                                         drawer.DrawString(word.Text, span.Font, span.Brush, x, y + baseLine);
-                                        stringWidth = measureString.Width;
-                                    }
+                                        stringWidth = graphics.MeasureString(word.Text, span.Font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
                                         throw new ArgumentOutOfRangeException();
