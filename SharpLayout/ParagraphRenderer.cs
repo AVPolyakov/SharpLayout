@@ -9,7 +9,7 @@ namespace SharpLayout
     public static class ParagraphRenderer
     {
         public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment,
-            Drawer drawer)
+            Drawer drawer, GraphicsType graphicsType)
         {
             var y = y0 + paragraph.TopMargin.ValueOr(0);
             var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width));
@@ -55,7 +55,7 @@ namespace SharpLayout
                         var span = part.GetSoftLinePart(softLineParts).Span;
                         var rectangleWidth = 0d;
                         var rectangleX = x;
-                        if (alignment == HorizontalAlign.Justify)
+                        if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image)
                             foreach (var drawTextPart in GetDrawTextParts(text))
                             {
                                 double stringWidth;
@@ -65,7 +65,10 @@ namespace SharpLayout
                                         var measureWidth = graphics.MeasureString(new string(space.Char, 1), span.Font, MeasureTrailingSpacesStringFormat).Width;
                                         if (multiplier.Value.HasValue)
                                             if (lineIndex < lineCount.Value - 1)
-                                                stringWidth = measureWidth + measureWidth * multiplier.Value.Value;
+                                                if (alignment == HorizontalAlign.Justify)
+                                                    stringWidth = measureWidth + measureWidth * multiplier.Value.Value;
+                                                else
+                                                    stringWidth = measureWidth;
                                             else
                                                 stringWidth = measureWidth;
                                         else

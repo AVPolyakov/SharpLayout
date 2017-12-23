@@ -47,7 +47,7 @@ namespace SharpLayout
                             addPage.Orientation = section.PageSettings.Orientation;
                             using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
                                 action(xGraphics2);
-                        }, section.Tables, this);
+                        }, section.Tables, this, GraphicsType.Pdf);
                 }
                 using (var stream = new MemoryStream())
                 {
@@ -78,7 +78,7 @@ namespace SharpLayout
                                 },
                                 bitmap => pages.Add(ToBytes(bitmap)),
                                 section.PageSettings, resolution);
-                        }, section.Tables, this),
+                        }, section.Tables, this, GraphicsType.Image),
                     bitmap => pages[0] = ToBytes(bitmap),
                     section.PageSettings, resolution);
                 syncBitmapInfos.AddRange(syncPageInfos.Select(pageInfo => new SyncBitmapInfo {

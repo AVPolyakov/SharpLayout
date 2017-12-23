@@ -10,7 +10,7 @@ namespace SharpLayout
     public static class TableRenderer
     {
         public static List<SyncPageInfo> Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
-            Document document)
+            Document document, GraphicsType graphicsType)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
             var firstOnPage = true;
@@ -45,7 +45,7 @@ namespace SharpLayout
                     var drawer = new Drawer(xGraphics);
                     foreach (var part in pages[index])
                         Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document, tableInfos,
-                            pageSettings.LeftMargin, syncPageInfo, 0, drawer);
+                            pageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
                     drawer.Flush();
                 }
                 else
@@ -53,7 +53,7 @@ namespace SharpLayout
                         var drawer = new Drawer(xGraphics2);
                         foreach (var part in pages[index])
                             Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document, tableInfos,
-                                pageSettings.LeftMargin, syncPageInfo, 0, drawer);
+                                pageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
                         drawer.Flush();
                     });
             }
@@ -125,7 +125,7 @@ namespace SharpLayout
         }
 
         private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document,
-            Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel, Drawer drawer)
+            Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel, Drawer drawer, GraphicsType graphicsType)
         {
             var firstRow = rows.FirstOrNone();
             if (!firstRow.HasValue) return;
@@ -228,7 +228,7 @@ namespace SharpLayout
                                     TableLevel = tableLevel,
                                     Level = 1
                                 });
-                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment(), drawer);
+                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment(), drawer, graphicsType);
                                 return new { };
                             },
                             table => {
@@ -250,7 +250,7 @@ namespace SharpLayout
                                 }
                                 Draw(tableInfo,
                                     Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer);
+                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType);
                                 return new { };
                             });
                         paragraphY += element.Match(
