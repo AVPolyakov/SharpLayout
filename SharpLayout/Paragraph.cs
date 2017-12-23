@@ -18,6 +18,15 @@ namespace SharpLayout
 
         public Option<double> BottomMargin { get; set; }
 
+        private Option<double> textIndent;
+        public Paragraph TextIndent(Option<double> value)
+        {
+            textIndent = value;
+            return this;
+        }
+
+        public Option<double> TextIndent() => textIndent;
+
         private Func<double, double> lineSpacingFunc = _ => _;
 
         public Paragraph LineSpacingFunc(Func<double, double> value)
