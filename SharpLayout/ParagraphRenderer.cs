@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using PdfSharp.Drawing;
 
@@ -393,15 +394,12 @@ namespace SharpLayout
             get
             {
                 var xStringFormat = XStringFormats.Default;
-                xStringFormat.FormatFlags |= XStringFormatFlags.MeasureTrailingSpaces;
+                xStringFormat.FormatFlags = (XStringFormatFlags) (StringFormat.GenericTypographic.FormatFlags | StringFormatFlags.MeasureTrailingSpaces);
                 return xStringFormat;
             }
         }
 
         public static double LineSpace(this XFont font, XGraphics graphics) => font.GetHeight(graphics);
-
-        public static double GetSpaceWidth(XGraphics graphics, XFont font) 
-            => graphics.MeasureString(" ", font, MeasureTrailingSpacesStringFormat).Width;
 
         public static void Add<TKey, TValue>(this Dictionary<TKey, List<TValue>> it, TKey key, TValue value)
         {
