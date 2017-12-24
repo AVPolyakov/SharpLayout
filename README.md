@@ -1,18 +1,13 @@
-## Live Viewer
-
-Компилируем проект [LiveViewer](LiveViewer/LiveViewer.csproj). В переменную окружения PATH добавляем директорию, в которой находится `LiveViewer.exe`.
-
-С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем [StartLiveViewer](SharpLayout.Tests/Program.cs#L17). LiveViewer отслеживает изменения файла и автоматически обновляет изображение. Если метод `StartLiveViewer` вызывается с параметром `false`, то фокус остается в окне Visual Studio.
-
-`Ctrl + Сlick` – навигация из отчета к строке исходного кода.
-
-Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
-
-[![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
-
-Изменение размеров мышкой:
-
-[![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
+### Table of Contents  
+- [Базовые элементы для создания отчета](#%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5-%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-%D0%B4%D0%BB%D1%8F-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
+- [Процесс создания отчета](#%D0%9F%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
+- [Примеры](#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B)  
+  - [Платежное поручение](#%D0%9F%D0%BB%D0%B0%D1%82%D0%B5%D0%B6%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D1%80%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)  
+  - [Справка о валютных операциях](#%D0%A1%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D0%BE-%D0%B2%D0%B0%D0%BB%D1%8E%D1%82%D0%BD%D1%8B%D1%85-%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D1%8F%D1%85)  
+- [Live Viewer](#live-viewer)  
+- [Developer Tools](#developer-tools)
+- [Конвертация pdf файла в png для измерения расстояний](#%D0%9A%D0%BE%D0%BD%D0%B2%D0%B5%D1%80%D1%82%D0%B0%D1%86%D0%B8%D1%8F-pdf-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-png-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)  
+- [Плагин к Paint.NET для измерения расстояний](#%D0%9F%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD-%D0%BA-paintnet-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)
 
 ## Базовые элементы для создания отчета
 **Таблица** представляет собой матрицу `N` на `M`:  
@@ -54,7 +49,9 @@
 В итоге получаем вот такое 
 [платежное поручение](Files/PaymentOrder_Dev.pdf?raw=true).
 
-## Платежное поручение
+## Примеры
+
+### Платежное поручение
 See the PDF file created by
 [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs)
 sample:
@@ -63,15 +60,37 @@ Highlighting of cells **r1c1** and paragraphs for development
 [PaymentOrder_Dev.pdf](Files/PaymentOrder_Dev.pdf?raw=true)
 ![PaymentOrder.pdf](Files/PaymentOrder.png?raw=true")
 
-## Справка о валютных операциях
+### Справка о валютных операциях
 [Ссылка](http://www.consultant.ru/document/cons_doc_LAW_133766/8408aeb59bc953ca3bbce8a729e5a5dca3bd0705/)
 для скачивания формы справки о валютных операциях (ОКУД 0406009).
 [Копия](Files/LAW191272_0_20170628_171359.RTF).  
 C# код [Svo.cs](SharpLayout.Tests/Svo.cs) для создания справки о валютных операциях
 [Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева фиолетовым указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
 
-## Номера C# строк для каждой ячейки
-Для того чтобы увидеть номера C# строк для каждой ячейки необходимо установить флаг [CellLineNumbersAreVisible](SharpLayout/Document.cs#L29). В файле [PaymentOrder_CellLines.pdf](Files/PaymentOrder_CellLines.pdf?raw=true)  в каждой ячейке в правом нижнем углу указан номер строки в файле [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs).
+## Live Viewer
+
+Компилируем проект [LiveViewer](LiveViewer/LiveViewer.csproj). В переменную окружения PATH добавляем директорию, в которой находится `LiveViewer.exe`.
+
+С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем [StartLiveViewer](SharpLayout.Tests/Program.cs#L17). LiveViewer отслеживает изменения файла и автоматически обновляет изображение. Если метод `StartLiveViewer` вызывается с параметром `false`, то фокус остается в окне Visual Studio.
+
+`Ctrl + Сlick` – навигация из отчета к строке исходного кода.
+
+Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
+
+[![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
+
+Изменение размеров мышкой:
+
+[![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
+
+## Developer Tools
+Отображение адресов ячеек R1C1 – `document.R1C1AreVisible = true`  
+Подсветка ячеек – `document.CellsAreHighlighted = true`  
+![r11.png](Files/r11.png?raw=true")  
+Подсветка параграфов – `document.ParagraphsAreHighlighted = true`  
+![r9.png](Files/r9.png?raw=true")  
+Отображение номеров строк исходного кода в ячейке – `document.CellLineNumbersAreVisible = true`  
+![r10.png](Files/r10.png?raw=true")  
 
 ## Конвертация pdf файла в png для измерения расстояний
  Программа [ConvertPDF](https://github.com/AVPolyakov/Pdf2Png) конвертирует любой pdf файл в png файл с разрешением 254 пикселя на дюйм. Таким образом, один пиксель соответствует одной десятой миллиметра.
