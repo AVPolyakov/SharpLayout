@@ -17,9 +17,8 @@ namespace SharpLayout
             var y = pageSettings.TopMargin;
             var tableParts = tables.Select(table => {
                 var tableInfo = GetTableInfo(xGraphics, table, tableInfos);
-                double endY;
                 var tableY = y;
-                var rowSets = SplitByPages(tableInfo, firstOnPage, out endY, pageSettings, tableY);
+                var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, pageSettings, tableY);
                 if (rowSets.Count > 0)
                     firstOnPage = false;
                 y = endY;
@@ -366,8 +365,7 @@ namespace SharpLayout
                 foreach (var column in table.Columns)
                 {
                     double rowHeightByContent;
-                    MaxHeightsTuple cell;
-                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column), out cell))
+                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column), out var cell))
                     {
                         var paragraphHeight = cell.Elements.Sum(_ => _.Match(
                             p => p.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc),

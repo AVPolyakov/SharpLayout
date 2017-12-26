@@ -78,11 +78,8 @@ namespace SharpLayout
 
         public static Option<T> None<T>(this T it, Func<T, bool> predicate) => predicate(it) ? new Option<T>() : it;
 
-        public static Option<TValue> Get<TKey, TValue>(this Dictionary<TKey, TValue> it, TKey key)
-        {
-            TValue value;
-            return it.TryGetValue(key, out value) ? value : new Option<TValue>();
-        }
+        public static Option<TValue> Get<TKey, TValue>(this Dictionary<TKey, TValue> it, TKey key) 
+            => it.TryGetValue(key, out var value) ? value : new Option<TValue>();
 
         public static Option<T> FirstOrNone<T>(this IEnumerable<T> it)
         {

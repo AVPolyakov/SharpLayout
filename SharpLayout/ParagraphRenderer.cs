@@ -413,8 +413,7 @@ namespace SharpLayout
 
         public static void Add<TKey, TValue>(this Dictionary<TKey, List<TValue>> it, TKey key, TValue value)
         {
-            List<TValue> list;
-            if (it.TryGetValue(key, out list))
+            if (it.TryGetValue(key, out var list))
                 list.Add(value);
             else
                 it.Add(key, new List<TValue> {value});

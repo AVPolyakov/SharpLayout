@@ -17,8 +17,7 @@ namespace SharpLayout
         public TValue GetValue(TKey key)
         {
             {
-                TValue value;
-                if (dictionary.TryGetValue(key, out value)) return value;
+                if (dictionary.TryGetValue(key, out var value)) return value;
             }
             {
                 var value = func(key);
