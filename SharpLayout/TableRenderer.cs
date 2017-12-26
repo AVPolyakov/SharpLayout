@@ -73,6 +73,8 @@ namespace SharpLayout
             var row = 0;
             var tableFirstPage = true;
             var result = new List<IEnumerable<int>>();
+            IEnumerable<int> RowRange(int start, int count) =>
+                (tableFirstPage ? Empty<int>() : tableInfo.TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
             while (true)
             {
                 y += tableInfo.MaxHeights[row];
@@ -82,7 +84,7 @@ namespace SharpLayout
                     var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
                     if (firstMergedRow - start > 0)
                     {
-                        result.Add(Range(start, firstMergedRow - start));
+                        result.Add(RowRange(start, firstMergedRow - start));
                         lastRowOnPreviousPage = firstMergedRow - 1;
                         row = firstMergedRow;
                     }
@@ -97,16 +99,30 @@ namespace SharpLayout
                         else
                         {
                             var endMergedRow = EndMergedRow(tableInfo.Table, mergedRows, row);
-                            result.Add(Range(start, endMergedRow - start));
+                            result.Add(RowRange(start, endMergedRow - start));
                             lastRowOnPreviousPage = endMergedRow;
                             row = endMergedRow + 1;
                             if (row >= tableInfo.Table.Rows.Count) break;
                         }
                     }
                     tableFirstPage = false;
-                    y = pageSettings.TopMargin + (row == 0
-                        ? tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
-                        : tableInfo.Table.Columns.Max(column => tableInfo.BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0)));
+                    double topIndent;
+                    if (tableInfo.TableHeaderRows.Count == 0)
+                        topIndent = row == 0
+                            ? tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
+                            : tableInfo.Table.Columns.Max(column =>
+                                tableInfo.BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0));
+                    else
+                    {
+                        var firstHeaderRow = tableInfo.TableHeaderRows.OrderBy(_ => _).First();
+                        topIndent = (firstHeaderRow == 0
+                                ? tableInfo.Table.Columns.Max(column =>
+                                    tableInfo.TopBorderFunc(new CellInfo(firstHeaderRow, column.Index)).Select(_ => _.Width).ValueOr(0))
+                                : tableInfo.Table.Columns.Max(column =>
+                                    tableInfo.BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
+                            tableInfo.TableHeaderRows.Sum(rowIndex => tableInfo.MaxHeights[rowIndex]);
+                    }
+                    y = pageSettings.TopMargin + topIndent;
                 }
                 else
                 {
@@ -117,7 +133,7 @@ namespace SharpLayout
             {
                 var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
                 if (start < tableInfo.Table.Rows.Count)
-                    result.Add(Range(start, tableInfo.Table.Rows.Count - start));
+                    result.Add(RowRange(start, tableInfo.Table.Rows.Count - start));
             }
             endY = y;
             return result;
@@ -581,7 +597,18 @@ namespace SharpLayout
             var bottomBorderFunc = table.BottomBorder();
             return new TableInfo(table, table.TopBorder(), bottomBorderFunc,
                 table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos), table.LeftBorder(),
-                rightBorderFunc, table.BackgroundColor());
+                rightBorderFunc, table.BackgroundColor(), TableHeaderRows(table));
+        }
+
+        private static HashSet<int> TableHeaderRows(Table table)
+        {
+            var hashSet = new HashSet<int>();
+            foreach (var row in table.Rows)
+            foreach (var column in table.Columns)
+                for (var i = 0; i < row[column].Rowspan().ValueOr(1); i++)
+                    if (row.TableHeader())
+                        hashSet.Add(row.Index);
+            return hashSet;
         }
 
         private class TablePart
@@ -607,6 +634,7 @@ namespace SharpLayout
             public Table Table { get; }
             public Func<CellInfo, Option<XPen>> RightBorderFunc { get; }
             public Func<CellInfo, Option<XColor>> BackgroundColor { get; }
+            public HashSet<int> TableHeaderRows { get; }
             public Func<CellInfo, Option<XPen>> LeftBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> TopBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> BottomBorderFunc { get; }
@@ -615,11 +643,12 @@ namespace SharpLayout
 
             public TableInfo(Table table, Func<CellInfo, Option<XPen>> topBorderFunc, Func<CellInfo, Option<XPen>> bottomBorderFunc,
                 Dictionary<int, double> maxHeights, Func<CellInfo, Option<XPen>> leftBorderFunc, Func<CellInfo, Option<XPen>> rightBorderFunc,
-                Func<CellInfo, Option<XColor>> backgroundColor)
+                Func<CellInfo, Option<XColor>> backgroundColor, HashSet<int> tableHeaderRows)
             {
                 Table = table;
                 RightBorderFunc = rightBorderFunc;
                 BackgroundColor = backgroundColor;
+                TableHeaderRows = tableHeaderRows;
                 LeftBorderFunc = leftBorderFunc;
                 TopBorderFunc = topBorderFunc;
                 BottomBorderFunc = bottomBorderFunc;

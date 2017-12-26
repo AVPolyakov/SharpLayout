@@ -36,5 +36,14 @@ namespace SharpLayout
                 return cell;
             }
         }
+
+        private bool tableHeader;
+        public Row TableHeader(bool value)
+        {
+            tableHeader = value;
+            return this;
+        }
+
+        public bool TableHeader() => tableHeader;
     }
 }

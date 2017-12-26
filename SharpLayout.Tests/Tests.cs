@@ -13,6 +13,51 @@ namespace SharpLayout.Tests
     public class Tests
     {
         [Fact]
+        public void TableHeader()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).TextIndent(Cm(1))
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+            var table = section.AddTable();
+            var c1 = table.AddColumn(Px(651));
+            var c2 = table.AddColumn(Px(400));
+            for (var i = 0; i < 200; i++)
+            {
+                var r = table.AddRow();
+                if (i == 0)
+                {
+                    r.TableHeader(true);
+                    r[c1].Border(Top | Left | Right, BorderWidth * 1.5);
+                    r[c2].Border(Top | Right | Bottom, BorderWidth * 1.5).Rowspan(2).VerticalAlign(VerticalAlign.Center)
+                        .Add(new Paragraph().Alignment(HorizontalAlign.Center).Add("second", Styles.TimesNewRoman10));
+                }
+                else if (i == 1)
+                {
+                    r.TableHeader(true);
+                    r[c1].Border(Bottom | Left | Right, BorderWidth * 1.5);
+                }
+                else
+                {
+                    r[c1].Border(Bottom | Left | Right, BorderWidth);
+                    r[c2].Border(Bottom | Right, BorderWidth);
+                }
+                r[c1]
+                    .Add(new Paragraph().Add($"first {i}", Styles.TimesNewRoman10));
+            }
+            Assert(nameof(TableHeader), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void DashBorders()
         {
             var document = new Document();
