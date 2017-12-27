@@ -7,6 +7,8 @@ namespace SharpLayout
     {
         public PageSettings PageSettings { get; }
         public List<Table> Tables { get; } = new List<Table>();
+        public List<Table> Headers { get; } = new List<Table>();
+        public List<Table> Footers { get; } = new List<Table>();
 
         public Section(PageSettings pageSettings)
         {
@@ -17,6 +19,20 @@ namespace SharpLayout
         {
             var table = new Table(line);
             Tables.Add(table);
+            return table;
+        }
+
+        public Table AddHeader([CallerLineNumber] int line = 0)
+        {
+            var table = new Table(line);
+            Headers.Add(table);
+            return table;
+        }
+
+        public Table AddFooters([CallerLineNumber] int line = 0)
+        {
+            var table = new Table(line);
+            Footers.Add(table);
             return table;
         }
 

@@ -21,7 +21,7 @@ namespace SharpLayout.Tests
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
         }
 
-        private static void StartLiveViewer(this string fileName, bool alwaysShowWindow)
+        public static void StartLiveViewer(this string fileName, bool alwaysShowWindow)
         {
             if (alwaysShowWindow || Process.GetProcessesByName("LiveViewer").Length <= 0)
                 Process.Start("LiveViewer", fileName);

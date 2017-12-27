@@ -9,16 +9,16 @@ namespace SharpLayout
 {
     public static class TableRenderer
     {
-        public static List<SyncPageInfo> Draw(XGraphics xGraphics, PageSettings pageSettings, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
+        public static List<SyncPageInfo> Draw(XGraphics xGraphics, Section section, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
             Document document, GraphicsType graphicsType)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
             var firstOnPage = true;
-            var y = pageSettings.TopMargin;
+            var y = section.TopMargin(xGraphics, tableInfos);
             var tableParts = tables.Select(table => {
-                var tableInfo = GetTableInfo(xGraphics, table, tableInfos);
+                var tableInfo = GetTableInfo(tableInfos, xGraphics).GetValue(table);
                 var tableY = y;
-                var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, pageSettings, tableY);
+                var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos);
                 if (rowSets.Count > 0)
                     firstOnPage = false;
                 y = endY;
@@ -39,27 +39,48 @@ namespace SharpLayout
             {
                 var syncPageInfo = new SyncPageInfo();
                 syncPageInfos.Add(syncPageInfo);
+                void DrawHeaders(Drawer drawer)
+                {
+                    foreach (var header in section.Headers)
+                        Draw(GetTableInfo(tableInfos, xGraphics).GetValue(header),
+                            Range(0, header.Rows.Count), 0, xGraphics, document, tableInfos,
+                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);                    
+                }
+                void DrawFooters(Drawer drawer)
+                {
+                    foreach (var footer in section.Footers)
+                        Draw(GetTableInfo(tableInfos, xGraphics).GetValue(footer),
+                            Range(0, footer.Rows.Count),
+                            section.PageSettings.PageHeight - footer.GetTableHeight(xGraphics, tableInfos),
+                            xGraphics, document, tableInfos,
+                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);                    
+                }
                 if (index == 0)
                 {
                     var drawer = new Drawer(xGraphics);
+                    DrawHeaders(drawer);
                     foreach (var part in pages[index])
-                        Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics, document, tableInfos,
-                            pageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
+                        Draw(part.TableInfo, part.Rows, part.Y(section, xGraphics, tableInfos), xGraphics, document, tableInfos,
+                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
+                    DrawFooters(drawer);
                     drawer.Flush();
                 }
                 else
                     pageAction(index, xGraphics2 => {
                         var drawer = new Drawer(xGraphics2);
+                        DrawHeaders(drawer);
                         foreach (var part in pages[index])
-                            Draw(part.TableInfo, part.Rows, part.Y(pageSettings), xGraphics2, document, tableInfos,
-                                pageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
+                            Draw(part.TableInfo, part.Rows, part.Y(section, xGraphics, tableInfos), xGraphics2, document, tableInfos,
+                                section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType);
+                        DrawFooters(drawer);
                         drawer.Flush();
                     });
             }
             return syncPageInfos;
         }
 
-        private static List<IEnumerable<int>> SplitByPages(TableInfo tableInfo, bool firstOnPage, out double endY, PageSettings pageSettings, double tableY)
+        private static List<IEnumerable<int>> SplitByPages(TableInfo tableInfo, bool firstOnPage, out double endY, Section section, double tableY,
+            XGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos)
         {
             if (tableInfo.Table.Rows.Count == 0)
             {
@@ -78,7 +99,7 @@ namespace SharpLayout
             while (true)
             {
                 y += tableInfo.MaxHeights[row];
-                if (pageSettings.PageHeight - pageSettings.BottomMargin - y < 0)
+                if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos) - y < 0)
                 {
                     var firstMergedRow = FirstMergedRow(mergedRows, row);
                     var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
@@ -122,7 +143,7 @@ namespace SharpLayout
                                     tableInfo.BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
                             tableInfo.TableHeaderRows.Sum(rowIndex => tableInfo.MaxHeights[rowIndex]);
                     }
-                    y = pageSettings.TopMargin + topIndent;
+                    y = section.TopMargin(xGraphics, tableInfos) + topIndent;
                 }
                 else
                 {
@@ -289,6 +310,18 @@ namespace SharpLayout
                 }
                 y += info.MaxHeights[row];
             }
+        }
+
+        private static double TopMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos)
+        {
+            return Math.Max(section.PageSettings.TopMargin,
+                section.Headers.Sum(table => table.GetTableHeight(graphics, tableInfos)));
+        }
+
+        private static double BottomMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos)
+        {
+            return Math.Max(section.PageSettings.BottomMargin,
+                section.Footers.Sum(table => table.GetTableHeight(graphics, tableInfos)));
         }
 
         private static double MaxTopBorder(TableInfo info)
@@ -605,7 +638,7 @@ namespace SharpLayout
             var hashSet = new HashSet<int>();
             foreach (var row in table.Rows)
             foreach (var column in table.Columns)
-                for (var i = 0; i < row[column].Rowspan().ValueOr(1); i++)
+                for (var i = 0; i < row.Cells[column.Index].Rowspan().ValueOr(1); i++)
                     if (row.TableHeader())
                         hashSet.Add(row.Index);
             return hashSet;
@@ -618,7 +651,8 @@ namespace SharpLayout
             private int Index { get; }
             public TableInfo TableInfo { get; }
             public bool IsFirst => Index == 0;
-            public double Y(PageSettings pageSettings) => IsFirst ? TableY : pageSettings.TopMargin;
+            public double Y(Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos) => 
+                IsFirst ? TableY : section.TopMargin(graphics, tableInfos);
 
             public TablePart(IEnumerable<int> rows, int index, TableInfo tableInfo, double tableY)
             {

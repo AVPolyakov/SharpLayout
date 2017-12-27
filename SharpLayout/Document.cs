@@ -41,7 +41,7 @@ namespace SharpLayout
                     page.Size = PageSize.A4;
                     page.Orientation = section.PageSettings.Orientation;
                     using (var xGraphics = XGraphics.FromPdfPage(page))
-                        TableRenderer.Draw(xGraphics, section.PageSettings, (pageIndex, action) => {
+                        TableRenderer.Draw(xGraphics, section, (pageIndex, action) => {
                             var addPage = pdfDocument.AddPage();
                             addPage.Size = PageSize.A4;
                             addPage.Orientation = section.PageSettings.Orientation;
@@ -70,7 +70,7 @@ namespace SharpLayout
             foreach (var section in Sections)
             {
                 var pages = new List<byte[]> {null};
-                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section.PageSettings,
+                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section,
                         (pageIndex, action) => {
                             FillBitmap(graphics => {
                                     action(graphics);
