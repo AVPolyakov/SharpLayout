@@ -88,8 +88,9 @@ namespace SharpLayout
                 return new List<IEnumerable<int>>();
             }
             var mergedRows = MergedRows(tableInfo.Table);
-            var y = tableY + tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(0, column.Index))
-                .Select(_ => _.Width).ValueOr(0));
+            var y = tableY + tableInfo.Table.TopMargin.ValueOr(0) +
+                tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(0, column.Index))
+                    .Select(_ => _.Width).ValueOr(0));
             var lastRowOnPreviousPage = new Option<int>();
             var row = 0;
             var tableFirstPage = true;
