@@ -50,7 +50,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable();
                 table.AddColumn(Px(1199));
                 var c2 = table.AddColumn(Px(200));
-                table.AddRow().Height(Px(28))[c2].Border(Top, BorderWidth);
+                table.AddRow().Height(Px(28))[c2].Border(Top);
             }
             {
                 var table = section.AddTable();
@@ -104,7 +104,7 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("Признак платежа", headerFont));
                 r1[c5].Rowspan(2).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add("Код вида валютной операции", headerFont));
-                r1[c6].Colspan(c7).Border(Top | Right | Bottom, BorderWidth)
+                r1[c6].Colspan(c7).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add("Сумма операции", headerFont));
                 r1[c8].Rowspan(2).Border(Top | Right | Bottom)
                     .Add(Paragraph.Add(@"Номер ПС
