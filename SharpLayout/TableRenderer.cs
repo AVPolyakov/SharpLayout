@@ -21,7 +21,7 @@ namespace SharpLayout
                 var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos, new TextMode.Measure());
                 if (rowSets.Count > 0)
                     firstOnPage = false;
-                y = endY;
+                y = endY + table.BottomMargin.ValueOr(0);
                 return rowSets.Select((rows, index) => new TablePart(rows, index, tableInfo, tableY));
             }).ToList();
             if (tableParts.Count == 0) return new List<SyncPageInfo>();

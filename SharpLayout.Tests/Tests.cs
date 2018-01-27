@@ -13,6 +13,26 @@ namespace SharpLayout.Tests
     public class Tests
     {
         [Fact]
+        public void TableBottomMargin()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            {
+                var table = section.AddTable().Margin(Bottom, Px(200));
+                var c1 = table.AddColumn(Px(200));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph().Add("Test1", Styles.TimesNewRoman10));
+            }
+            {
+                var table = section.AddTable();
+                var c1 = table.AddColumn(Px(200));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph().Add("Test2", Styles.TimesNewRoman10));
+            }
+            Assert(nameof(TableBottomMargin), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void PageHeader()
         {
             var document = new Document();
