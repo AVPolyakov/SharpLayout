@@ -9,11 +9,13 @@ namespace SharpLayout.Tests
         {
             var document = new Document {
                 //CellsAreHighlighted = true,
-                R1C1AreVisible = true,
+                //R1C1AreVisible = true,
                 //ParagraphsAreHighlighted = true,
                 //CellLineNumbersAreVisible = true
             };
             PaymentOrder.AddSection(document);
+            //Svo.AddSection(document);
+            //ContractDealPassport.AddSection(document);
 
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
 

@@ -27,11 +27,14 @@ namespace SharpLayout
             Index = index;
         }
 
-        public Cell this[Column column, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = ""]
+        public Cell this[Column column, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = ""] => 
+            this[column.Index, line, filePath];
+
+        public Cell this[int columnIndex, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = ""]
         {
             get
             {
-                var cell = Cells[column.Index];
+                var cell = Cells[columnIndex];
                 cell.CallerInfos.Add(new CallerInfo {Line = line, FilePath = filePath});
                 return cell;
             }
