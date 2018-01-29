@@ -24,8 +24,8 @@ namespace SharpLayout.Tests
                 .Add("Форма 1", TimesNewRoman11));
             {
                 var table = section.AddTable();
-                var r1 = table.AddRow().Height(Cm(0.63));
                 var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins - BorderWidth);
+	            var r1 = table.AddRow().Height(Cm(0.63));
                 r1[c1].Border(All).VerticalAlign(VerticalAlign.Center)
                     .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                         .Add("Тест", TimesNewRoman11_5));
@@ -35,7 +35,6 @@ namespace SharpLayout.Tests
             var cellWidth = Cm(0.4);
             {
                 var table = section.AddTable();
-                var r1 = table.AddRow().Height(Cm(0.55));
                 var c1 = table.AddColumn(Px(343));
                 var c2 = table.AddColumn(Px(57));
                 var c3 = table.AddColumn(Cm(2.2));
@@ -44,6 +43,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < cellCount; i++)
                     table.AddColumn(cellWidth);
                 new[] {c1, c4}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth);
+	            var r1 = table.AddRow().Height(Cm(0.55));
                 r1[c1].VerticalAlign(VerticalAlign.Bottom).Add(NormalParagraph
                     .Add("Паспорт сделки", TimesNewRoman13Bold));
                 r1[c2].VerticalAlign(VerticalAlign.Bottom).Add(NormalParagraph.Alignment(HorizontalAlign.Right)
