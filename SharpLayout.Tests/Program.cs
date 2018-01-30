@@ -11,7 +11,8 @@ namespace SharpLayout.Tests
                 //CellsAreHighlighted = true,
                 //R1C1AreVisible = true,
                 //ParagraphsAreHighlighted = true,
-                //CellLineNumbersAreVisible = true
+                //CellLineNumbersAreVisible = true,
+	            //ExpressionVisible = true,
             };
             PaymentOrder.AddSection(document);
             //Svo.AddSection(document);

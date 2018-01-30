@@ -29,7 +29,9 @@ namespace SharpLayout
 
         public bool CellLineNumbersAreVisible { get; set; }
 
-        public byte[] CreatePdf()
+	    public bool ExpressionVisible { get; set; }
+
+	    public byte[] CreatePdf()
         {
             using (var pdfDocument = new PdfDocument())
             {
