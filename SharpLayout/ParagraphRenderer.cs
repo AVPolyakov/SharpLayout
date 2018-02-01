@@ -56,7 +56,7 @@ namespace SharpLayout
                         var span = part.GetSoftLinePart(softLineParts).Span;
                         var rectangleWidth = 0d;
                         var rectangleX = x;
-                        if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image)
+                        if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image && !span.Font.Underline)
                             foreach (var drawTextPart in GetDrawTextParts(text))
                             {
                                 double stringWidth;
