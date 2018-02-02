@@ -1,5 +1,4 @@
-﻿using PdfSharp.Drawing;
-using static SharpLayout.Direction;
+﻿using static SharpLayout.Direction;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
 
@@ -10,7 +9,7 @@ namespace SharpLayout.Tests
         public static void AddSection(Document document)
         {
             var pageSettings = new PageSettings {
-                TopMargin = Cm(1.5),
+                TopMargin = Cm(1),
                 BottomMargin = Cm(1),
                 LeftMargin = Cm(3),
                 RightMargin = Cm(1.5)
@@ -18,6 +17,7 @@ namespace SharpLayout.Tests
             var section = document.Add(new Section(pageSettings));
             var verticalSpacing = 3d;
             var bigVerticalSpacing = verticalSpacing * 2;
+            var smallVerticalSpacing = 2d;
             section.Add(new Paragraph().Margin(Bottom, verticalSpacing).Alignment(HorizontalAlign.Right)
                 .Add("Код формы по ОКУД 0406005", TimesNewRoman10));
             section.Add(new Paragraph().Margin(Bottom, verticalSpacing).Alignment(HorizontalAlign.Right)
@@ -58,7 +58,7 @@ namespace SharpLayout.Tests
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                             .Add("12345678/1234/1234/1/1".CellSunstring(i, cellCount), TimesNewRoman12Bold));
             }
-            section.Add(new Paragraph().Margin(Top, verticalSpacing * 3).Margin(Bottom, verticalSpacing)
+            section.Add(new Paragraph().Margin(Top, verticalSpacing * 2).Margin(Bottom, verticalSpacing)
                 .Add("1. Сведения о резиденте", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -369,7 +369,7 @@ namespace SharpLayout.Tests
                     r1[c2].VerticalAlign(VerticalAlign.Center).Add(table2);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, smallVerticalSpacing)
                 .Add("7. Справочная информация", TimesNewRoman11_5Bold));
             section.Add(new Paragraph()
                 .Add("7.1. Способ и дата представления резидентом документов для оформления", TimesNewRoman9_5));
@@ -407,19 +407,9 @@ namespace SharpLayout.Tests
             }
         }
 
-        private static Paragraph NormalParagraph => new Paragraph().Margin(Left | Right, Cm(0.05));
-        public static XFont TimesNewRoman8 => new XFont("Times New Roman", 8, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman9 => new XFont("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman9_5 => new XFont("Times New Roman", 9.5, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman10 => new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman11 => new XFont("Times New Roman", 11, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman11_5 => new XFont("Times New Roman", 11.5, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman11_5Bold => new XFont("Times New Roman", 11.5, XFontStyle.Bold, PdfOptions);
-        public static XFont TimesNewRoman12 => new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
-        public static XFont TimesNewRoman12Bold => new XFont("Times New Roman", 12, XFontStyle.Bold, PdfOptions);
-        public static XFont TimesNewRoman13Bold => new XFont("Times New Roman", 13, XFontStyle.Bold, PdfOptions);
+        public static Paragraph NormalParagraph => new Paragraph().Margin(Left | Right, Cm(0.05));
 
-        private static string CellSunstring(this string s, int i, int cellCount)
+        public static string CellSunstring(this string s, int i, int cellCount)
         {
             if (s == null) return "";
             if (i >= s.Length) return "";
@@ -427,7 +417,7 @@ namespace SharpLayout.Tests
             return s.Substring(i, 1);
         }
 
-        private static void Distribute(this Column[] columns, double width)
+        public static void Distribute(this Column[] columns, double width)
         {
             var d = width / columns.Length;
             double sum = 0;

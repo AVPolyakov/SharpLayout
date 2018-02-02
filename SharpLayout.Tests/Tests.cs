@@ -461,6 +461,14 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
+        public void LoanAgreementDealPassportTest()
+        {
+            var document = new Document();
+            LoanAgreementDealPassport.AddSection(document);
+            Assert(nameof(LoanAgreementDealPassportTest), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void BackgroundColor()
         {
             var document = new Document();

@@ -12,15 +12,16 @@ namespace SharpLayout.Tests
                 //R1C1AreVisible = true,
                 //ParagraphsAreHighlighted = true,
                 //CellLineNumbersAreVisible = true,
-	            //ExpressionVisible = true,
+                //ExpressionVisible = true,
             };
             PaymentOrder.AddSection(document);
             //Svo.AddSection(document);
             //ContractDealPassport.AddSection(document);
+            //LoanAgreementDealPassport.AddSection(document);
 
-            document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
+            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
 
-            //Process.Start(document.SavePng(0, "Temp.png")); //open with Paint.NET
+            //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
         }
 
