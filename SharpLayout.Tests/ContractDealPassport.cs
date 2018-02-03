@@ -16,11 +16,11 @@ namespace SharpLayout.Tests
                 RightMargin = Cm(1.5)
             };
             var section = document.Add(new Section(pageSettings));
-            var horizontalSpacing = 3d;
-            var bigHorizontalSpacing = horizontalSpacing * 2;
-            section.Add(new Paragraph().Margin(Bottom, horizontalSpacing).Alignment(HorizontalAlign.Right)
+            var verticalSpacing = 3d;
+            var bigVerticalSpacing = verticalSpacing * 2;
+            section.Add(new Paragraph().Margin(Bottom, verticalSpacing).Alignment(HorizontalAlign.Right)
                 .Add("Код формы по ОКУД 0406005", TimesNewRoman10));
-            section.Add(new Paragraph().Margin(Bottom, horizontalSpacing).Alignment(HorizontalAlign.Right)
+            section.Add(new Paragraph().Margin(Bottom, verticalSpacing).Alignment(HorizontalAlign.Right)
                 .Add("Форма 1", TimesNewRoman11));
             {
                 var table = section.AddTable();
@@ -30,7 +30,7 @@ namespace SharpLayout.Tests
                     .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                         .Add("Тест", TimesNewRoman11_5));
             }
-            section.Add(new Paragraph().Margin(Bottom, horizontalSpacing * 2).Alignment(HorizontalAlign.Center)
+            section.Add(new Paragraph().Margin(Bottom, verticalSpacing * 2).Alignment(HorizontalAlign.Center)
                 .Add("Наименование банка ПС", TimesNewRoman9));
             var cellWidth = Cm(0.4);
             {
@@ -58,7 +58,7 @@ namespace SharpLayout.Tests
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                             .Add("12345678/1234/1234/1/1".CellSunstring(i, cellCount), TimesNewRoman12Bold));
             }
-            section.Add(new Paragraph().Margin(Top, horizontalSpacing * 3).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, verticalSpacing * 3).Margin(Bottom, verticalSpacing)
                 .Add("1. Сведения о резиденте", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -167,7 +167,7 @@ namespace SharpLayout.Tests
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                             .Add("1234123412341234123412".CellSunstring(i, cellCount), TimesNewRoman9_5));
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("2. Реквизиты нерезидента (нерезидентов)", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -207,7 +207,7 @@ namespace SharpLayout.Tests
                     r[c1].Border(Left);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("3. Общие сведения о контракте", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -258,7 +258,7 @@ namespace SharpLayout.Tests
                     r[c1].Border(Left);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("4. Сведения об оформлении, переводе и закрытии паспорта сделки", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -303,7 +303,7 @@ namespace SharpLayout.Tests
                     r[c1].Border(Left);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("5. Сведения о переоформлении паспорта сделки", TimesNewRoman11_5Bold));
             {
                 var table = section.AddTable();
@@ -342,7 +342,7 @@ namespace SharpLayout.Tests
                     r[c1].Border(Left);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing)
                 .Add("6. Сведения о ранее оформленном", TimesNewRoman11_5Bold));
             {
                 var cellCount = 22;
@@ -369,7 +369,7 @@ namespace SharpLayout.Tests
                     r1[c2].VerticalAlign(VerticalAlign.Center).Add(table2);
                 }
             }
-            section.Add(new Paragraph().Margin(Top, bigHorizontalSpacing).Margin(Bottom, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("7. Справочная информация", TimesNewRoman11_5Bold));
             section.Add(new Paragraph()
                 .Add("7.1. Способ и дата представления резидентом документов для оформления", TimesNewRoman9_5));
@@ -388,7 +388,7 @@ namespace SharpLayout.Tests
                 r1[c4].Border(All).Add(NormalParagraph.Alignment(HorizontalAlign.Center)
                     .Add("2", TimesNewRoman9_5));
             }
-            section.Add(new Paragraph().Margin(Top, horizontalSpacing)
+            section.Add(new Paragraph().Margin(Top, verticalSpacing)
                 .Add("7.2. Способ и дата направления резиденту оформленного (переоформленного,", TimesNewRoman9_5));
             {
                 var table = section.AddTable();
