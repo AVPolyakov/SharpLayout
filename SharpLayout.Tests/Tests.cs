@@ -337,6 +337,39 @@ namespace SharpLayout.Tests
         }
 
         [Fact]
+        public void HorizontalAlign_Justify_Underline()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
+                TopMargin = Cm(2),
+                BottomMargin = Cm(2),
+                LeftMargin = Cm(2.5),
+                RightMargin = Cm(1.5)                
+            }));
+            section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+                .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
+		            "inheritance is required by your design should it be used. If you use inheritance where " +
+		            "composition will work, your designs will become needlessly complicated. ",
+                    new XFont("Times New Roman", 10, XFontStyle.Underline, PdfOptions))));
+	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
+			        "inheritance is required by your design should it be used. If you use inheritance where " +
+			        "composition will work, your designs will become needlessly complicated. ",
+			        new XFont("Times New Roman", 20, XFontStyle.Underline, PdfOptions))));
+	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
+			        "inheritance is required by your design should it be used. If you use inheritance where " +
+			        "composition will work, your designs will become needlessly complicated. ",
+			        new XFont("Times New Roman", 10, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
+	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
+		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
+			        "inheritance is required by your design should it be used. If you use inheritance where " +
+			        "composition will work, your designs will become needlessly complicated. ",
+			        new XFont("Times New Roman", 20, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
+            Assert(nameof(HorizontalAlign_Justify_Underline), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void ParagraphLineSpacingFunc()
         {
             var document = new Document();

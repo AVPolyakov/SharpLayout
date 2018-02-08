@@ -56,14 +56,26 @@ namespace SharpLayout
                         var span = part.GetSoftLinePart(softLineParts).Span;
                         var rectangleWidth = 0d;
                         var rectangleX = x;
-                        if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image && !span.Font.Underline)
+	                    XFont font;
+	                    if (span.Font.Underline)
+		                    font = new XFont(span.Font.FontFamily.Name, span.Font.Size,
+			                    new[] {
+				                    XFontStyle.Regular,
+				                    XFontStyle.Bold,
+				                    XFontStyle.Italic,
+				                    XFontStyle.Strikeout,
+			                    }.Where(_ => span.Font.Style.HasFlag(_)).Aggregate((style1, style2) => style1 | style2),
+			                    span.Font.PdfOptions);
+	                    else
+		                    font = span.Font;
+	                    if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image && !font.Underline)
                             foreach (var drawTextPart in GetDrawTextParts(text))
                             {
                                 double stringWidth;
                                 switch (drawTextPart)
                                 {
                                     case DrawTextPart.Space space:
-                                        var measureWidth = graphics.MeasureString(new string(space.Char, 1), span.Font, MeasureTrailingSpacesStringFormat).Width;
+                                        var measureWidth = graphics.MeasureString(new string(space.Char, 1), font, MeasureTrailingSpacesStringFormat).Width;
                                         if (multiplier.Value.HasValue)
                                             if (lineIndex < lineCount.Value - 1)
                                                 if (alignment == HorizontalAlign.Justify)
@@ -76,8 +88,8 @@ namespace SharpLayout
                                             stringWidth = measureWidth;
                                         break;
                                     case DrawTextPart.Word word:
-                                        drawer.DrawString(word.Text, span.Font, span.CalculateBrush(document), x, y + baseLine);
-                                        stringWidth = graphics.MeasureString(word.Text, span.Font, MeasureTrailingSpacesStringFormat).Width;
+                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document), x, y + baseLine);
+                                        stringWidth = graphics.MeasureString(word.Text, font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
                                         throw new ArgumentOutOfRangeException();
@@ -87,8 +99,8 @@ namespace SharpLayout
                             }
                         else
                         {
-                            var measureString = graphics.MeasureString(text, span.Font, MeasureTrailingSpacesStringFormat);
-                            drawer.DrawString(text, span.Font, span.CalculateBrush(document), x, y + baseLine);
+                            var measureString = graphics.MeasureString(text, font, MeasureTrailingSpacesStringFormat);
+                            drawer.DrawString(text, font, span.CalculateBrush(document), x, y + baseLine);
                             x += measureString.Width;
                             rectangleWidth += measureString.Width;
                         }
@@ -97,6 +109,27 @@ namespace SharpLayout
                                 rectangleWidth,
                                 maxLineSpace,
                                 DrawType.Background);
+	                    if (alignment == HorizontalAlign.Justify && span.Font.Underline)
+		                    if (span.CalculateBrush(document) is XSolidBrush solidBrush)
+		                    {
+			                    var d = font.LineSpace(graphics) * (font.FontFamily.GetCellDescent(font.Style))
+				                    / font.FontFamily.GetLineSpacing(font.Style);
+			                    double yMultiplier;
+			                    double widthMultiplier;
+			                    if (font.Bold)
+			                    {
+				                    widthMultiplier = 0.096d;
+				                    yMultiplier = 0.72509d;
+			                    }
+			                    else
+			                    {
+				                    yMultiplier = 0.61609d;
+				                    widthMultiplier = 0.05d;
+			                    }
+			                    var lineY = y + baseLine + d * yMultiplier;
+			                    drawer.DrawLine(new XPen(solidBrush.Color, font.Size*widthMultiplier),
+				                    rectangleX, lineY, rectangleX + rectangleWidth, lineY);
+		                    }
                     }
                     y += paragraph.LineSpacingFunc()(maxLineSpace);
                     lineIndex++;
