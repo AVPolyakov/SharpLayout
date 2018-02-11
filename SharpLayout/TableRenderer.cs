@@ -194,12 +194,14 @@ namespace SharpLayout
             var y = tableY + maxTopBorder;
             foreach (var row in rows)
             {
-                var leftBorder = info.LeftBorderFunc(new CellInfo(row, 0));
-                if (leftBorder.HasValue)
                 {
-                    var borderX = x0 + info.MaxLeftBorder - leftBorder.Value.Width/2;
-                    drawer.DrawLine(leftBorder.Value,
-                        borderX, y, borderX, y + info.MaxHeights[row]);
+                    var leftBorder = info.LeftBorderFunc(new CellInfo(row, 0));
+                    if (leftBorder.HasValue)
+                    {
+                        var borderX = x0 + info.MaxLeftBorder - leftBorder.Value.Width / 2;
+                        drawer.DrawLine(leftBorder.Value,
+                            borderX, y, borderX, y + info.MaxHeights[row]);
+                    }
                 }
                 var x = x0 + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
@@ -305,9 +307,15 @@ namespace SharpLayout
                     }
                     if (bottomBorder.HasValue)
                     {
+                        var leftCell = new CellInfo(row, column.Index - 1);
+                        var leftBorder = !info.RightBorderFunc(leftCell).HasValue &&
+                            !info.BottomBorderFunc(leftCell).HasValue
+                                ? info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1))
+                                    .Select(_ => _.Width).ValueOr(0)
+                                : 0d;
                         var borderY = y + info.MaxHeights[row] - bottomBorder.Value.Width/2;
                         drawer.DrawLine(bottomBorder.Value,
-                            x, borderY, x + column.Width, borderY);
+                            x - leftBorder, borderY, x + column.Width, borderY);
                     }
                     x += column.Width;
                 }
