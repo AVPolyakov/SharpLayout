@@ -301,9 +301,15 @@ namespace SharpLayout
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
                     if (rightBorder.HasValue)
                     {
+                        double bottomBorderWidth;
+                        if (!info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue &&
+                            info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
+                            bottomBorderWidth = info.BottomBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
+                        else
+                            bottomBorderWidth = 0d;
                         var borderX = x + column.Width - rightBorder.Value.Width/2;
                         drawer.DrawLine(rightBorder.Value,
-                            borderX, y, borderX, y + info.MaxHeights[row]);
+                            borderX, y, borderX, y + info.MaxHeights[row] - bottomBorderWidth);
                     }
                     if (bottomBorder.HasValue)
                     {
@@ -313,9 +319,14 @@ namespace SharpLayout
                                 ? info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1))
                                     .Select(_ => _.Width).ValueOr(0)
                                 : 0d;
+                        double rightBorderWidth;
+                        if (!info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
+                            rightBorderWidth = info.RightBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
+                        else
+                            rightBorderWidth = 0d;
                         var borderY = y + info.MaxHeights[row] - bottomBorder.Value.Width/2;
                         drawer.DrawLine(bottomBorder.Value,
-                            x - leftBorder, borderY, x + column.Width, borderY);
+                            x - leftBorder, borderY, x + column.Width - rightBorderWidth, borderY);
                     }
                     x += column.Width;
                 }
