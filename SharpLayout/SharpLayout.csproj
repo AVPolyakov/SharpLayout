@@ -78,6 +78,7 @@
     <Compile Include="Paragraph.cs" />
     <Compile Include="ParagraphRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SplitedRow.cs" />
     <Compile Include="SyncItemInfo.cs" />
     <Compile Include="TableRenderer.cs" />
     <Compile Include="Row.cs" />
