@@ -56,7 +56,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < cellCount; i++)
                     r1[c4.Index + 1 + i].VerticalAlign(VerticalAlign.Bottom).Border(Top | Right | Bottom)
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                            .Add("12345678/1234/1234/1/1".CellSunstring(i, cellCount), TimesNewRoman12Bold));
+                            .Add("12345678/1234/1234/1/1".CellSubstring(i, cellCount), TimesNewRoman12Bold));
             }
             section.Add(new Paragraph().Margin(Top, verticalSpacing * 2).Margin(Bottom, verticalSpacing)
                 .Add("1. Сведения о резиденте", TimesNewRoman11_5Bold));
@@ -165,7 +165,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < cellCount; i++)
                     r1[c1.Index + 1 + i].VerticalAlign(VerticalAlign.Center).Border(Top | Right | Bottom)
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                            .Add("1234123412341234123412".CellSunstring(i, cellCount), TimesNewRoman9_5));
+                            .Add("1234123412341234123412".CellSubstring(i, cellCount), TimesNewRoman9_5));
             }
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("2. Реквизиты нерезидента (нерезидентов)", TimesNewRoman11_5Bold));
@@ -355,7 +355,7 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < cellCount; i++)
                         r1[i].VerticalAlign(VerticalAlign.Center).Border(Top | Right | Bottom)
                             .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                                .Add("12345678/1234/1234/1/1".CellSunstring(i, cellCount), TimesNewRoman9_5));
+                                .Add("12345678/1234/1234/1/1".CellSubstring(i, cellCount), TimesNewRoman9_5));
                     r1[0].Border(Left);
                 }
                 {
@@ -409,7 +409,7 @@ namespace SharpLayout.Tests
 
         public static Paragraph NormalParagraph => new Paragraph().Margin(Left | Right, Cm(0.05));
 
-        public static string CellSunstring(this string s, int i, int cellCount)
+        public static string CellSubstring(this string s, int i, int cellCount)
         {
             if (s == null) return "";
             if (i >= s.Length) return "";
