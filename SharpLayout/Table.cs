@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
 namespace SharpLayout
@@ -84,5 +85,17 @@ namespace SharpLayout
         }
 
         public double ColumnsWidth => Columns.Sum(_ => _.Width);
+
+        private Option<XPen> border;
+
+        public Option<XPen> Border() => border;
+
+        public Table Border(Option<XPen> value)
+        {
+            border = value;
+            return this;
+        }
+
+        public Table Border(double value) => Border(new XPen(XColors.Black, value));
     }
 }

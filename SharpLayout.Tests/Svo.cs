@@ -79,7 +79,7 @@ namespace SharpLayout.Tests
                 table.AddRow().Height(Px(35));
             }
             {
-                var table = section.AddTable();
+                var table = section.AddTable().Border(BorderWidth);
                 var c1 = table.AddColumn(Cm(1.05));
                 var c2 = table.AddColumn();
                 var c3 = table.AddColumn(Cm(2) - Px(1));
@@ -94,42 +94,37 @@ namespace SharpLayout.Tests
                 var c12 = table.AddColumn(Cm(2.2) - Px(1));
                 c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow();
-                r1[c1].Rowspan(2).Border(All)
+                r1[c1].Rowspan(2)
                     .Add(Paragraph.Add("№ п/п", headerFont));
-                r1[c2].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c2].Rowspan(2)
                     .Add(Paragraph.Add("Уведомление, распоряжение, расчетный или иной документ", headerFont));
-                r1[c3].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c3].Rowspan(2)
                     .Add(Paragraph.Add("Дата операции", headerFont));
-                r1[c4].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c4].Rowspan(2)
                     .Add(Paragraph.Add("Признак платежа", headerFont));
-                r1[c5].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c5].Rowspan(2)
                     .Add(Paragraph.Add("Код вида валютной операции", headerFont));
-                r1[c6].Colspan(c7).Border(Top | Right | Bottom)
+                r1[c6].Colspan(c7)
                     .Add(Paragraph.Add("Сумма операции", headerFont));
-                r1[c8].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c8].Rowspan(2)
                     .Add(Paragraph.Add(@"Номер ПС
 или номер и (или) дата договора (контракта)", headerFont));
-                r1[c9].Colspan(c10).Border(Top | Right | Bottom)
+                r1[c9].Colspan(c10)
                     .Add(Paragraph.Add(@"Сумма операции
 в единицах валюты контракта (кредитного договора)", headerFont));
-                r1[c11].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c11].Rowspan(2)
                     .Add(Paragraph.Add("Срок возврата аванса", headerFont));
-                r1[c12].Rowspan(2).Border(Top | Right | Bottom)
+                r1[c12].Rowspan(2)
                     .Add(Paragraph.Add("Ожидаемый срок", headerFont));
                 var r2 = table.AddRow();
-                r2[c6].Border(Right | Bottom)
-                    .Add(Paragraph.Add("код валюты", headerFont));
-                r2[c7].Border(Right | Bottom)
-                    .Add(Paragraph.Add("сумма", headerFont));
-                r2[c9].Border(Right | Bottom)
-                    .Add(Paragraph.Add("код валюты", headerFont));
-                r2[c10].Border(Right | Bottom)
-                    .Add(Paragraph.Add("сумма", headerFont));
+                r2[c6].Add(Paragraph.Add("код валюты", headerFont));
+                r2[c7].Add(Paragraph.Add("сумма", headerFont));
+                r2[c9].Add(Paragraph.Add("код валюты", headerFont));
+                r2[c10].Add(Paragraph.Add("сумма", headerFont));
                 var r3 = table.AddRow();
                 for (var i = 0; i < table.Columns.Count; i++)
-                    r3[table.Columns[i]].Border(Right | Bottom)
+                    r3[table.Columns[i]]
                         .Add(Paragraph.Add($"{i + 1}", headerFont));
-                r3[c1].Border(Left);
                 foreach (var row in new[] {r1, r2, r3})
                 foreach (var column in table.Columns)
                 foreach (var paragraph in row[column].VerticalAlign(VerticalAlign.Center).Paragraphs)
@@ -137,8 +132,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < 3; i++)
                 {
                     var row = table.AddRow().Height(Cm(0.46));
-                    row[c1].Border(Left)
-                        .Add(Paragraph.Add($"{i + 1}", font));
+                    row[c1].Add(Paragraph.Add($"{i + 1}", font));
                     row[c2].Add(Paragraph.Add("", font));
                     row[c3].Add(Paragraph.Add("", font));
                     row[c4].Add(Paragraph.Add("", font));
@@ -151,7 +145,7 @@ namespace SharpLayout.Tests
                     row[c11].Add(Paragraph.Add("", font));
                     row[c12].Add(Paragraph.Add("", font));
                     foreach (var column in table.Columns)
-                    foreach (var paragraph in row[column].Border(Right | Bottom).VerticalAlign(VerticalAlign.Center).Paragraphs)
+                    foreach (var paragraph in row[column].VerticalAlign(VerticalAlign.Center).Paragraphs)
                         paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
@@ -162,23 +156,23 @@ namespace SharpLayout.Tests
             }
             section.Add(new Paragraph().Add("Примечание.", font).Margin(Top, Px(1)).Margin(Bottom, Px(4)));
             {
-                var table = section.AddTable();
+                var table = section.AddTable().Border(BorderWidth);
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow().Height(Cm(0.46));
-                r1[c1].Border(All).VerticalAlign(VerticalAlign.Center)
+                r1[c1].VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("№ строки", headerFont).Alignment(HorizontalAlign.Center));
-                r1[c2].Border(Top | Right | Bottom).VerticalAlign(VerticalAlign.Center)
+                r1[c2].VerticalAlign(VerticalAlign.Center)
                     .Add(Paragraph.Add("Содержание", headerFont).Alignment(HorizontalAlign.Center));
                 for (var i = 0; i < 2; i++)
                 {
                     var row = table.AddRow().Height(Cm(0.46));
-                    row[c1].Border(Left)
-                        .Add(Paragraph.Add("", font).Alignment(HorizontalAlign.Center));
+                    row[c1].Add(Paragraph.Alignment(HorizontalAlign.Center)
+                        .Add("", font));
                     row[c2].Add(Paragraph.Add("", font));
                     foreach (var column in table.Columns)
-                        row[column].Border(Right | Bottom).VerticalAlign(VerticalAlign.Center);
+                        row[column].VerticalAlign(VerticalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Add("Информация уполномоченного банка", font).Margin(Top, Px(3)).Margin(Bottom, Px(4)));

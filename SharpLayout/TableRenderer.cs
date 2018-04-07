@@ -485,6 +485,7 @@ namespace SharpLayout
 
         private static Func<CellInfo, Option<XPen>> RightBorder(this Table table)
         {
+            var rightMergedCells = RightMergedCells(table);
             var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
@@ -519,11 +520,46 @@ namespace SharpLayout
                     throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            });
+            }).Match(_ => _, () => rightMergedCells.Contains(new CellInfo(cell.RowIndex, cell.ColumnIndex + 1))
+                ? new Option<XPen>()
+                : table.Border());
+        }
+
+        private static HashSet<CellInfo> BottomMergedCells(Table table)
+        {
+            var set = new HashSet<CellInfo>();
+            foreach (var row in table.Rows)
+            foreach (var column in table.Columns)
+            {
+                var cell = table.Rows[row.Index].Cells[column.Index];
+                var rowspan = cell.Rowspan().ValueOr(1);
+                var colspan = cell.Colspan().ValueOr(1);
+                for (var i = row.Index + 1; i < row.Index + rowspan; i++)
+                for (var j = column.Index; j < column.Index + colspan; j++)
+                    set.Add(new CellInfo(i, j));
+            }
+            return set;
+        }
+
+        private static HashSet<CellInfo> RightMergedCells(Table table)
+        {
+            var set = new HashSet<CellInfo>();
+            foreach (var row in table.Rows)
+            foreach (var column in table.Columns)
+            {
+                var cell = table.Rows[row.Index].Cells[column.Index];
+                var rowspan = cell.Rowspan().ValueOr(1);
+                var colspan = cell.Colspan().ValueOr(1);
+                for (var i = row.Index; i < row.Index + rowspan; i++)
+                for (var j = column.Index + 1; j < column.Index + colspan; j++)
+                    set.Add(new CellInfo(i, j));
+            }
+            return set;
         }
 
         private static Func<CellInfo, Option<XPen>> BottomBorder(this Table table)
         {
+            var bottomMergedCells = BottomMergedCells(table);
             var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
@@ -558,7 +594,9 @@ namespace SharpLayout
                     throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            });
+            }).Match(_ => _, () => bottomMergedCells.Contains(new CellInfo(cell.RowIndex + 1, cell.ColumnIndex))
+                ? new Option<XPen>()
+                : table.Border());
         }
 
         private static Func<CellInfo, Option<XPen>> LeftBorder(this Table table)
@@ -582,7 +620,7 @@ namespace SharpLayout
                     throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            });
+            }).Match(_ => _, table.Border);
         }
 
         private static Func<CellInfo, Option<XPen>> TopBorder(this Table table)
@@ -607,7 +645,7 @@ namespace SharpLayout
                     throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            });
+            }).Match(_ => _, table.Border);
         }
 
         private static Func<CellInfo, Option<XColor>> BackgroundColor(this Table table)
@@ -648,7 +686,7 @@ namespace SharpLayout
 
         private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
-            var rightBorderFunc = table.RightBorder();
+            var rightBorderFunc = table.RightBorder();            
             var bottomBorderFunc = table.BottomBorder();
             return new TableInfo(table, table.TopBorder(), bottomBorderFunc,
                 table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos, mode, document), table.LeftBorder(),
