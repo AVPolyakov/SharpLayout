@@ -67,21 +67,51 @@ namespace LiveViewer
 
         private void ApplySettings()
         {
+            ResizeEnd += (sender, args) => {
+                if (WindowState == FormWindowState.Normal)
+                    File.WriteAllText(SettingsPath,
+                        JsonConvert.SerializeObject(new Settings {
+                            Location = Location,
+                            Size = Size,
+                            WindowState = WindowState
+                        }, Formatting.Indented));
+            };
             FormClosing += (sender, args) => {
+                Point? location;
+                Size? size;
+                if (WindowState == FormWindowState.Normal)
+                {
+                    location = Location;
+                    size = Size;
+                }
+                else
+                {
+                    if (File.Exists(SettingsPath))
+                    {
+                        var settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsPath));                        
+                        location = settings.Location;
+                        size = settings.Size;
+                    }
+                    else
+                    {
+                        location = null;
+                        size = null;
+                    }
+                }
                 File.WriteAllText(SettingsPath,
                     JsonConvert.SerializeObject(new Settings {
-                        WindowState = WindowState,
-                        Location = Location,
-                        Size = Size
+                        Location = location,
+                        Size = size,
+                        WindowState = WindowState
                     }, Formatting.Indented));
             };
             Load += (sender, args) => {
                 if (File.Exists(SettingsPath))
                 {
                     var settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsPath));
+                    if (settings.Location.HasValue) Location = settings.Location.Value;
+                    if (settings.Size.HasValue) Size = settings.Size.Value;
                     WindowState = settings.WindowState;
-                    Location = settings.Location;
-                    Size = settings.Size;
                 }
             };
         }
