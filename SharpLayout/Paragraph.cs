@@ -11,13 +11,37 @@ namespace SharpLayout
     {
         public List<Span> Spans { get; } = new List<Span>();
 
-        public Option<double> LeftMargin { get; set; }
+        private Option<double> leftMargin;
+        public Option<double> LeftMargin() => leftMargin;
+        public Paragraph LeftMargin(Option<double> value)
+        {
+            leftMargin = value;
+            return this;
+        }
 
-        public Option<double> RightMargin { get; set; }
+        private Option<double> rightMargin;
+        public Option<double> RightMargin() => rightMargin;
+        public Paragraph RightMargin(Option<double> value)
+        {
+            rightMargin = value;
+            return this;
+        }
 
-        public Option<double> TopMargin { get; set; }
+        private Option<double> topMargin;
+        public Option<double> TopMargin() => topMargin;
+        public Paragraph TopMargin(Option<double> value)
+        {
+            topMargin = value;
+            return this;
+        }
 
-        public Option<double> BottomMargin { get; set; }
+        private Option<double> bottomMargin;
+        public Option<double> BottomMargin() => bottomMargin;
+        public Paragraph BottomMargin(Option<double> value)
+        {
+            bottomMargin = value;
+            return this;
+        }
 
         private Option<double> textIndent;
         public Paragraph TextIndent(Option<double> value)
@@ -40,10 +64,10 @@ namespace SharpLayout
 
         public Paragraph Margin(Direction direction, double value)
         {
-            if (direction.HasFlag(Left)) LeftMargin = value;
-            if (direction.HasFlag(Right)) RightMargin = value;
-            if (direction.HasFlag(Top)) TopMargin = value;
-            if (direction.HasFlag(Bottom)) BottomMargin = value;
+            if (direction.HasFlag(Left)) LeftMargin(value);
+            if (direction.HasFlag(Right)) RightMargin(value);
+            if (direction.HasFlag(Top)) TopMargin(value);
+            if (direction.HasFlag(Bottom)) BottomMargin(value);
             return this;
         }
 

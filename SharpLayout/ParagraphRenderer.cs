@@ -11,7 +11,7 @@ namespace SharpLayout
 	    public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment, Drawer drawer,
 		    GraphicsType graphicsType, TextMode mode, Document document)
         {
-            var y = y0 + paragraph.TopMargin.ValueOr(0);
+            var y = y0 + paragraph.TopMargin().ValueOr(0);
             var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document));
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ValueOr(0) : 0;
@@ -40,7 +40,7 @@ namespace SharpLayout
                             throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
                     }
                     var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics));
-                    var x = x0 + paragraph.LeftMargin.ValueOr(0) + dx + TextIndent();
+                    var x = x0 + paragraph.LeftMargin().ValueOr(0) + dx + TextIndent();
                     var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
@@ -137,7 +137,7 @@ namespace SharpLayout
             }
         }
 
-	    private static XBrush CalculateBrush(this Span span, Document document) => span.Text.ExpressionVisible(document) ? XBrushes.Red : span.Brush;
+	    private static XBrush CalculateBrush(this Span span, Document document) => span.Text.ExpressionVisible(document) ? XBrushes.Red : span.Brush();
 
 	    private static IEnumerable<Tuple<LinePart, DrawTextPart.Space>> GetSpaces(List<LinePart> lineParts, List<ISoftLinePart> softLineParts, TextMode mode)
         {
@@ -194,7 +194,7 @@ namespace SharpLayout
         }
 
         public static double GetInnerWidth(this Paragraph paragraph, double width) 
-            => width - paragraph.LeftMargin.ValueOr(0) - paragraph.RightMargin.ValueOr(0);
+            => width - paragraph.LeftMargin().ValueOr(0) - paragraph.RightMargin().ValueOr(0);
 
         private static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document)
         {

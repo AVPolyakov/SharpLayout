@@ -34,20 +34,44 @@ namespace SharpLayout
 
         public Option<int> Colspan() => colspan;
 
-        public Option<XPen> LeftBorder { get; set; }
+        private Option<XPen> leftBorder;
+        public Option<XPen> LeftBorder() => leftBorder;
+        public Cell LeftBorder(Option<XPen> value)
+        {
+            leftBorder = value;
+            return this;
+        }
 
-        public Option<XPen> RightBorder { get; set; }
+        private Option<XPen> rightBorder;
+        public Option<XPen> RightBorder() => rightBorder;
+        public Cell RightBorder(Option<XPen> value)
+        {
+            rightBorder = value;
+            return this;
+        }
 
-        public Option<XPen> TopBorder { get; set; }
+        private Option<XPen> topBorder;
+        public Option<XPen> TopBorder() => topBorder;
+        public Cell TopBorder(Option<XPen> value)
+        {
+            topBorder = value;
+            return this;
+        }
 
-        public Option<XPen> BottomBorder { get; set; }
+        private Option<XPen> bottomBorder;
+        public Option<XPen> BottomBorder() => bottomBorder;
+        public Cell BottomBorder(Option<XPen> value)
+        {
+            bottomBorder = value;
+            return this;
+        }
 
         public Cell Border(Direction direction, XPen value)
         {
-            if (direction.HasFlag(Left)) LeftBorder = value;
-            if (direction.HasFlag(Right)) RightBorder = value;
-            if (direction.HasFlag(Top)) TopBorder = value;
-            if (direction.HasFlag(Bottom)) BottomBorder = value;
+            if (direction.HasFlag(Left)) LeftBorder(value);
+            if (direction.HasFlag(Right)) RightBorder(value);
+            if (direction.HasFlag(Top)) TopBorder(value);
+            if (direction.HasFlag(Bottom)) BottomBorder(value);
             return this;
         }
 
@@ -67,7 +91,7 @@ namespace SharpLayout
 
         public IEnumerable<Paragraph> Paragraphs => Elements
             .Where(_ => _.Match(p => true, t => false))
-            .Select(_ => _.Match(p => p, t => { throw new ApplicationException(); }));
+            .Select(_ => _.Match(p => p, t => throw new ApplicationException()));
 
         public Cell Add(IElement value)
         {

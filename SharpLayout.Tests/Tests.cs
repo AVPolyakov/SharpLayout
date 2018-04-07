@@ -222,9 +222,8 @@ namespace SharpLayout.Tests
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
-                    Brush = XBrushes.Red
-                })
+                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                    .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
                 .Add(new Span(", and only if you’re forced tohave method definitions or member " +
@@ -261,9 +260,8 @@ namespace SharpLayout.Tests
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
-                    Brush = XBrushes.Red
-                })
+                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                    .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
                 .Add(new Span(", and only if you’re forced tohave method definitions or member " +
@@ -324,9 +322,8 @@ namespace SharpLayout.Tests
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
-                    Brush = XBrushes.Red
-                })
+                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                    .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
                 .Add(new Span(", and only if you’re forced tohave method definitions or member " +
@@ -548,7 +545,7 @@ namespace SharpLayout.Tests
                 cell.VerticalAlign(VerticalAlign.Center);
                 var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
                 paragraph.Alignment(HorizontalAlign.Center);
-                paragraph.LeftMargin = Px(10 * 10 * 5);
+                paragraph.Margin(Left, Px(10 * 10 * 5));
                 cell.Add(paragraph);
             }
             var r2 = table.AddRow();
@@ -594,9 +591,9 @@ namespace SharpLayout.Tests
                 cell.VerticalAlign(VerticalAlign.Center);
                 var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Ромашка", 4 * 5)));
                 paragraph.Alignment(HorizontalAlign.Center);
-                paragraph.TopMargin = Px(10);
-                paragraph.LeftMargin = Px(60);
-                paragraph.RightMargin = Px(30);
+                paragraph.Margin(Top, Px(10));
+                paragraph.Margin(Left, Px(60));
+                paragraph.Margin(Right, Px(30));
                 cell.Add(paragraph);
                 cell.Border(Right, BorderWidth);
             }
@@ -1071,9 +1068,8 @@ aaaaaaaaa ")
                     .Add(new Span(" over ", Styles.TimesNewRoman10))
                     .Add(new Span("abstract", TimesNewRoman10Bold))
                     .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)) {
-                        Brush = XBrushes.Red
-                    })
+                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                        .Brush(XBrushes.Red))
                     .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
                         Styles.TimesNewRoman10))
                     .Add(new Span("interface", TimesNewRoman10Bold))
@@ -1105,7 +1101,7 @@ aaaaaaaaa ")
                 cell.VerticalAlign(VerticalAlign.Center);
                 var paragraph = TimesNewRoman10(string.Join(" ", Enumerable.Repeat("Сто рублей", 1)));
                 paragraph.Alignment(HorizontalAlign.Center);
-                paragraph.LeftMargin = Px(10 * 10 * 5);
+                paragraph.Margin(Left, Px(10 * 10 * 5));
                 cell.Add(paragraph);
             }
             var r2 = table.AddRow();

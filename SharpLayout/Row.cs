@@ -12,14 +12,13 @@ namespace SharpLayout
         internal readonly List<Cell> Cells = new List<Cell>();
 
         private Option<double> height;
-
+        public Option<double> Height() => height;
         public Row Height(double value)
         {
             height = value;
             return this;
         }
 
-        public Option<double> Height() => height;
 
         internal Row(Table table, int index)
         {
@@ -41,12 +40,11 @@ namespace SharpLayout
         }
 
         private bool tableHeader;
+        public bool TableHeader() => tableHeader;
         public Row TableHeader(bool value)
         {
             tableHeader = value;
             return this;
         }
-
-        public bool TableHeader() => tableHeader;
     }
 }

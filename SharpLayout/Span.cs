@@ -10,18 +10,22 @@ namespace SharpLayout
     {
         public IText Text { get; }
         public XFont Font { get; }
-        
-        public XBrush Brush { get; set; } = XBrushes.Black;
+
+        public XBrush Brush() => brush;
+        private XBrush brush = XBrushes.Black;
+        public Span Brush(XBrush value)
+        {
+            brush = value;
+            return this;
+        }
 
         private Option<XColor> backgroundColor;
-
+        public Option<XColor> BackgroundColor() => backgroundColor;
         public Span BackgroundColor(XColor value)
         {
             backgroundColor = value;
             return this;
         }
-
-        public Option<XColor> BackgroundColor() => backgroundColor;
 
 	    public Span(IText text, XFont font)
         {

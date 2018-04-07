@@ -21,7 +21,7 @@ namespace SharpLayout
                 var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos, new TextMode.Measure(), document);
                 if (rowSets.Count > 0)
                     firstOnPage = false;
-                y = endY + table.BottomMargin.ValueOr(0);
+                y = endY + table.BottomMargin().ValueOr(0);
                 return rowSets.Select((rows, index) => new TablePart(rows, index, tableInfo, tableY));
             }).ToList();
             if (tableParts.Count == 0) return new List<SyncPageInfo>();
@@ -88,7 +88,7 @@ namespace SharpLayout
                 return new List<IEnumerable<int>>();
             }
             var mergedRows = MergedRows(tableInfo.Table);
-            var y = tableY + tableInfo.Table.TopMargin.ValueOr(0) +
+            var y = tableY + tableInfo.Table.TopMargin().ValueOr(0) +
                 tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(0, column.Index))
                     .Select(_ => _.Width).ValueOr(0));
             var lastRowOnPreviousPage = new Option<int>();
@@ -170,7 +170,7 @@ namespace SharpLayout
             var maxTopBorder = firstRow.Value == 0
                 ? MaxTopBorder(info)
                 : MaxBottomBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
-            var tableY = y0 + info.Table.TopMargin.ValueOr(0);
+            var tableY = y0 + info.Table.TopMargin().ValueOr(0);
             {
                 var x = x0 + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
@@ -291,7 +291,7 @@ namespace SharpLayout
                                 }
                                 Draw(tableInfo,
                                     Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin.ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode);
+                                    document, tableInfos, x + table.LeftMargin().ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode);
                                 return new { };
                             });
                         paragraphY += element.Match(
@@ -354,7 +354,7 @@ namespace SharpLayout
         private static double TableWidth(TableInfo tableInfo)
         {
             return tableInfo.MaxLeftBorder + tableInfo.Table.Columns.Sum(_ => _.Width) +
-                tableInfo.Table.LeftMargin.ValueOr(0) + tableInfo.Table.RightMargin.ValueOr(0);
+                tableInfo.Table.LeftMargin().ValueOr(0) + tableInfo.Table.RightMargin().ValueOr(0);
         }
 
         private static double MaxBottomBorder(int rowIndex, Table table, Func<CellInfo, Option<XPen>> bottomBorderFunc)
@@ -461,8 +461,8 @@ namespace SharpLayout
         private static double GetTableHeight(this Table table, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
             var tableInfo = GetTableInfo(tableInfos, graphics, mode, document).GetValue(table);
-            return MaxTopBorder(tableInfo) + table.Rows.Sum(row => tableInfo.MaxHeights[row.Index]) + table.TopMargin.ValueOr(0) +
-                table.BottomMargin.ValueOr(0);
+            return MaxTopBorder(tableInfo) + table.Rows.Sum(row => tableInfo.MaxHeights[row.Index]) + table.TopMargin().ValueOr(0) +
+                table.BottomMargin().ValueOr(0);
         }
 
         private static Lazy<Table, TableInfo> GetTableInfo(Dictionary<Table, TableInfo> tableInfos, XGraphics graphics, TextMode mode, Document document)
@@ -474,7 +474,7 @@ namespace SharpLayout
             Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document)
         {
             return paragraph.GetInnerHeight(graphics, table, row, column, rightBorderFunc, mode, document) +
-                paragraph.TopMargin.ValueOr(0) + paragraph.BottomMargin.ValueOr(0);
+                paragraph.TopMargin().ValueOr(0) + paragraph.BottomMargin().ValueOr(0);
         }
 
         private static double GetInnerHeight(this Paragraph paragraph, XGraphics graphics, Table table, int row, Column column,
@@ -490,7 +490,7 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var rightBorder = table.Find(new CellInfo(row, column)).SelectMany(_ => _.RightBorder);
+                    var rightBorder = table.Find(new CellInfo(row, column)).SelectMany(_ => _.RightBorder());
                     if (rightBorder.HasValue)
                     {
                         var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan()).Match(_ => _ - 1, () => 0);
@@ -502,7 +502,7 @@ namespace SharpLayout
                                 result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
                                     new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
                     }
-                    var leftBorder = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.LeftBorder);
+                    var leftBorder = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.LeftBorder());
                     if (leftBorder.HasValue)
                     {
                         var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan()).Match(_ => _ - 1, () => 0);
@@ -564,7 +564,7 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var bottomBorder = row.Cells[column.Index].BottomBorder;
+                    var bottomBorder = row.Cells[column.Index].BottomBorder();
                     if (bottomBorder.HasValue)
                     {
                         var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan()).Match(_ => _ - 1, () => 0);
@@ -576,7 +576,7 @@ namespace SharpLayout
                                 result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
                                     new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
                     }
-                    var topBorder = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.TopBorder);
+                    var topBorder = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.TopBorder());
                     if (topBorder.HasValue)
                     {
                         var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan()).Match(_ => _ - 1, () => 0);
@@ -604,7 +604,7 @@ namespace SharpLayout
             var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var row in table.Rows)
             {
-                var leftBorder = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.LeftBorder);
+                var leftBorder = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.LeftBorder());
                 if (leftBorder.HasValue)
                 {
                     result.Add(new CellInfo(row.Index, 0), new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
@@ -628,7 +628,7 @@ namespace SharpLayout
             var result = new Dictionary<CellInfo, List<BorderTuple>>();
             foreach (var column in table.Columns)
             {
-                var bottomBorder = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.TopBorder);
+                var bottomBorder = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.TopBorder());
                 if (bottomBorder.HasValue)
                 {
                     result.Add(new CellInfo(0, column.Index),
@@ -787,8 +787,8 @@ namespace SharpLayout
             var innerWidth = paragraph.GetInnerWidth(width);
             if (innerWidth > 0 && innerHeight > 0)
                 FillRectangle(drawer, XColor.FromArgb(32, 0, 0, 255),
-                    x + paragraph.LeftMargin.ValueOr(0),
-                    y + paragraph.TopMargin.ValueOr(0),
+                    x + paragraph.LeftMargin().ValueOr(0),
+                    y + paragraph.TopMargin().ValueOr(0),
                     innerWidth, innerHeight);
         }
 
