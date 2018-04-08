@@ -8,13 +8,14 @@
   - [Паспорт сделки по кредитному договору](#%D0%9F%D0%B0%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D1%81%D0%B4%D0%B5%D0%BB%D0%BA%D0%B8-%D0%BF%D0%BE-%D0%BA%D1%80%D0%B5%D0%B4%D0%B8%D1%82%D0%BD%D0%BE%D0%BC%D1%83-%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%D1%83)  
 - [Live Viewer](#live-viewer)  
 - [Developer Tools](#developer-tools)
+- [Привязка данных](#%D0%9F%D1%80%D0%B8%D0%B2%D1%8F%D0%B7%D0%BA%D0%B0-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)
 - [Конвертация pdf файла в png для измерения расстояний](#%D0%9A%D0%BE%D0%BD%D0%B2%D0%B5%D1%80%D1%82%D0%B0%D1%86%D0%B8%D1%8F-pdf-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-png-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)  
 - [Плагин к Paint.NET для измерения расстояний](#%D0%9F%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD-%D0%BA-paintnet-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)
 
 ## Базовые элементы для создания отчета
 **Таблица** представляет собой матрицу `N` на `M`:  
 ![Table.png](Files/Table.png?raw=true)  
-В ячейку можно вставлять **параграф** или таблицу. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать строку текста и параметры шрифта. Пример параграфа:  
+В ячейку можно вставлять **параграф** или таблицу. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать текст и параметры шрифта. Пример параграфа:  
 ![Paragraph.png](Files/Paragraph.png?raw=true)  
 
 ## Процесс создания отчета
@@ -91,11 +92,14 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 
 `Ctrl + Сlick` – навигация из отчета к строке исходного кода.
 
+Изменение размеров мышкой  – см. второе видео.
+
 Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
 
-[![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
+Если запущено несколько экземпляров Visual Studio, то можно укзать PID процесса. Например,  
+`LiveViewer.exe Temp.png 15780`  
 
-Изменение размеров мышкой:
+[![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
 
 [![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
 
@@ -107,6 +111,12 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 ![r9.png](Files/r9.png?raw=true")  
 Отображение номеров строк исходного кода в ячейке – `document.CellLineNumbersAreVisible = true`  
 ![r10.png](Files/r10.png?raw=true")  
+
+## Привязка данных
+Для того чтобы быстро проверить привязку данных можно вывести выражения в отчете `ExpressionVisible = true`:  
+![r8.png](Files/r12.png?raw=true")  
+Выражения отображаются в отчете, если привязка данных выполнена с помощью _expression tree lambda_:  
+![r8.png](Files/r13.png?raw=true")  
 
 ## Конвертация pdf файла в png для измерения расстояний
  Программа [ConvertPDF](https://github.com/AVPolyakov/Pdf2Png) конвертирует любой pdf файл в png файл с разрешением 254 пикселя на дюйм. Таким образом, один пиксель соответствует одной десятой миллиметра.

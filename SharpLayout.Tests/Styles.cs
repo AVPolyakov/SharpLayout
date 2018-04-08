@@ -1,3 +1,4 @@
+using System;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
@@ -26,5 +27,7 @@ namespace SharpLayout.Tests
         public static Cell Border(this Cell cell, Direction direction) => cell.Border(direction, BorderWidth);
 
         public static XPdfFontOptions PdfOptions => new XPdfFontOptions(PdfFontEncoding.Unicode);
+
+        public static string FormatDate(DateTime value) => value.ToString("dd.MM.yyyy");
     }
 }

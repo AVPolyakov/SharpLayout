@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -470,7 +471,10 @@ namespace SharpLayout.Tests
         public void PaymentOrderTest()
         {
             var document = new Document();
-            PaymentOrder.AddSection(document);
+            PaymentOrder.AddSection(document, new PaymentData {
+                IncomingDate = new DateTime(2018, 1, 23),
+                OutcomingDate = new DateTime(2018, 1, 23),
+            });
             Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
         }
 

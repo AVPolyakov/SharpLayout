@@ -1,4 +1,5 @@
-﻿using PdfSharp.Drawing;
+﻿using System;
+using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
@@ -7,7 +8,7 @@ namespace SharpLayout.Tests
 {
     public static class PaymentOrder
     {
-        public static void AddSection(Document document)
+        public static void AddSection(Document document, PaymentData data)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
@@ -25,17 +26,17 @@ namespace SharpLayout.Tests
                 var c5 = table.AddColumn(Px(150));
                 c4.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
-                r1[c1].Border(Bottom).VerticalAlign(VerticalAlign.Bottom)
-                    .Add(Paragraph.Add("23.01.2018", font).Alignment(HorizontalAlign.Center));
-                r1[c3].Border(Bottom).VerticalAlign(VerticalAlign.Bottom)
-                    .Add(Paragraph.Add("23.01.2018", font).Alignment(HorizontalAlign.Center));
-                r1[c5].Border(All).VerticalAlign(VerticalAlign.Center)
-                    .Add(Paragraph.Add("0401060", font).Alignment(HorizontalAlign.Center));
+                r1[c1].Border(Bottom).VerticalAlign(VerticalAlign.Bottom).Add(Paragraph.Alignment(HorizontalAlign.Center)
+                    .Add(() => data.IncomingDate, FormatDate, font));
+                r1[c3].Border(Bottom).VerticalAlign(VerticalAlign.Bottom).Add(Paragraph.Alignment(HorizontalAlign.Center)
+                    .Add(() => data.OutcomingDate, FormatDate, font));
+                r1[c5].Border(All).VerticalAlign(VerticalAlign.Center).Add(Paragraph.Alignment(HorizontalAlign.Center)
+                    .Add("0401060", font));
                 var r2 = table.AddRow();
-                r2[c1].VerticalAlign(VerticalAlign.Top)
-                    .Add(Paragraph.Add("Поступ. в банк плат.", TimesNewRoman8).Alignment(HorizontalAlign.Center));
-                r2[c3].VerticalAlign(VerticalAlign.Top)
-                    .Add(Paragraph.Add("Списано со сч. плат.", TimesNewRoman8).Alignment(HorizontalAlign.Center));
+                r2[c1].VerticalAlign(VerticalAlign.Top).Add(Paragraph.Alignment(HorizontalAlign.Center)
+                    .Add("Поступ. в банк плат.", TimesNewRoman8));
+                r2[c3].VerticalAlign(VerticalAlign.Top).Add(Paragraph.Alignment(HorizontalAlign.Center)
+                    .Add("Списано со сч. плат.", TimesNewRoman8));
                 table.AddRow().Height(Px(40));
             }
             {
@@ -230,7 +231,7 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("", font).Alignment(HorizontalAlign.Center));
                 table.AddRow();
             }
-        }
+        }        
 
         private static Table Stamp()
         {
@@ -258,5 +259,11 @@ xxx xxxxx Xxxxxx xxxxxxxxx
         private static XFont font => TimesNewRoman10;
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
         private static Paragraph LeftIndentParagraph => Paragraph.Margin(Left, cellMargin + Cm(0.1));
+    }
+
+    public class PaymentData
+    {
+        public DateTime IncomingDate { get; set; }
+        public DateTime OutcomingDate { get; set; }
     }
 }

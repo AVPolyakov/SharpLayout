@@ -14,7 +14,7 @@ namespace SharpLayout.Tests
                 //CellLineNumbersAreVisible = true,
                 //ExpressionVisible = true,
             };
-            PaymentOrder.AddSection(document);
+            PaymentOrder.AddSection(document, new PaymentData{IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
             //Svo.AddSection(document);
             //ContractDealPassport.AddSection(document);
             //LoanAgreementDealPassport.AddSection(document);
