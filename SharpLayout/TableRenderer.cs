@@ -520,9 +520,12 @@ namespace SharpLayout
                     throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            }).Match(_ => _, () => rightMergedCells.Contains(new CellInfo(cell.RowIndex, cell.ColumnIndex + 1))
-                ? new Option<XPen>()
-                : table.Border());
+            }).Match(_ => _, () => {
+                if (cell.ColumnIndex < 0 || cell.ColumnIndex >= table.Columns.Count) return new Option<XPen>();
+                if (cell.RowIndex < 0 || cell.RowIndex >= table.Rows.Count) return new Option<XPen>();
+                if (rightMergedCells.Contains(new CellInfo(cell.RowIndex, cell.ColumnIndex + 1))) return new Option<XPen>();
+                return table.Border();
+            });
         }
 
         private static HashSet<CellInfo> BottomMergedCells(Table table)
@@ -594,9 +597,12 @@ namespace SharpLayout
                     throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            }).Match(_ => _, () => bottomMergedCells.Contains(new CellInfo(cell.RowIndex + 1, cell.ColumnIndex))
-                ? new Option<XPen>()
-                : table.Border());
+            }).Match(_ => _, () => {
+                if (cell.ColumnIndex < 0 || cell.ColumnIndex >= table.Columns.Count) return new Option<XPen>();
+                if (cell.RowIndex < 0 || cell.RowIndex >= table.Rows.Count) return new Option<XPen>();
+                if (bottomMergedCells.Contains(new CellInfo(cell.RowIndex + 1, cell.ColumnIndex))) return new Option<XPen>();
+                return table.Border();
+            });
         }
 
         private static Func<CellInfo, Option<XPen>> LeftBorder(this Table table)
