@@ -546,7 +546,7 @@ namespace SharpLayout.Tests
                     var r2 = table.AddRow();
                     for (var i = 1; i < table.Columns.Count; i++)
                         r2[table.Columns[i]].Border(Right | Bottom).Add(NormalParagraph
-                            .Add($"{i + 1}", TimesNewRoman8));
+                            .Add($"{i}", TimesNewRoman8));
                     r2[c2].Border(Left);
                     foreach (var row in new[] {r1, r2})
                         foreach (var column in new[] { c2, c3 })
