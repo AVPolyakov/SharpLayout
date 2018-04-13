@@ -9,20 +9,44 @@ namespace SharpLayout
 {
     public static class TableRenderer
     {
+	    private class TableGroup
+	    {
+		    public List<Table> Tables { get; }
+
+		    public TableGroup(List<Table> tables)
+		    {
+			    Tables = tables;
+		    }
+	    }
+
+	    private static IEnumerable<TableGroup> GetTableGroups(this IEnumerable<Table> tables)
+	    {
+		    var list = new List<Table>();
+		    foreach (var table in tables)
+		    {
+			    list.Add(table);
+			    if (!table.KeepWithNext)
+			    {
+				    yield return new TableGroup(list);
+				    list = new List<Table>();
+			    }
+		    }
+	    }
+
         public static List<SyncPageInfo> Draw(XGraphics xGraphics, Section section, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
             Document document, GraphicsType graphicsType)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
             var firstOnPage = true;
             var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document);
-            var tableParts = tables.Select(table => {
-                var tableInfo = GetTableInfo(tableInfos, xGraphics, new TextMode.Measure(), document).GetValue(table);
+            var tableParts = tables.GetTableGroups().Select(tableGroup => {
                 var tableY = y;
-                var rowSets = SplitByPages(tableInfo, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos, new TextMode.Measure(), document);
-                if (rowSets.Count > 0)
+                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos, new TextMode.Measure(), document);
+	            var parts = slices.SelectMany(slice => slice.Rows.Select((rows, index) => new TablePart(rows, index, slice.TableInfo, slice.TableY))).ToList();
+	            if (parts.Count > 0)
                     firstOnPage = false;
-                y = endY + table.BottomMargin().ValueOr(0);
-                return rowSets.Select((rows, index) => new TablePart(rows, index, tableInfo, tableY));
+                y = endY;
+                return parts;
             }).ToList();
             if (tableParts.Count == 0) return new List<SyncPageInfo>();
             var pages = new List<List<TablePart>>();
@@ -79,86 +103,118 @@ namespace SharpLayout
             return syncPageInfos;
         }
 
-        private static List<IEnumerable<int>> SplitByPages(TableInfo tableInfo, bool firstOnPage, out double endY, Section section, double tableY,
+	    private class TableSlice
+	    {
+		    public List<IEnumerable<int>> Rows { get; }
+		    public double TableY { get; }
+		    public TableInfo TableInfo { get; }
+
+		    public TableSlice(List<IEnumerable<int>> rows, double tableY, TableInfo tableInfo)
+		    {
+			    Rows = rows;
+			    TableY = tableY;
+			    TableInfo = tableInfo;
+		    }
+	    }
+
+        private static List<TableSlice> SplitByPages(TableGroup tableGroup, bool firstOnPage, out double endY, Section section, double tableY,
             XGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
-            if (tableInfo.Table.Rows.Count == 0)
-            {
-                endY = tableY;
-                return new List<IEnumerable<int>>();
-            }
-            var mergedRows = MergedRows(tableInfo.Table);
-            var y = tableY + tableInfo.Table.TopMargin().ValueOr(0) +
-                tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(0, column.Index))
-                    .Select(_ => _.Width).ValueOr(0));
-            var lastRowOnPreviousPage = new Option<int>();
-            var row = 0;
-            var tableFirstPage = true;
-            var result = new List<IEnumerable<int>>();
-            IEnumerable<int> RowRange(int start, int count) =>
-                (tableFirstPage ? Empty<int>() : tableInfo.TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
-            while (true)
-            {
-                y += tableInfo.MaxHeights[row];
-                if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos, mode, document) - y < 0)
-                {
-                    var firstMergedRow = FirstMergedRow(mergedRows, row);
-                    var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
-                    if (firstMergedRow - start > 0)
-                    {
-                        result.Add(RowRange(start, firstMergedRow - start));
-                        lastRowOnPreviousPage = firstMergedRow - 1;
-                        row = firstMergedRow;
-                    }
-                    else
-                    {
-                        if (firstMergedRow == 0 && tableFirstPage && !firstOnPage)
-                        {
-                            result.Add(Empty<int>());
-                            lastRowOnPreviousPage = new Option<int>();
-                            row = 0;
-                        }
-                        else
-                        {
-                            var endMergedRow = EndMergedRow(tableInfo.Table, mergedRows, row);
-                            result.Add(RowRange(start, endMergedRow - start));
-                            lastRowOnPreviousPage = endMergedRow;
-                            row = endMergedRow + 1;
-                            if (row >= tableInfo.Table.Rows.Count) break;
-                        }
-                    }
-                    tableFirstPage = false;
-                    double topIndent;
-                    if (tableInfo.TableHeaderRows.Count == 0)
-                        topIndent = row == 0
-                            ? tableInfo.Table.Columns.Max(column => tableInfo.TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
-                            : tableInfo.Table.Columns.Max(column =>
-                                tableInfo.BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0));
-                    else
-                    {
-                        var firstHeaderRow = tableInfo.TableHeaderRows.OrderBy(_ => _).First();
-                        topIndent = (firstHeaderRow == 0
-                                ? tableInfo.Table.Columns.Max(column =>
-                                    tableInfo.TopBorderFunc(new CellInfo(firstHeaderRow, column.Index)).Select(_ => _.Width).ValueOr(0))
-                                : tableInfo.Table.Columns.Max(column =>
-                                    tableInfo.BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
-                            tableInfo.TableHeaderRows.Sum(rowIndex => tableInfo.MaxHeights[rowIndex]);
-                    }
-                    y = section.TopMargin(xGraphics, tableInfos, mode, document) + topIndent;
-                }
-                else
-                {
-                    row++;
-                    if (row >= tableInfo.Table.Rows.Count) break;
-                }
-            }
-            {
-                var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
-                if (start < tableInfo.Table.Rows.Count)
-                    result.Add(RowRange(start, tableInfo.Table.Rows.Count - start));
-            }
-            endY = y;
-            return result;
+	        var slices = new List<TableSlice>();
+	        var currentTableY = tableY;
+	        var infos = tableGroup.Tables.Select(table => GetTableInfo(tableInfos, xGraphics, new TextMode.Measure(), document).GetValue(table)).ToList();
+	        var tableGroupFirstPage = true;
+	        for (var tableIndex = 0; tableIndex < infos.Count; tableIndex++)
+	        {
+		        double currentEntY;
+		        if (infos[tableIndex].Table.Rows.Count == 0)
+		        {
+			        currentEntY = currentTableY + infos[tableIndex].Table.BottomMargin().ValueOr(0);
+			        slices.Add(new TableSlice(new List<IEnumerable<int>>(), currentTableY, infos[tableIndex]));
+		        }
+		        else
+		        {
+			        var mergedRows = MergedRows(infos[tableIndex].Table);
+			        var y = currentTableY + infos[tableIndex].Table.TopMargin().ValueOr(0) +
+				        infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(0, column.Index))
+					        .Select(_ => _.Width).ValueOr(0));
+			        var lastRowOnPreviousPage = new Option<int>();
+			        var row = 0;
+			        var sliceRows = new List<IEnumerable<int>>();
+			        var addHeader = false;
+			        IEnumerable<int> RowRange(int start, int count) =>
+				        (!addHeader ? Empty<int>() : infos[tableIndex].TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
+			        while (true)
+			        {
+				        y += infos[tableIndex].MaxHeights[row];
+				        if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos, mode, document) - y < 0)
+				        {
+					        var firstMergedRow = FirstMergedRow(mergedRows, row);
+					        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
+					        if (firstMergedRow - start > 0)
+					        {
+						        sliceRows.Add(RowRange(start, firstMergedRow - start));
+						        addHeader = true;
+						        lastRowOnPreviousPage = firstMergedRow - 1;
+						        row = firstMergedRow;
+					        }
+					        else
+					        {
+						        if (firstMergedRow == 0 && tableGroupFirstPage && !firstOnPage)
+						        {
+							        sliceRows.Add(Empty<int>());
+							        lastRowOnPreviousPage = new Option<int>();
+							        row = 0;
+							        tableIndex = 0;
+							        slices.Clear();
+						        }
+						        else
+						        {
+							        var endMergedRow = EndMergedRow(infos[tableIndex].Table, mergedRows, row);
+							        sliceRows.Add(RowRange(start, endMergedRow - start + 1));
+							        addHeader = true;
+							        lastRowOnPreviousPage = endMergedRow;
+							        row = endMergedRow + 1;
+							        if (row >= infos[tableIndex].Table.Rows.Count) break;
+						        }
+					        }
+					        tableGroupFirstPage = false;
+					        double topIndent;
+					        if (infos[tableIndex].TableHeaderRows.Count == 0)
+						        topIndent = row == 0
+							        ? infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
+							        : infos[tableIndex].Table.Columns.Max(column =>
+								        infos[tableIndex].BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0));
+					        else
+					        {
+						        var firstHeaderRow = infos[tableIndex].TableHeaderRows.OrderBy(_ => _).First();
+						        topIndent = (firstHeaderRow == 0
+								        ? infos[tableIndex].Table.Columns.Max(column =>
+									        infos[tableIndex].TopBorderFunc(new CellInfo(firstHeaderRow, column.Index)).Select(_ => _.Width).ValueOr(0))
+								        : infos[tableIndex].Table.Columns.Max(column =>
+									        infos[tableIndex].BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
+							        infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
+					        }
+					        y = section.TopMargin(xGraphics, tableInfos, mode, document) + topIndent;
+				        }
+				        else
+				        {
+					        row++;
+					        if (row >= infos[tableIndex].Table.Rows.Count) break;
+				        }
+			        }
+			        {
+				        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
+				        if (start < infos[tableIndex].Table.Rows.Count)
+					        sliceRows.Add(RowRange(start, infos[tableIndex].Table.Rows.Count - start));
+			        }
+			        currentEntY = y + infos[tableIndex].Table.BottomMargin().ValueOr(0);
+			        slices.Add(new TableSlice(sliceRows, currentTableY, infos[tableIndex]));
+		        }
+		        currentTableY = currentEntY;
+	        }
+	        endY = currentTableY;
+	        return slices;
         }
 
         private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document,

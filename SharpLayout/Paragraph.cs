@@ -101,5 +101,13 @@ namespace SharpLayout
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);
 
         public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
+
+        private bool keepWithNext;
+        public bool KeepWithNext() => keepWithNext;
+        public Paragraph KeepWithNext(bool value)
+        {
+            keepWithNext = value;
+            return this;
+        }
     }
 }

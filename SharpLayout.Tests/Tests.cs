@@ -13,6 +13,69 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+	    [Fact]
+	    public void RowHeightGreaterThanPageHeight()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings {
+				TopMargin = 0
+		    }));
+		    section.Add(new Paragraph()
+			    .Add("1 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    var table = section.AddTable().Border(BorderWidth);
+		    var c1 = table.AddColumn(Px(500));
+		    var r1 = table.AddRow();
+		    r1.Height(Px(2700+500));
+		    r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+		    Assert(nameof(RowHeightGreaterThanPageHeight), document.CreatePng().Item1);
+	    }
+
+	    [Fact]
+	    public void KeepWithNext()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings {
+				TopMargin = 0
+		    }));
+		    section.Add(new Paragraph()
+			    .Add("1 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    section.Add(new Paragraph().KeepWithNext(true)
+			    .Add("2 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    var table = section.AddTable().Border(BorderWidth);
+		    var c1 = table.AddColumn(Px(500));
+		    var r1 = table.AddRow();
+		    r1.Height(Px(2700));
+		    r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+		    Assert(nameof(KeepWithNext), document.CreatePng().Item1);
+	    }
+
         [Fact]
         public void TableBottomMargin()
         {

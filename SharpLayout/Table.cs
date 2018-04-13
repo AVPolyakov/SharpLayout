@@ -9,6 +9,8 @@ namespace SharpLayout
 {
     public class Table : IElement
     {
+        internal bool KeepWithNext { get; }
+
         public int Line { get; }
 
         public readonly List<Column> Columns = new List<Column>();
@@ -16,7 +18,13 @@ namespace SharpLayout
         public readonly List<Row> Rows = new List<Row>();
 
         public Table([CallerLineNumber] int line = 0)
+            : this(false, line)
         {
+        }
+
+        internal Table(bool keepWithNext, [CallerLineNumber] int line = 0)
+        {
+            KeepWithNext = keepWithNext;
             Line = line;
         }
 
