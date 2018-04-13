@@ -4,6 +4,7 @@ using System.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using static System.Linq.Enumerable;
+using static System.Math;
 
 namespace SharpLayout
 {
@@ -135,6 +136,7 @@ namespace SharpLayout
 		        else
 		        {
 			        var mergedRows = MergedRows(infos[tableIndex].Table);
+			        var keepWithRows = KeepWithRows(infos[tableIndex].Table);
 			        var y = currentTableY + infos[tableIndex].Table.TopMargin().ValueOr(0) +
 				        infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(0, column.Index))
 					        .Select(_ => _.Width).ValueOr(0));
@@ -149,7 +151,7 @@ namespace SharpLayout
 				        y += infos[tableIndex].MaxHeights[row];
 				        if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos, mode, document) - y < 0)
 				        {
-					        var firstMergedRow = FirstMergedRow(mergedRows, row);
+					        var firstMergedRow = Min(FirstdRow(mergedRows, row), FirstdRow(keepWithRows, row));
 					        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
 					        if (firstMergedRow - start > 0)
 					        {
@@ -170,7 +172,7 @@ namespace SharpLayout
 						        }
 						        else
 						        {
-							        var endMergedRow = EndMergedRow(infos[tableIndex].Table, mergedRows, row);
+							        var endMergedRow = Max(EndRow(infos[tableIndex].Table, mergedRows, row), EndRow(infos[tableIndex].Table, keepWithRows, row));
 							        sliceRows.Add(RowRange(start, endMergedRow - start + 1));
 							        addHeader = true;
 							        lastRowOnPreviousPage = endMergedRow;
@@ -392,13 +394,13 @@ namespace SharpLayout
 
         private static double TopMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
-            return Math.Max(section.PageSettings.TopMargin,
+            return Max(section.PageSettings.TopMargin,
                 section.Headers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document)));
         }
 
         private static double BottomMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
-            return Math.Max(section.PageSettings.BottomMargin,
+            return Max(section.PageSettings.BottomMargin,
                 section.Footers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document)));
         }
 
@@ -418,24 +420,24 @@ namespace SharpLayout
             return table.Columns.Max(column => bottomBorderFunc(new CellInfo(rowIndex, column.Index)).Select(_ => _.Width).ValueOr(0));
         }
 
-        private static int EndMergedRow(Table table, HashSet<int> mergedRows, int row)
+        private static int EndRow(Table table, HashSet<int> set, int row)
         {
             if (row + 1 >= table.Rows.Count) return row;
             var i = row + 1;
             while (true)
             {
-                if (!mergedRows.Contains(i))
+                if (!set.Contains(i))
                     return i - 1;
                 i++;
             }
         }
 
-        private static int FirstMergedRow(HashSet<int> mergedRows, int row)
+        private static int FirstdRow(HashSet<int> set, int row)
         {
             var i = row;
             while (true)
             {
-                if (!mergedRows.Contains(i))
+                if (!set.Contains(i))
                     return i;
                 i--;
             }
@@ -454,6 +456,19 @@ namespace SharpLayout
                 }
             return set;
         }
+
+	    private static HashSet<int> KeepWithRows(Table table)
+	    {
+		    var set = new HashSet<int>();
+		    foreach (var row in table.Rows)
+		    {
+			    var keepWith = row.KeepWith();
+			    if (keepWith.HasValue)
+				    for (var i = row.Index + 1; i < row.Index + keepWith.Value; i++)
+					    set.Add(i);
+		    }
+		    return set;
+	    }
 
         private static double ContentWidth(this Table table, int row, Column column, Func<CellInfo, Option<XPen>> rightBorderFunc)
             => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Colspan()).Match(
@@ -498,13 +513,13 @@ namespace SharpLayout
                             p => p.GetParagraphHeight(cell.Row.Index, column, table, graphics, rightBorderFunc, mode, document),
                             t => t.GetTableHeight(graphics, tableInfos, mode, document)));
                         rowHeightByContent = cell.Rowspan.Match(
-                            _ => Math.Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
+                            _ => Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
                             () => paragraphHeight);
                     }
                     else
                         rowHeightByContent = 0;
                     var innerHeight = row.Height().Match(
-                        _ => Math.Max(rowHeightByContent, _), () => rowHeightByContent);
+                        _ => Max(rowHeightByContent, _), () => rowHeightByContent);
                     var height = innerHeight + MaxBottomBorder(row.Index, table, bottomBorderFunc);
                     if (maxHeight < height)
                         maxHeight = height;

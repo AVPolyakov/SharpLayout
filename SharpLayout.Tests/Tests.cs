@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -74,6 +75,40 @@ namespace SharpLayout.Tests
 		    r1.Height(Px(2700));
 		    r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
 		    Assert(nameof(KeepWithNext), document.CreatePng().Item1);
+	    }
+
+	    [Fact]
+	    public void KeepWith()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings {
+				TopMargin = 0,
+				BottomMargin = 0
+		    }));
+		    section.Add(new Paragraph().KeepWithNext(true)
+			    .Add("2 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    {
+			    var table = section.AddTable().Border(BorderWidth);
+			    table.AddColumn(Px(500));
+			    table.AddRow().Height(Px(2600));
+		    }
+		    {
+			    var table = section.AddTable().Border(BorderWidth);
+			    table.AddColumn(Px(500));
+			    table.AddRow().Height(Px(50)).KeepWith(4);
+			    table.AddRow().Height(Px(50));
+			    table.AddRow().Height(Px(50));
+		    }
+		    Assert(nameof(KeepWith), document.CreatePng().Item1);
 	    }
 
         [Fact]

@@ -40,11 +40,19 @@ namespace SharpLayout
         }
 
         private bool tableHeader;
-        public bool TableHeader() => tableHeader;
+	    public bool TableHeader() => tableHeader;
         public Row TableHeader(bool value)
         {
             tableHeader = value;
             return this;
         }
+
+	    private Option<int> keepWith;
+	    public Option<int> KeepWith() => keepWith;
+	    public Row KeepWith(Option<int> value)
+	    {
+		    keepWith = value;
+		    return this;
+	    }
     }
 }
