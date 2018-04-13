@@ -71,15 +71,13 @@ namespace SharpLayout
             return this;
         }
 
-        private HorizontalAlign alignment;
-
-        public Paragraph Alignment(HorizontalAlign value)
+        private HorizontalAlign? alignment;
+	    public HorizontalAlign? Alignment() => alignment;
+        public Paragraph Alignment(HorizontalAlign? value)
         {
             alignment = value;
             return this;
         }
-
-        public HorizontalAlign Alignment() => alignment;
 
         public Paragraph Add(Span span, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
         {

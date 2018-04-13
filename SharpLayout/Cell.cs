@@ -99,15 +99,15 @@ namespace SharpLayout
             return this;
         }
 
-        private VerticalAlign verticalAlign;
+        private VerticalAlign? verticalAlign;
 
-        public Cell VerticalAlign(VerticalAlign value)
+        public Cell VerticalAlign(VerticalAlign? value)
         {
             verticalAlign = value;
             return this;
         }
 
-        public VerticalAlign VerticalAlign() => verticalAlign;
+        public VerticalAlign? VerticalAlign() => verticalAlign;
 
         public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
 

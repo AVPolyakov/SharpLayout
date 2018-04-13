@@ -291,7 +291,7 @@ namespace SharpLayout
                         p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document),
                         t => t.GetTableHeight(xGraphics, tableInfos, mode, document)));
                     double dy;
-                    switch (cell.VerticalAlign())
+                    switch (GetVerticalAlign(cell, info.Table))
                     {
                         case VerticalAlign.Top:
                             dy = 0;
@@ -326,7 +326,7 @@ namespace SharpLayout
                                     TableLevel = tableLevel,
                                     Level = 1
                                 });
-                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, paragraph.Alignment(), drawer, graphicsType, mode,
+                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
 									document);
                                 return new { };
                             },
@@ -392,7 +392,21 @@ namespace SharpLayout
             }
         }
 
-        private static double TopMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
+	    private static VerticalAlign GetVerticalAlign(Cell cell, Table table)
+	    {
+		    if (cell.VerticalAlign().HasValue) return cell.VerticalAlign().Value;
+		    if (table.ContentVerticalAlign().HasValue) return table.ContentVerticalAlign().Value;
+		    return VerticalAlign.Top;
+	    }
+
+	    private static HorizontalAlign Alignment(Paragraph paragraph, Table table)
+	    {
+		    if (paragraph.Alignment().HasValue) return paragraph.Alignment().Value;
+		    if (table.ContentAlign().HasValue) return table.ContentAlign().Value;
+			return HorizontalAlign.Left;
+	    }
+
+	    private static double TopMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
             return Max(section.PageSettings.TopMargin,
                 section.Headers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document)));

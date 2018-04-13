@@ -170,7 +170,7 @@ namespace SharpLayout.Tests
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("2. Реквизиты нерезидента (нерезидентов)", TimesNewRoman11_5Bold));
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
                 var c1 = table.AddColumn();
                 var c2 = table.AddColumn(Px(550));
                 var c3 = table.AddColumn(Px(205));
@@ -190,25 +190,18 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < table.Columns.Count; i++)
                     r3[table.Columns[i]].Add(NormalParagraph
                         .Add($"{i + 1}", TimesNewRoman8));
-                foreach (var row in new[] {r1, r2, r3})
-                foreach (var column in table.Columns)
-                foreach (var paragraph in row[column].Paragraphs)
-                    paragraph.Alignment(HorizontalAlign.Center);                
                 for (var i = 0; i < 2; i++)
                 {
                     var r = table.AddRow();
                     r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    foreach (var column in table.Columns)
-                    foreach (var paragraph in r[column].Paragraphs)
-                        paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("3. Общие сведения о контракте", TimesNewRoman11_5Bold));
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
                 var c1 = table.AddColumn(Px(311));
                 var c2 = table.AddColumn(Px(240));
                 var c3 = table.AddColumn(Px(235));
@@ -236,10 +229,6 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < table.Columns.Count; i++)
                     r3[table.Columns[i]].Add(NormalParagraph
                         .Add($"{i + 1}", TimesNewRoman8));
-                foreach (var row in new[] {r1, r2, r3})
-                foreach (var column in table.Columns)
-                foreach (var paragraph in row[column].Paragraphs)
-                    paragraph.Alignment(HorizontalAlign.Center);                
                 for (var i = 0; i < 1; i++)
                 {
                     var r = table.AddRow();
@@ -249,15 +238,12 @@ namespace SharpLayout.Tests
                     r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c5].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c6].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    foreach (var column in table.Columns)
-                    foreach (var paragraph in r[column].Paragraphs)
-                        paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("4. Сведения об оформлении, переводе и закрытии паспорта сделки", TimesNewRoman11_5Bold));
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
                 var c1 = table.AddColumn(Px(91));
                 var c2 = table.AddColumn(Px(460));
                 var c3 = table.AddColumn(Px(380));
@@ -280,10 +266,6 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < table.Columns.Count; i++)
                     r2[table.Columns[i]].Add(NormalParagraph
                         .Add($"{i + 1}", TimesNewRoman8));
-                foreach (var row in new[] {r1, r2})
-                foreach (var column in table.Columns)
-                foreach (var paragraph in row[column].Paragraphs)
-                    paragraph.Alignment(HorizontalAlign.Center);     
                 for (var i = 0; i < 2; i++)
                 {
                     var r = table.AddRow();
@@ -292,15 +274,12 @@ namespace SharpLayout.Tests
                     r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c5].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    foreach (var column in table.Columns)
-                    foreach (var paragraph in r[column].Paragraphs)
-                        paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                 .Add("5. Сведения о переоформлении паспорта сделки", TimesNewRoman11_5Bold));
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
                 var c1 = table.AddColumn(Px(119));
                 var c2 = table.AddColumn(Px(323));
                 var c3 = table.AddColumn(Px(764));
@@ -319,10 +298,6 @@ namespace SharpLayout.Tests
                     .Add("№", TimesNewRoman9_5));
                 r2[c4].Add(NormalParagraph
                     .Add("дата", TimesNewRoman9_5));
-                foreach (var row in new[] {r1, r2})
-                foreach (var column in table.Columns)
-                foreach (var paragraph in row[column].Paragraphs)
-                    paragraph.Alignment(HorizontalAlign.Center);     
                 for (var i = 0; i < 2; i++)
                 {
                     var r = table.AddRow();
@@ -330,9 +305,6 @@ namespace SharpLayout.Tests
                     r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
                     r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    foreach (var column in table.Columns)
-                    foreach (var paragraph in r[column].Paragraphs)
-                        paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Margin(Top, bigVerticalSpacing)

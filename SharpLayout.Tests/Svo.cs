@@ -79,7 +79,7 @@ namespace SharpLayout.Tests
                 table.AddRow().Height(Px(35));
             }
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).ContentVerticalAlign(VerticalAlign.Center);
                 var c1 = table.AddColumn(Cm(1.05));
                 var c2 = table.AddColumn();
                 var c3 = table.AddColumn(Cm(2) - Px(1));
@@ -125,10 +125,6 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < table.Columns.Count; i++)
                     r3[table.Columns[i]]
                         .Add(Paragraph.Add($"{i + 1}", headerFont));
-                foreach (var row in new[] {r1, r2, r3})
-                foreach (var column in table.Columns)
-                foreach (var paragraph in row[column].VerticalAlign(VerticalAlign.Center).Paragraphs)
-                    paragraph.Alignment(HorizontalAlign.Center);
                 for (var i = 0; i < 3; i++)
                 {
                     var row = table.AddRow().Height(Cm(0.46));
@@ -144,9 +140,6 @@ namespace SharpLayout.Tests
                     row[c10].Add(Paragraph.Add("", font));
                     row[c11].Add(Paragraph.Add("", font));
                     row[c12].Add(Paragraph.Add("", font));
-                    foreach (var column in table.Columns)
-                    foreach (var paragraph in row[column].VerticalAlign(VerticalAlign.Center).Paragraphs)
-                        paragraph.Alignment(HorizontalAlign.Center);
                 }
             }
             {
@@ -156,23 +149,20 @@ namespace SharpLayout.Tests
             }
             section.Add(new Paragraph().Add("Примечание.", font).Margin(Top, Px(1)).Margin(Bottom, Px(4)));
             {
-                var table = section.AddTable().Border(BorderWidth);
+                var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
                 var c1 = table.AddColumn(Px(255));
                 var c2 = table.AddColumn();
                 c2.Width = pageSettings.PageWidthWithoutMargins - BorderWidth - table.ColumnsWidth;
                 var r1 = table.AddRow().Height(Cm(0.46));
                 r1[c1].VerticalAlign(VerticalAlign.Center)
-                    .Add(Paragraph.Add("№ строки", headerFont).Alignment(HorizontalAlign.Center));
+                    .Add(Paragraph.Add("№ строки", headerFont));
                 r1[c2].VerticalAlign(VerticalAlign.Center)
-                    .Add(Paragraph.Add("Содержание", headerFont).Alignment(HorizontalAlign.Center));
+                    .Add(Paragraph.Add("Содержание", headerFont));
                 for (var i = 0; i < 2; i++)
                 {
                     var row = table.AddRow().Height(Cm(0.46));
-                    row[c1].Add(Paragraph.Alignment(HorizontalAlign.Center)
-                        .Add("", font));
+                    row[c1].Add(Paragraph.Add("", font));
                     row[c2].Add(Paragraph.Add("", font));
-                    foreach (var column in table.Columns)
-                        row[column].VerticalAlign(VerticalAlign.Center);
                 }
             }
             section.Add(new Paragraph().Add("Информация уполномоченного банка", font).Margin(Top, Px(3)).Margin(Bottom, Px(4)));

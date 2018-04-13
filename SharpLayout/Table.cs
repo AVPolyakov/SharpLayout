@@ -122,5 +122,21 @@ namespace SharpLayout
         }
 
         public Table Border(double value) => Border(new XPen(XColors.Black, value));
+
+	    private HorizontalAlign? contentAlign;
+	    public HorizontalAlign? ContentAlign() => contentAlign;
+	    public Table ContentAlign(HorizontalAlign? value)
+	    {
+		    contentAlign = value;
+		    return this;
+	    }
+
+	    private VerticalAlign? contentVerticalAlign;
+	    public VerticalAlign? ContentVerticalAlign() => contentVerticalAlign;
+	    public Table ContentVerticalAlign(VerticalAlign? value)
+	    {
+		    contentVerticalAlign = value;
+		    return this;
+	    }
     }
 }
