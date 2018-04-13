@@ -279,15 +279,15 @@ namespace SharpLayout.Tests
                     var c3 = table.AddColumn(Cm(1.77));
                     var c4 = table.AddColumn(Px(332));
                     var c5 = table.AddColumn(Px(318));
-                    var c6 = table.AddRow();
+                    var r1 = table.AddRow();
                     new[] {c3}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
-                    c6[c1].Colspan(c2).Add(NormalParagraph
+                    r1[c1].Colspan(c2).Add(NormalParagraph
                         .Add("Валюта кредитного договора", TimesNewRoman9));
-                    c6[c3].Rowspan(2).Add(NormalParagraph
+                    r1[c3].Rowspan(2).Add(NormalParagraph
                         .Add("Сумма транша", TimesNewRoman9));
-                    c6[c4].Rowspan(2).Add(NormalParagraph
+                    r1[c4].Rowspan(2).Add(NormalParagraph
                         .Add("Код срока привлечения (предоставления) транша", TimesNewRoman9));
-                    c6[c5].Rowspan(2).Add(NormalParagraph
+                    r1[c5].Rowspan(2).Add(NormalParagraph
                         .Add(@"Ожидаемая дата поступления
 транша", TimesNewRoman9));
                     var r2 = table.AddRow();
@@ -299,7 +299,7 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < table.Columns.Count; i++)
                         r3[table.Columns[i]].Add(NormalParagraph
                             .Add($"{i + 1}", TimesNewRoman8));
-                    foreach (var row in new[] {c6, r2, r3})
+                    foreach (var row in new[] {r1, r2, r3})
                     foreach (var column in table.Columns)
                     foreach (var paragraph in row[column].Paragraphs)
                         paragraph.Alignment(HorizontalAlign.Center);
