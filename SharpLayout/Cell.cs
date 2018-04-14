@@ -14,25 +14,21 @@ namespace SharpLayout
         
         public int ColumnIndex { get; }
 
-        private Option<int> rowspan;
-
-        public Cell Rowspan(Option<int> value)
+        private int? rowspan;
+        public int? Rowspan() => rowspan;
+        public Cell Rowspan(int? value)
         {
             rowspan = value;
             return this;
         }
 
-        public Option<int> Rowspan() => rowspan;
-
-        private Option<int> colspan;
-
-        public Cell Colspan(int value)
+        private int? colspan;
+        public int? Colspan() => colspan;
+        public Cell Colspan(int? value)
         {
             colspan = value;
             return this;
         }
-
-        public Option<int> Colspan() => colspan;
 
         private Option<XPen> leftBorder;
         public Option<XPen> LeftBorder() => leftBorder;
@@ -77,15 +73,13 @@ namespace SharpLayout
 
         public Cell Border(Direction direction, double value) => Border(direction, new XPen(XColors.Black, value));
 
-        private Option<XColor> backgroundColor;
-
-        public Cell BackgroundColor(XColor value)
+        private XColor? backgroundColor;
+        public XColor? BackgroundColor() => backgroundColor;
+        public Cell BackgroundColor(XColor? value)
         {
             backgroundColor = value;
             return this;
         }
-
-        public Option<XColor> BackgroundColor() => backgroundColor;
 
         public readonly List<IElement> Elements = new List<IElement>();
 
@@ -100,14 +94,12 @@ namespace SharpLayout
         }
 
         private VerticalAlign? verticalAlign;
-
+        public VerticalAlign? VerticalAlign() => verticalAlign;
         public Cell VerticalAlign(VerticalAlign? value)
         {
             verticalAlign = value;
             return this;
         }
-
-        public VerticalAlign? VerticalAlign() => verticalAlign;
 
         public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
 

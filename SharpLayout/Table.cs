@@ -9,7 +9,7 @@ namespace SharpLayout
 {
     public class Table : IElement
     {
-        internal bool KeepWithNext { get; }
+        internal bool? KeepWithNext { get; }
 
         public int Line { get; }
 
@@ -22,7 +22,7 @@ namespace SharpLayout
         {
         }
 
-        internal Table(bool keepWithNext, [CallerLineNumber] int line = 0)
+        internal Table(bool? keepWithNext, [CallerLineNumber] int line = 0)
         {
             KeepWithNext = keepWithNext;
             Line = line;
@@ -62,41 +62,41 @@ namespace SharpLayout
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
 
-        private HorizontalAlign horizontalAlign;
-        public HorizontalAlign HorizontalAlign() => horizontalAlign;
-        public Table HorizontalAlign(HorizontalAlign value)
+        private HorizontalAlign? alignment;
+        public HorizontalAlign? Alignment() => alignment;
+        public Table Alignment(HorizontalAlign? value)
         {
-            horizontalAlign = value;
+            alignment = value;
             return this;
         }
 
-        private Option<double> topMargin;
-        public Option<double> TopMargin() => topMargin;
-        public Table TopMargin(Option<double> value)
+        private double? topMargin;
+        public double? TopMargin() => topMargin;
+        public Table TopMargin(double? value)
         {
             topMargin = value;
             return this;
         }
 
-        private Option<double> bottomMargin;
-        public Option<double> BottomMargin() => bottomMargin;
-        public Table BottomMargin(Option<double> value)
+        private double? bottomMargin;
+        public double? BottomMargin() => bottomMargin;
+        public Table BottomMargin(double? value)
         {
             bottomMargin = value;
             return this;
         }
 
-        private Option<double> leftMargin;
-        public Option<double> LeftMargin() => leftMargin;
-        public Table LeftMargin(Option<double> value)
+        private double? leftMargin;
+        public double? LeftMargin() => leftMargin;
+        public Table LeftMargin(double? value)
         {
             leftMargin = value;
             return this;
         }
 
-        private Option<double> rightMargin;
-        public Option<double> RightMargin() => rightMargin;
-        public Table RightMargin(Option<double> value)
+        private double? rightMargin;
+        public double? RightMargin() => rightMargin;
+        public Table RightMargin(double? value)
         {
             rightMargin = value;
             return this;
@@ -121,7 +121,7 @@ namespace SharpLayout
             return this;
         }
 
-        public Table Border(double value) => Border(new XPen(XColors.Black, value));
+        public Table Border(double? value) => Border(value.ToOption().Select(_ => new XPen(XColors.Black, _)));
 
 	    private HorizontalAlign? contentAlign;
 	    public HorizontalAlign? ContentAlign() => contentAlign;

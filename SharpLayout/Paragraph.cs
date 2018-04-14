@@ -11,46 +11,46 @@ namespace SharpLayout
     {
         public List<Span> Spans { get; } = new List<Span>();
 
-        private Option<double> leftMargin;
-        public Option<double> LeftMargin() => leftMargin;
-        public Paragraph LeftMargin(Option<double> value)
+        private double? leftMargin;
+        public double? LeftMargin() => leftMargin;
+        public Paragraph LeftMargin(double? value)
         {
             leftMargin = value;
             return this;
         }
 
-        private Option<double> rightMargin;
-        public Option<double> RightMargin() => rightMargin;
-        public Paragraph RightMargin(Option<double> value)
+        private double? rightMargin;
+        public double? RightMargin() => rightMargin;
+        public Paragraph RightMargin(double? value)
         {
             rightMargin = value;
             return this;
         }
 
-        private Option<double> topMargin;
-        public Option<double> TopMargin() => topMargin;
-        public Paragraph TopMargin(Option<double> value)
+        private double? topMargin;
+        public double? TopMargin() => topMargin;
+        public Paragraph TopMargin(double? value)
         {
             topMargin = value;
             return this;
         }
 
-        private Option<double> bottomMargin;
-        public Option<double> BottomMargin() => bottomMargin;
-        public Paragraph BottomMargin(Option<double> value)
+        private double? bottomMargin;
+        public double? BottomMargin() => bottomMargin;
+        public Paragraph BottomMargin(double? value)
         {
             bottomMargin = value;
             return this;
         }
 
-        private Option<double> textIndent;
-        public Paragraph TextIndent(Option<double> value)
+        private double? textIndent;
+        public Paragraph TextIndent(double? value)
         {
             textIndent = value;
             return this;
         }
 
-        public Option<double> TextIndent() => textIndent;
+        public double? TextIndent() => textIndent;
 
         private Func<double, double> lineSpacingFunc = _ => _;
 
@@ -100,9 +100,9 @@ namespace SharpLayout
 
         public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
 
-        private bool keepWithNext;
-        public bool KeepWithNext() => keepWithNext;
-        public Paragraph KeepWithNext(bool value)
+        private bool? keepWithNext;
+        public bool? KeepWithNext() => keepWithNext;
+        public Paragraph KeepWithNext(bool? value)
         {
             keepWithNext = value;
             return this;

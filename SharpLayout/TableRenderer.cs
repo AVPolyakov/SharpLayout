@@ -26,7 +26,7 @@ namespace SharpLayout
 		    foreach (var table in tables)
 		    {
 			    list.Add(table);
-			    if (!table.KeepWithNext)
+			    if (!table.KeepWithNext.ToOption().ValueOr(false))
 			    {
 				    yield return new TableGroup(list);
 				    list = new List<Table>();
@@ -130,14 +130,14 @@ namespace SharpLayout
 		        double currentEntY;
 		        if (infos[tableIndex].Table.Rows.Count == 0)
 		        {
-			        currentEntY = currentTableY + infos[tableIndex].Table.BottomMargin().ValueOr(0);
+			        currentEntY = currentTableY + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
 			        slices.Add(new TableSlice(new List<IEnumerable<int>>(), currentTableY, infos[tableIndex]));
 		        }
 		        else
 		        {
 			        var mergedRows = MergedRows(infos[tableIndex].Table);
 			        var keepWithRows = KeepWithRows(infos[tableIndex].Table);
-			        var y = currentTableY + infos[tableIndex].Table.TopMargin().ValueOr(0) +
+			        var y = currentTableY + infos[tableIndex].Table.TopMargin().ToOption().ValueOr(0) +
 				        infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(0, column.Index))
 					        .Select(_ => _.Width).ValueOr(0));
 			        var lastRowOnPreviousPage = new Option<int>();
@@ -210,7 +210,7 @@ namespace SharpLayout
 				        if (start < infos[tableIndex].Table.Rows.Count)
 					        sliceRows.Add(RowRange(start, infos[tableIndex].Table.Rows.Count - start));
 			        }
-			        currentEntY = y + infos[tableIndex].Table.BottomMargin().ValueOr(0);
+			        currentEntY = y + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
 			        slices.Add(new TableSlice(sliceRows, currentTableY, infos[tableIndex]));
 		        }
 		        currentTableY = currentEntY;
@@ -228,7 +228,7 @@ namespace SharpLayout
             var maxTopBorder = firstRow.Value == 0
                 ? MaxTopBorder(info)
                 : MaxBottomBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
-            var tableY = y0 + info.Table.TopMargin().ValueOr(0);
+            var tableY = y0 + info.Table.TopMargin().ToOption().ValueOr(0);
             {
                 var x = x0 + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
@@ -268,8 +268,8 @@ namespace SharpLayout
                     syncPageInfo.ItemInfos.Add(new SyncItemInfo {
                         X = x,
                         Y = y,
-                        Height = Range(0, cell.Rowspan().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
-                        Width = Range(0, cell.Colspan().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
+                        Height = Range(0, cell.Rowspan().ToOption().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
+                        Width = Range(0, cell.Colspan().ToOption().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
                         CallerInfos = cell.CallerInfos,
                         TableLevel = tableLevel,
                         Level = 0
@@ -283,9 +283,9 @@ namespace SharpLayout
                             DrawType.Background);
                     HighlightCells(xGraphics, info, bottomBorder, row, column, x, y, tableY, drawer, document);
                     HighlightCellLine(xGraphics, info, bottomBorder, row, column, x, y, document, drawer);
-                    var cellInnerHeight = Range(0, cell.Rowspan().ValueOr(1))
+                    var cellInnerHeight = Range(0, cell.Rowspan().ToOption().ValueOr(1))
                         .Sum(i => info.MaxHeights[row + i] -
-                            MaxBottomBorder(row + cell.Rowspan().ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
+                            MaxBottomBorder(row + cell.Rowspan().ToOption().ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
                     var width = info.Table.ContentWidth(row, column, info.RightBorderFunc);
                     var contentHeight = cell.Elements.Sum(_ => _.Match(
                         p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document),
@@ -333,7 +333,7 @@ namespace SharpLayout
                             table => {
                                 var tableInfo = GetTableInfo(tableInfos, xGraphics, mode, document).GetValue(table);
                                 double dx;
-                                switch (table.HorizontalAlign())
+                                switch (table.Alignment().ToOption().ValueOr(HorizontalAlign.Left))
                                 {
                                     case HorizontalAlign.Left:
                                         dx = 0;
@@ -349,7 +349,7 @@ namespace SharpLayout
                                 }
                                 Draw(tableInfo,
                                     Range(0, table.Rows.Count), y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin().ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode);
+                                    document, tableInfos, x + table.LeftMargin().ToOption().ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode);
                                 return new { };
                             });
                         paragraphY += element.Match(
@@ -426,7 +426,7 @@ namespace SharpLayout
         private static double TableWidth(TableInfo tableInfo)
         {
             return tableInfo.MaxLeftBorder + tableInfo.Table.Columns.Sum(_ => _.Width) +
-                tableInfo.Table.LeftMargin().ValueOr(0) + tableInfo.Table.RightMargin().ValueOr(0);
+                tableInfo.Table.LeftMargin().ToOption().ValueOr(0) + tableInfo.Table.RightMargin().ToOption().ValueOr(0);
         }
 
         private static double MaxBottomBorder(int rowIndex, Table table, Func<CellInfo, Option<XPen>> bottomBorderFunc)
@@ -463,7 +463,7 @@ namespace SharpLayout
             foreach (var row in table.Rows)
                 foreach (var column in table.Columns)
                 {
-                    var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan());
+                    var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan().ToOption());
                     if (rowspan.HasValue)
                         for (var i = row.Index + 1; i < row.Index + rowspan.Value; i++)
                             set.Add(i);
@@ -485,14 +485,14 @@ namespace SharpLayout
 	    }
 
         private static double ContentWidth(this Table table, int row, Column column, Func<CellInfo, Option<XPen>> rightBorderFunc)
-            => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Colspan()).Match(
+            => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Colspan().ToOption()).Match(
                 colspan => column.Width
                     + Range(column.Index + 1, colspan - 1).Sum(i => table.Columns[i].Width)
                     - table.BorderWidth(row, column, column.Index + colspan - 1, rightBorderFunc),
                 () => column.Width - table.BorderWidth(row, column, column.Index, rightBorderFunc));
 
         private static double BorderWidth(this Table table, int row, Column column, int rightColumn, Func<CellInfo, Option<XPen>> rightBorderFunc)
-            => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Rowspan()).Match(
+            => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Rowspan().ToOption()).Match(
                 rowspan => Range(row, rowspan)
                     .Max(i => rightBorderFunc(new CellInfo(i, rightColumn)).Select(_ => _.Width).ValueOr(0)),
                 () => rightBorderFunc(new CellInfo(row, rightColumn)).Select(_ => _.Width).ValueOr(0));
@@ -508,7 +508,7 @@ namespace SharpLayout
                     var elements = cell.Elements;
                     if (elements.Count > 0)
                     {
-                        var rowspan = cell.Rowspan();
+                        var rowspan = cell.Rowspan().ToOption();
                         var rowIndex = rowspan.Match(value => row.Index + value - 1, () => row.Index);
                         cellContentsByBottomRow.Add(new CellInfo(rowIndex, column.Index),
                             new MaxHeightsTuple(elements, rowspan, row));
@@ -532,7 +532,7 @@ namespace SharpLayout
                     }
                     else
                         rowHeightByContent = 0;
-                    var innerHeight = row.Height().Match(
+                    var innerHeight = row.Height().ToOption().Match(
                         _ => Max(rowHeightByContent, _), () => rowHeightByContent);
                     var height = innerHeight + MaxBottomBorder(row.Index, table, bottomBorderFunc);
                     if (maxHeight < height)
@@ -546,8 +546,8 @@ namespace SharpLayout
         private static double GetTableHeight(this Table table, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
             var tableInfo = GetTableInfo(tableInfos, graphics, mode, document).GetValue(table);
-            return MaxTopBorder(tableInfo) + table.Rows.Sum(row => tableInfo.MaxHeights[row.Index]) + table.TopMargin().ValueOr(0) +
-                table.BottomMargin().ValueOr(0);
+            return MaxTopBorder(tableInfo) + table.Rows.Sum(row => tableInfo.MaxHeights[row.Index]) + table.TopMargin().ToOption().ValueOr(0) +
+                table.BottomMargin().ToOption().ValueOr(0);
         }
 
         private static Lazy<Table, TableInfo> GetTableInfo(Dictionary<Table, TableInfo> tableInfos, XGraphics graphics, TextMode mode, Document document)
@@ -559,7 +559,7 @@ namespace SharpLayout
             Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document)
         {
             return paragraph.GetInnerHeight(graphics, table, row, column, rightBorderFunc, mode, document) +
-                paragraph.TopMargin().ValueOr(0) + paragraph.BottomMargin().ValueOr(0);
+                paragraph.TopMargin().ToOption().ValueOr(0) + paragraph.BottomMargin().ToOption().ValueOr(0);
         }
 
         private static double GetInnerHeight(this Paragraph paragraph, XGraphics graphics, Table table, int row, Column column,
@@ -578,10 +578,10 @@ namespace SharpLayout
                     var rightBorder = table.Find(new CellInfo(row, column)).SelectMany(_ => _.RightBorder());
                     if (rightBorder.HasValue)
                     {
-                        var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan()).Match(_ => _ - 1, () => 0);
+                        var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan().ToOption()).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index, column.Index + mergeRight),
                             new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
-                        var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan());
+                        var rowspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan().ToOption());
                         if (rowspan.HasValue)
                             for (var i = 1; i <= rowspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
@@ -590,10 +590,10 @@ namespace SharpLayout
                     var leftBorder = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.LeftBorder());
                     if (leftBorder.HasValue)
                     {
-                        var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan()).Match(_ => _ - 1, () => 0);
+                        var mergeRight = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan().ToOption()).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index, column.Index + mergeRight),
                             new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
-                        var rowspan = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.Rowspan());
+                        var rowspan = table.Find(new CellInfo(row.Index, column.Index + 1)).SelectMany(_ => _.Rowspan().ToOption());
                         if (rowspan.HasValue)
                             for (var i = 1; i <= rowspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
@@ -620,8 +620,8 @@ namespace SharpLayout
             foreach (var column in table.Columns)
             {
                 var cell = table.Rows[row.Index].Cells[column.Index];
-                var rowspan = cell.Rowspan().ValueOr(1);
-                var colspan = cell.Colspan().ValueOr(1);
+                var rowspan = cell.Rowspan().ToOption().ValueOr(1);
+                var colspan = cell.Colspan().ToOption().ValueOr(1);
                 for (var i = row.Index + 1; i < row.Index + rowspan; i++)
                 for (var j = column.Index; j < column.Index + colspan; j++)
                     set.Add(new CellInfo(i, j));
@@ -636,8 +636,8 @@ namespace SharpLayout
             foreach (var column in table.Columns)
             {
                 var cell = table.Rows[row.Index].Cells[column.Index];
-                var rowspan = cell.Rowspan().ValueOr(1);
-                var colspan = cell.Colspan().ValueOr(1);
+                var rowspan = cell.Rowspan().ToOption().ValueOr(1);
+                var colspan = cell.Colspan().ToOption().ValueOr(1);
                 for (var i = row.Index; i < row.Index + rowspan; i++)
                 for (var j = column.Index + 1; j < column.Index + colspan; j++)
                     set.Add(new CellInfo(i, j));
@@ -655,10 +655,10 @@ namespace SharpLayout
                     var bottomBorder = row.Cells[column.Index].BottomBorder();
                     if (bottomBorder.HasValue)
                     {
-                        var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan()).Match(_ => _ - 1, () => 0);
+                        var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan().ToOption()).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index + mergeDown, column.Index), 
                             new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
-                        var colspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan());
+                        var colspan = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Colspan().ToOption());
                         if (colspan.HasValue)
                             for (var i = 1; i <= colspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
@@ -667,10 +667,10 @@ namespace SharpLayout
                     var topBorder = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.TopBorder());
                     if (topBorder.HasValue)
                     {
-                        var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan()).Match(_ => _ - 1, () => 0);
+                        var mergeDown = table.Find(new CellInfo(row, column)).SelectMany(_ => _.Rowspan().ToOption()).Match(_ => _ - 1, () => 0);
                         result.Add(new CellInfo(row.Index + mergeDown, column.Index),
                             new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
-                        var colspan = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.Colspan());
+                        var colspan = table.Find(new CellInfo(row.Index + 1, column.Index)).SelectMany(_ => _.Colspan().ToOption());
                         if (colspan.HasValue)
                             for (var i = 1; i <= colspan.Value - 1; i++)
                                 result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
@@ -699,7 +699,7 @@ namespace SharpLayout
                 if (leftBorder.HasValue)
                 {
                     result.Add(new CellInfo(row.Index, 0), new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
-                    var rowspan = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.Rowspan());
+                    var rowspan = table.Find(new CellInfo(row.Index, 0)).SelectMany(_ => _.Rowspan().ToOption());
                     if (rowspan.HasValue)
                         for (var i = 1; i <= rowspan.Value - 1; i++)
                             result.Add(new CellInfo(row.Index + i, 0),
@@ -724,7 +724,7 @@ namespace SharpLayout
                 {
                     result.Add(new CellInfo(0, column.Index),
                         new BorderTuple(bottomBorder.Value, new CellInfo(0, column.Index)));
-                    var colspan = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.Colspan());
+                    var colspan = table.Find(new CellInfo(0, column.Index)).SelectMany(_ => _.Colspan().ToOption());
                     if (colspan.HasValue)
                         for (var i = 1; i <= colspan.Value - 1; i++)
                             result.Add(new CellInfo(0, column.Index + i),
@@ -747,8 +747,8 @@ namespace SharpLayout
             {
                 var cell = row.Cells[column.Index];
                 if (cell.BackgroundColor().HasValue)
-                    for (var i = 0; i < cell.Rowspan().ValueOr(1); i++)
-                    for (var j = 0; j < cell.Colspan().ValueOr(1); j++)
+                    for (var i = 0; i < cell.Rowspan().ToOption().ValueOr(1); i++)
+                    for (var j = 0; j < cell.Colspan().ToOption().ValueOr(1); j++)
                         result.Add(new CellInfo(row.Index + i, column.Index + j),
                             new BackgroundTuple(cell.BackgroundColor().Value, new CellInfo(cell)));
             }
@@ -789,7 +789,7 @@ namespace SharpLayout
             var hashSet = new HashSet<int>();
             foreach (var row in table.Rows)
             foreach (var column in table.Columns)
-                for (var i = 0; i < row.Cells[column.Index].Rowspan().ValueOr(1); i++)
+                for (var i = 0; i < row.Cells[column.Index].Rowspan().ToOption().ValueOr(1); i++)
                     if (row.TableHeader())
                         hashSet.Add(row.Index);
             return hashSet;
@@ -878,8 +878,8 @@ namespace SharpLayout
             var innerWidth = paragraph.GetInnerWidth(width);
             if (innerWidth > 0 && innerHeight > 0)
                 FillRectangle(drawer, XColor.FromArgb(32, 0, 0, 255),
-                    x + paragraph.LeftMargin().ValueOr(0),
-                    y + paragraph.TopMargin().ValueOr(0),
+                    x + paragraph.LeftMargin().ToOption().ValueOr(0),
+                    y + paragraph.TopMargin().ToOption().ValueOr(0),
                     innerWidth, innerHeight);
         }
 

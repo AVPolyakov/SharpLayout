@@ -11,14 +11,13 @@ namespace SharpLayout
         
         internal readonly List<Cell> Cells = new List<Cell>();
 
-        private Option<double> height;
-        public Option<double> Height() => height;
-        public Row Height(double value)
+        private double? height;
+        public double? Height() => height;
+        public Row Height(double? value)
         {
             height = value;
             return this;
         }
-
 
         internal Row(Table table, int index)
         {
@@ -47,9 +46,9 @@ namespace SharpLayout
             return this;
         }
 
-	    private Option<int> keepWith;
-	    public Option<int> KeepWith() => keepWith;
-	    public Row KeepWith(Option<int> value)
+	    private int? keepWith;
+	    public int? KeepWith() => keepWith;
+	    public Row KeepWith(int? value)
 	    {
 		    keepWith = value;
 		    return this;
