@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using PdfSharp.Drawing;
 
 namespace SharpLayout.Tests
@@ -40,13 +41,28 @@ namespace SharpLayout.Tests
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
                 .Add($"{e}", new XFont("Consolas", 9.5))));
-            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true, false);
         }
 
-        public static void StartLiveViewer(this string fileName, bool alwaysShowWindow)
+        public static void StartLiveViewer(this string fileName, bool alwaysShowWindow, bool findId = true)
         {
             if (alwaysShowWindow || Process.GetProcessesByName("LiveViewer").Length <= 0)
-                Process.Start("LiveViewer", fileName);
+            {
+                string arguments;
+                if (findId)
+                {
+                    const string solutionName = "SharpLayout";
+                    var firstOrDefault = Process.GetProcesses().FirstOrDefault(p => p.ProcessName == "devenv" &&
+                        p.MainWindowTitle.Contains(solutionName));
+                    if (firstOrDefault != null)
+                        arguments = $"{fileName} {firstOrDefault.Id}";
+                    else
+                        arguments = fileName;
+                }
+                else
+                    arguments = fileName;
+                Process.Start("LiveViewer", arguments);
+            }
         }
     }
 }

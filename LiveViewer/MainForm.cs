@@ -10,6 +10,7 @@ using EnvDTE80;
 using Newtonsoft.Json;
 using SharpLayout;
 using static System.Math;
+using Process = System.Diagnostics.Process;
 
 namespace LiveViewer
 {
@@ -26,7 +27,7 @@ namespace LiveViewer
             MessageFilter.Register();
         }
 
-        private static DTE2 GetDTE()
+        private DTE2 GetDTE()
         {
             var lineArgs = Environment.GetCommandLineArgs();
             if (lineArgs.Length >= 3)
@@ -45,6 +46,11 @@ namespace LiveViewer
                 if (result == null)
                     MessageBox.Show($"Visual Studio 2017 with process id {processId} not found.",
                         "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                {
+                    var mainWindowTitle = Process.GetProcessById(processId).MainWindowTitle;
+                    Text = $"{Text} ({mainWindowTitle})";
+                }
                 return result;
             }
             else
