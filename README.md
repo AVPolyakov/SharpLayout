@@ -1,4 +1,5 @@
 ### Table of Contents  
+- [Nuget package](#nuget-package)  
 - [Базовые элементы для создания отчета](#%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5-%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-%D0%B4%D0%BB%D1%8F-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
 - [Процесс создания отчета](#%D0%9F%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
 - [Примеры](#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B)  
@@ -11,6 +12,9 @@
 - [Привязка данных](#%D0%9F%D1%80%D0%B8%D0%B2%D1%8F%D0%B7%D0%BA%D0%B0-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)
 - [Конвертация pdf файла в png для измерения расстояний](#%D0%9A%D0%BE%D0%BD%D0%B2%D0%B5%D1%80%D1%82%D0%B0%D1%86%D0%B8%D1%8F-pdf-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-png-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)  
 - [Плагин к Paint.NET для измерения расстояний](#%D0%9F%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD-%D0%BA-paintnet-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)
+
+## Nuget package
+[Nuget package](https://www.nuget.org/packages/SharpLayout/)   
 
 ## Базовые элементы для создания отчета
 **Таблица** представляет собой матрицу `N` на `M`:  
