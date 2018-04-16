@@ -32,6 +32,7 @@ namespace SharpLayout
 				    list = new List<Table>();
 			    }
 		    }
+		    yield return new TableGroup(list);
 	    }
 
         public static List<SyncPageInfo> Draw(XGraphics xGraphics, Section section, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
