@@ -9,17 +9,17 @@ namespace SharpLayout
     public static class ParagraphRenderer
     {
 	    public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment, Drawer drawer,
-		    GraphicsType graphicsType, TextMode mode, Document document)
+		    GraphicsType graphicsType, TextMode mode, Document document, Table table)
         {
             var y = y0 + paragraph.TopMargin().ToOption().ValueOr(0);
-            var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document));
+            var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document, table));
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ToOption().ValueOr(0) : 0;
-            foreach (var softLineParts in GetSoftLines(paragraph, document))
+            foreach (var softLineParts in GetSoftLines(paragraph, document, table))
             {
                 var charInfos = GetCharInfos(softLineParts, mode);
                 var innerWidth = paragraph.GetInnerWidth(width);
-                var lineInfos = GetLines(graphics, softLineParts, innerWidth, charInfos, paragraph, mode, document).ToList();
+                var lineInfos = GetLines(graphics, softLineParts, innerWidth, charInfos, paragraph, mode, document, table).ToList();
                 foreach (var line in lineInfos)
                 {
                     var lineParts = line.GetLineParts(charInfos).ToList();
@@ -31,23 +31,23 @@ namespace SharpLayout
                             dx = 0;
                             break;
                         case HorizontalAlign.Center:
-                            dx = (innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode) - TextIndent()) / 2;
+                            dx = (innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode, table) - TextIndent()) / 2;
                             break;
                         case HorizontalAlign.Right:
-                            dx = innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode) - TextIndent();
+                            dx = innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode, table) - TextIndent();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
                     }
-                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics));
+                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics, table));
                     var x = x0 + paragraph.LeftMargin().ToOption().ValueOr(0) + dx + TextIndent();
-                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font.LineSpace(graphics));
+                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font(table).LineSpace(graphics));
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
                         return spaces.Any()
-                            ? (innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode) - TextIndent()) /
+                            ? (innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode, table) - TextIndent()) /
                             spaces.Sum(tuple1 => graphics.MeasureString(new string(tuple1.Item2.Char, 1),
-                                tuple1.Item1.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width)
+                                tuple1.Item1.GetSoftLinePart(softLineParts).Span.Font(table), MeasureTrailingSpacesStringFormat).Width)
                             : new double?();
                     });
                     foreach (var part in lineParts)
@@ -57,17 +57,17 @@ namespace SharpLayout
                         var rectangleWidth = 0d;
                         var rectangleX = x;
 	                    XFont font;
-	                    if (span.Font.Underline)
-		                    font = new XFont(span.Font.FontFamily.Name, span.Font.Size,
+	                    if (span.Font(table).Underline)
+		                    font = new XFont(span.Font(table).FontFamily.Name, span.Font(table).Size,
 			                    new[] {
 				                    XFontStyle.Regular,
 				                    XFontStyle.Bold,
 				                    XFontStyle.Italic,
 				                    XFontStyle.Strikeout,
-			                    }.Where(_ => span.Font.Style.HasFlag(_)).Aggregate((style1, style2) => style1 | style2),
-			                    span.Font.PdfOptions);
+			                    }.Where(_ => span.Font(table).Style.HasFlag(_)).Aggregate((style1, style2) => style1 | style2),
+			                    span.Font(table).PdfOptions);
 	                    else
-		                    font = span.Font;
+		                    font = span.Font(table);
 	                    if (alignment == HorizontalAlign.Justify || graphicsType == GraphicsType.Image && !font.Underline)
                             foreach (var drawTextPart in GetDrawTextParts(text))
                             {
@@ -88,7 +88,7 @@ namespace SharpLayout
                                             stringWidth = measureWidth;
                                         break;
                                     case DrawTextPart.Word word:
-                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document), x, y + baseLine);
+                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine);
                                         stringWidth = graphics.MeasureString(word.Text, font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
@@ -100,7 +100,7 @@ namespace SharpLayout
                         else
                         {
                             var measureString = graphics.MeasureString(text, font, MeasureTrailingSpacesStringFormat);
-                            drawer.DrawString(text, font, span.CalculateBrush(document), x, y + baseLine);
+                            drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine);
                             x += measureString.Width;
                             rectangleWidth += measureString.Width;
                         }
@@ -109,8 +109,8 @@ namespace SharpLayout
                                 rectangleWidth,
                                 maxLineSpace,
                                 DrawType.Background);
-	                    if (alignment == HorizontalAlign.Justify && span.Font.Underline)
-		                    if (span.CalculateBrush(document) is XSolidBrush solidBrush)
+	                    if (alignment == HorizontalAlign.Justify && span.Font(table).Underline)
+		                    if (span.CalculateBrush(document, table) is XSolidBrush solidBrush)
 		                    {
 			                    var d = font.LineSpace(graphics) * (font.FontFamily.GetCellDescent(font.Style))
 				                    / font.FontFamily.GetLineSpacing(font.Style);
@@ -137,8 +137,12 @@ namespace SharpLayout
             }
         }
 
-	    private static XBrush CalculateBrush(this Span span, Document document) => 
-            span.Text.ExpressionVisible(document) ? XBrushes.Red : span.Brush().ValueOr(XBrushes.Black);
+	    private static XBrush CalculateBrush(this Span span, Document document, Table table)
+	    {
+		    if (!span.FontOrNone(table).HasValue) return new XSolidBrush(XColor.FromArgb(255, 0, 255));
+		    if (span.Text(table).ExpressionVisible(document)) return XBrushes.Red;
+		    return span.Brush().ValueOr(XBrushes.Black);
+	    }
 
 	    private static IEnumerable<Tuple<LinePart, DrawTextPart.Space>> GetSpaces(List<LinePart> lineParts, List<ISoftLinePart> softLineParts, TextMode mode)
         {
@@ -197,14 +201,14 @@ namespace SharpLayout
         public static double GetInnerWidth(this Paragraph paragraph, double width) 
             => width - paragraph.LeftMargin().ToOption().ValueOr(0) - paragraph.RightMargin().ToOption().ValueOr(0);
 
-        private static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document)
+        private static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document, Table table)
         {
             var result = new List<List<ISoftLinePart>>();
             foreach (var span in paragraph.Spans)
             {
                 if (result.Count == 0)
                     result.Add(new List<ISoftLinePart>());
-                var parts = span.Text.GetSoftLineParts(span, document).ToList();
+                var parts = span.Text(table).GetSoftLineParts(span, document).ToList();
                 result[result.Count - 1].Add(parts[0]);
                 for (var i = 1; i < parts.Count; i++)
                     result.Add(new List<ISoftLinePart> {parts[i]});
@@ -212,27 +216,27 @@ namespace SharpLayout
             return result;
         }
 
-        private static double ContentWidth(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts, XGraphics graphics, TextMode mode)
+        private static double ContentWidth(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts, XGraphics graphics, TextMode mode, Table table)
         { 
             return lineParts.Sum(part => graphics.MeasureString(part.Text(softLineParts, mode),
-                part.GetSoftLinePart(softLineParts).Span.Font, MeasureTrailingSpacesStringFormat).Width);
+                part.GetSoftLinePart(softLineParts).Span.Font(table), MeasureTrailingSpacesStringFormat).Width);
         }
 
-        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document)
+        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table)
         {
-            return GetSoftLines(paragraph, document).SelectMany(
+            return GetSoftLines(paragraph, document, table).SelectMany(
                 softLineParts => GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
-                    GetCharInfos(softLineParts, mode), paragraph, mode, document)
+                    GetCharInfos(softLineParts, mode), paragraph, mode, document, table)
             ).Count();
         }
 
-        public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document)
+        public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table)
         {
-            return GetSoftLines(paragraph, document).Sum(softLineParts => {
+            return GetSoftLines(paragraph, document, table).Sum(softLineParts => {
                 var charInfos = GetCharInfos(softLineParts, mode);
-                return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document)
+                return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => span.Font.LineSpace(graphics))));
+                        .Max(span => span.Font(table).LineSpace(graphics))));
             });
         }
 
@@ -250,20 +254,20 @@ namespace SharpLayout
                     .Select((c, charIndex) => new CharInfo(partIndex, charIndex))).ToList();
         }
 
-        private static double BaseLine(Span span, XGraphics graphics)
+        private static double BaseLine(Span span, XGraphics graphics, Table table)
         {
-            var lineSpace = span.Font.LineSpace(graphics);
+            var lineSpace = span.Font(table).LineSpace(graphics);
             return (lineSpace +
-                    lineSpace * (span.Font.FontFamily.GetCellAscent(span.Font.Style) -
-                        span.Font.FontFamily.GetCellDescent(span.Font.Style))
-                    / span.Font.FontFamily.GetLineSpacing(span.Font.Style)) /
+                    lineSpace * (span.Font(table).FontFamily.GetCellAscent(span.Font(table).Style) -
+                        span.Font(table).FontFamily.GetCellDescent(span.Font(table).Style))
+                    / span.Font(table).FontFamily.GetLineSpacing(span.Font(table).Style)) /
                 2;
         }
 
 	    private static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, List<CharInfo> charInfos,
-		    Paragraph paragraph, TextMode mode, Document document)
+		    Paragraph paragraph, TextMode mode, Document document, Table table)
         {
-            var runningWidths = GetRunningWidths(softLineParts, graphics, mode);
+            var runningWidths = GetRunningWidths(softLineParts, graphics, mode, table);
             var startIndex = 0;
             double previousLineWidth = 0;
             var lineIndex = 0;
@@ -280,7 +284,7 @@ namespace SharpLayout
                         ? charInfos[startIndex].CharIndex 
                         : 0;
                     var text = part.Text(mode).Substring(spanStartIndex, charInfos[i].CharIndex - spanStartIndex + 1);
-                    var endWidth = graphics.MeasureString(text, part.Span.Font, MeasureTrailingSpacesStringFormat).Width;
+                    var endWidth = graphics.MeasureString(text, part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
                     return (previousSpansWidth + endWidth).CompareTo(GetWidth());
                 });
                 int endIndex;
@@ -298,7 +302,7 @@ namespace SharpLayout
                 else
                     endIndex = binarySearch;
                 int endIndex2;
-                if (softLineParts[charInfos[endIndex].PartIndex].Span.Text.ExpressionVisible(document))
+                if (softLineParts[charInfos[endIndex].PartIndex].Span.Text(table).ExpressionVisible(document))
                     endIndex2 = endIndex + softLineParts[charInfos[endIndex].PartIndex].Text(mode).Length -
                         charInfos[endIndex].CharIndex - 1;
                 else
@@ -316,7 +320,7 @@ namespace SharpLayout
                 var endPart = softLineParts[charInfos[shiftedEndIndex].PartIndex];
                 previousLineWidth = runningWidths[endPart] -
                     graphics.MeasureString(endPart.Text(mode).Substring(charInfos[shiftedEndIndex].CharIndex + 1),
-                        endPart.Span.Font, MeasureTrailingSpacesStringFormat).Width;
+                        endPart.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
             }
         }
 
@@ -365,11 +369,11 @@ namespace SharpLayout
             return softLineParts[charInfo.PartIndex].Text(mode)[charInfo.CharIndex];
         }
 
-        private static Dictionary<ISoftLinePart, double> GetRunningWidths(List<ISoftLinePart> parts, XGraphics graphics, TextMode mode)
+        private static Dictionary<ISoftLinePart, double> GetRunningWidths(List<ISoftLinePart> parts, XGraphics graphics, TextMode mode, Table table)
         {
             var runningWidth = 0d;
             return parts.Select(part => {
-                runningWidth += graphics.MeasureString(part.Text(mode), part.Span.Font, MeasureTrailingSpacesStringFormat).Width;
+                runningWidth += graphics.MeasureString(part.Text(mode), part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
                 return new {part, runningWidth};
             }).ToDictionary(_ => _.part, _ => _.runningWidth);
         }

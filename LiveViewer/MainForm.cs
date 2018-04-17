@@ -48,7 +48,7 @@ namespace LiveViewer
                         "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else
                 {
-                    var mainWindowTitle = Process.GetProcessById(processId).MainWindowTitle;
+                    var mainWindowTitle = Process.GetProcessById(processId).MainWindowTitle?.Trim();
                     Text = $"{Text} ({mainWindowTitle})";
                 }
                 return result;

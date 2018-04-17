@@ -3,15 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using PdfSharp.Drawing;
+using PdfSharp.Pdf;
 
 namespace SharpLayout
 {
     public class Span
     {
-        public IText Text { get; }
-        public XFont Font { get; }
+	    private readonly IText text;
 
-        private Option<XBrush> brush;
+	    public IText Text(Table table)
+	    {
+		    if (!FontOrNone(table).HasValue) return new Text(new TextValue("Font not set"));
+		    return text;
+	    }
+
+	    private Option<XFont> font;
+	    public Option<XFont> Font() => font;
+	    public Span Font(Option<XFont> value)
+	    {
+		    font = value;
+		    return this;
+	    }
+
+	    internal Option<XFont> FontOrNone(Table table)
+	    {
+		    if (Font().HasValue) return Font().Value;
+		    if (table.Font().HasValue) return table.Font().Value;
+		    return new Option<XFont>();
+	    }
+
+	    internal XFont Font(Table table) => FontOrNone(table).ValueOr(defaultFont);
+
+	    private static readonly XFont defaultFont = new XFont("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+
+	    private Option<XBrush> brush;
         public Option<XBrush> Brush() => brush;
         public Span Brush(Option<XBrush> value)
         {
@@ -19,18 +44,34 @@ namespace SharpLayout
             return this;
         }
 
-        private XColor? backgroundColor;
-        public XColor? BackgroundColor() => backgroundColor;
+        private XColor? backgroundColor;	    
+	    public XColor? BackgroundColor() => backgroundColor;
         public Span BackgroundColor(XColor? value)
         {
             backgroundColor = value;
             return this;
         }
 
-	    public Span(IText text, XFont font)
+	    public Span(IText text)
+	    {
+		    this.text = text;
+	    }
+
+	    public Span(string text): this(new Text(new TextValue(text)))
+	    {
+	    }
+
+	    public Span(Expression<Func<string>> expression): 
+		    this(new Text(ExpressionValue.Get(expression)))
+	    {
+	    }
+
+	    public static Span Create<T>(Expression<Func<T>> expression, Func<T, string> converter) => 
+		    new Span(new Text(ExpressionValue.Get(expression, converter)));
+
+	    public Span(IText text, XFont font) : this(text)
         {
-            Text = text;
-            Font = font;
+            this.font = font;
         }
 
         public Span(string text, XFont font): this(new Text(new TextValue(text)), font)

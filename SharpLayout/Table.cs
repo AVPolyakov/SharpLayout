@@ -138,5 +138,13 @@ namespace SharpLayout
 		    contentVerticalAlign = value;
 		    return this;
 	    }
+
+	    private Option<XFont> font;
+	    public Option<XFont> Font() => font;
+	    public Table Font(Option<XFont> value)
+	    {
+		    font = value;
+		    return this;
+	    }
     }
 }

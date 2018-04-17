@@ -65,7 +65,7 @@ namespace SharpLayout.Tests
                 section.Add(new Paragraph().Margin(Top, verticalSpacing * 2).Margin(Bottom, verticalSpacing)
                     .Add("1. Сведения о резиденте", TimesNewRoman11_5Bold));
                 {
-                    var table = section.AddTable();
+                    var table = section.AddTable().Font(TimesNewRoman9_5).ContentVerticalAlign(VerticalAlign.Center);
                     var width1 = Px(270d + 10 + 3);
                     var c1 = table.AddColumn(Cm(5.4) - width1);
                     var c2 = table.AddColumn(width1);
@@ -78,52 +78,51 @@ namespace SharpLayout.Tests
                     var c8 = table.AddColumn(Px(145));
                     new[] {c4, c6, c8}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth);
                     var r1 = table.AddRow().Height(Cm(0.65));
-                    r1[c1].Colspan(c2).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("1.1. Наименование", TimesNewRoman9_5));
-                    r1[c3].Colspan(c8).Border(All).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+	                r1[c1].Colspan(c2)
+                        .Add(NormalParagraph.Add("1.1. Наименование"));
+                    r1[c3].Colspan(c8).Border(All)
+                        .Add(NormalParagraph.Add(""));
                     var r2 = table.AddRow();
-                    r2[c1].VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("1.2. Адрес:", TimesNewRoman9_5));
-                    r2[c2].Colspan(c4).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Субъект Российской Федерации", TimesNewRoman9_5));
-                    r2[c5].Colspan(c8).Border(Bottom | Left | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                    r2[c1]
+                        .Add(NormalParagraph.Add("1.2. Адрес:"));
+                    r2[c2].Colspan(c4)
+                        .Add(NormalParagraph.Add("Субъект Российской Федерации"));
+                    r2[c5].Colspan(c8).Border(Bottom | Left | Right)
+                        .Add(NormalParagraph.Add(""));
                     var r3 = table.AddRow();
-                    r3[c2].Colspan(c4).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Район", TimesNewRoman9_5));
-                    r3[c5].Colspan(c8).Border(Bottom | Left | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                    r3[c2].Colspan(c4)
+                        .Add(NormalParagraph.Add("Район"));
+                    r3[c5].Colspan(c8).Border(Bottom | Left | Right)
+                        .Add(NormalParagraph.Add(""));
                     var r4 = table.AddRow();
-                    r4[c2].Colspan(c4).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Город", TimesNewRoman9_5));
-                    r4[c5].Colspan(c8).Border(Bottom | Left | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                    r4[c2].Colspan(c4)
+                        .Add(NormalParagraph.Add("Город"));
+                    r4[c5].Colspan(c8).Border(Bottom | Left | Right)
+                        .Add(NormalParagraph.Add(""));
                     var r5 = table.AddRow();
-                    r5[c2].Colspan(c4).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Населенный пункт", TimesNewRoman9_5));
-                    r5[c5].Colspan(c8).Border(Bottom | Left | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                    r5[c2].Colspan(c4)
+                        .Add(NormalParagraph.Add("Населенный пункт"));
+                    r5[c5].Colspan(c8).Border(Bottom | Left | Right)
+                        .Add(NormalParagraph.Add(""));
                     var r6 = table.AddRow();
-                    r6[c2].Colspan(c4).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Улица (проспект, переулок и т.д.)", TimesNewRoman9_5));
-                    r6[c5].Colspan(c8).Border(Bottom | Left | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                    r6[c2].Colspan(c4)
+                        .Add(NormalParagraph.Add("Улица (проспект, переулок и т.д.)"));
+                    r6[c5].Colspan(c8).Border(Bottom | Left | Right)
+                        .Add(NormalParagraph.Add(""));
                     var r7 = table.AddRow();
-                    r7[c2].Colspan(c3).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("Номер дома (владение)", TimesNewRoman9_5));
-                    r7[c4].Border(All).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    r7[c5].Border(Right).VerticalAlign(VerticalAlign.Center)
+                    r7[c2].Colspan(c3)
+                        .Add(NormalParagraph.Add("Номер дома (владение)"));
+                    r7[c4].Border(All)
+                        .Add(NormalParagraph.Add(""));
+	                r7[c5].Border(Right).Add(NormalParagraph.Alignment(HorizontalAlign.Right)
+		                .Add("Корпус (строение)"));
+                    r7[c6].Border(Bottom | Right)
+                        .Add(NormalParagraph.Add(""));
+                    r7[c7].Border(Right)
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Right)
-                            .Add("Корпус (строение)", TimesNewRoman9_5));
-                    r7[c6].Border(Bottom | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                    r7[c7].Border(Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Alignment(HorizontalAlign.Right)
-                            .Add("Офис (квартира)", TimesNewRoman9_5));
-                    r7[c8].Border(Bottom | Right).VerticalAlign(VerticalAlign.Center)
-                        .Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                            .Add("Офис (квартира)"));
+                    r7[c8].Border(Bottom | Right)
+                        .Add(NormalParagraph.Add(""));
                 }
                 var rowHeight = Cm(0.4);
                 {
@@ -174,22 +173,21 @@ namespace SharpLayout.Tests
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                     .Add("2. Реквизиты нерезидента (нерезидентов)", TimesNewRoman11_5Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn();
                     var c2 = table.AddColumn(Px(550));
                     var c3 = table.AddColumn(Px(205));
                     c1.Width = section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth;
                     var r1 = table.AddRow();
-                    r1[c1].Rowspan(2).Add(NormalParagraph
-                        .Add("Наименование", TimesNewRoman9_5));
-                    r1[c2].Colspan(c3)
-                        .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                            .Add("Страна", TimesNewRoman9_5));
+	                r1[c1].Rowspan(2).Add(NormalParagraph
+                        .Add("Наименование"));
+	                r1[c2].Colspan(c3).Add(NormalParagraph.Alignment(HorizontalAlign.Center)
+		                .Add("Страна"));
                     var r2 = table.AddRow();
                     r2[c2].Add(NormalParagraph
-                        .Add("наименование", TimesNewRoman9_5));
+                        .Add("наименование"));
                     r2[c3].Add(NormalParagraph
-                        .Add("код", TimesNewRoman9_5));
+                        .Add("код"));
                     var r3 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r3[table.Columns[i]].Add(NormalParagraph
@@ -197,9 +195,9 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                        r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add(""));
                     }
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
@@ -207,7 +205,7 @@ namespace SharpLayout.Tests
                 section.Add(new Paragraph().Margin(Bottom, smallVerticalSpacing)
                     .Add("3.1. Общие сведения о кредитном договоре", TimesNewRoman10Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9);
                     var c1 = table.AddColumn(Cm(1.4));
                     var c2 = table.AddColumn(Px(140 + 10 + 5));
                     var c3 = table.AddColumn(Px(225));
@@ -219,47 +217,47 @@ namespace SharpLayout.Tests
                     var c9 = table.AddColumn(Px(256 - 5));
                     var r1 = table.AddRow();
                     new[] {c5}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
-                    r1[c1].Rowspan(2).Add(NormalParagraph
-                        .Add("№", TimesNewRoman9));
+	                r1[c1].Rowspan(2).Add(NormalParagraph
+                        .Add("№"));
                     r1[c2].Rowspan(2).Add(NormalParagraph
-                        .Add("Дата", TimesNewRoman9));
+                        .Add("Дата"));
                     r1[c3].Colspan(c4).Add(NormalParagraph
                         .Add(@"Валюта
-кредитного договора", TimesNewRoman9));
+кредитного договора"));
                     r1[c5].Rowspan(2).Add(NormalParagraph
-                        .Add("Сумма кредитного договора", TimesNewRoman9));
+                        .Add("Сумма кредитного договора"));
                     r1[c6].Rowspan(2).Add(NormalParagraph
-                        .Add("Дата завершения исполнения обязательств по кредитному договору", TimesNewRoman9));
+                        .Add("Дата завершения исполнения обязательств по кредитному договору"));
                     r1[c7].Colspan(c8).Add(NormalParagraph
-                        .Add(@"Особые условия", TimesNewRoman9));
+                        .Add(@"Особые условия"));
                     r1[c9].Rowspan(2).Add(NormalParagraph
-                        .Add("Код срока привлечения (предоставления)", TimesNewRoman9));
+                        .Add("Код срока привлечения (предоставления)"));
                     var r2 = table.AddRow();
                     r2[c3].Add(NormalParagraph
-                        .Add("наименование", TimesNewRoman9));
+                        .Add("наименование"));
                     r2[c4].Add(NormalParagraph
-                        .Add("код", TimesNewRoman9));
+                        .Add("код"));
                     r2[c7].Add(NormalParagraph
-                        .Add("зачисление на счета за\u00A0рубежом", TimesNewRoman9));
+                        .Add("зачисление на счета за\u00A0рубежом"));
                     r2[c8].Add(NormalParagraph
-                        .Add("погашение за счет валютной выручки", TimesNewRoman9));
+                        .Add("погашение за счет валютной выручки"));
                     var r3 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r3[table.Columns[i]].Add(NormalParagraph
                             .Add($"{i + 1}", TimesNewRoman8));
                     var r4 = table.AddRow();
-                    r4[c1].Add(NormalParagraph.Add("", TimesNewRoman9));
-                    r4[c2].Add(NormalParagraph.Add("88.88.8888", TimesNewRoman9));
-                    r4[c3].Add(NormalParagraph.Add("Российский рубль", TimesNewRoman9));
-                    r4[c4].Add(NormalParagraph.Add("USD", TimesNewRoman9));
+                    r4[c1].Add(NormalParagraph.Add(""));
+                    r4[c2].Add(NormalParagraph.Add("88.88.8888"));
+                    r4[c3].Add(NormalParagraph.Add("Российский рубль"));
+                    r4[c4].Add(NormalParagraph.Add("USD"));
                     //повод для увеличения правого или левого поля
-                    r4[c5].Add(NormalParagraph.Add("1 000 000,00", TimesNewRoman9));
-                    r4[c6].Add(NormalParagraph.Add("", TimesNewRoman9));
+                    r4[c5].Add(NormalParagraph.Add("1 000 000,00"));
+                    r4[c6].Add(NormalParagraph.Add(""));
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, smallVerticalSpacing)
                     .Add("3.2. Сведения о сумме и сроках привлечения (предоставления) траншей по кредитному договору", TimesNewRoman10Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9);
                     var c1 = table.AddColumn(Px(356));
                     var c2 = table.AddColumn(Px(100 + 20 + 74));
                     var c3 = table.AddColumn(Cm(1.77));
@@ -267,20 +265,20 @@ namespace SharpLayout.Tests
                     var c5 = table.AddColumn(Px(318));
                     var r1 = table.AddRow();
                     new[] {c3}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
-                    r1[c1].Colspan(c2).Add(NormalParagraph
-                        .Add("Валюта кредитного договора", TimesNewRoman9));
+	                r1[c1].Colspan(c2).Add(NormalParagraph
+                        .Add("Валюта кредитного договора"));
                     r1[c3].Rowspan(2).Add(NormalParagraph
-                        .Add("Сумма транша", TimesNewRoman9));
+                        .Add("Сумма транша"));
                     r1[c4].Rowspan(2).Add(NormalParagraph
-                        .Add("Код срока привлечения (предоставления) транша", TimesNewRoman9));
+                        .Add("Код срока привлечения (предоставления) транша"));
                     r1[c5].Rowspan(2).Add(NormalParagraph
                         .Add(@"Ожидаемая дата поступления
-транша", TimesNewRoman9));
+транша"));
                     var r2 = table.AddRow();
                     r2[c1].Add(NormalParagraph
-                        .Add("наименование", TimesNewRoman9));
+                        .Add("наименование"));
                     r2[c2].Add(NormalParagraph
-                        .Add("код", TimesNewRoman9));
+                        .Add("код"));
                     var r3 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r3[table.Columns[i]].Add(NormalParagraph
@@ -288,16 +286,16 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("Российский рубль", TimesNewRoman9));
-                        r[c2].Add(NormalParagraph.Add("USD", TimesNewRoman9));
-                        r[c3].Add(NormalParagraph.Add("700000000.00", TimesNewRoman9));
-                        r[c4].Add(NormalParagraph.Add("", TimesNewRoman9));
+                        r[c1].Add(NormalParagraph.Add("Российский рубль"));
+                        r[c2].Add(NormalParagraph.Add("USD"));
+                        r[c3].Add(NormalParagraph.Add("700000000.00"));
+                        r[c4].Add(NormalParagraph.Add(""));
                     }
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                     .Add("4. Сведения об оформлении, переводе и закрытии паспорта сделки", TimesNewRoman11_5Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn(Px(91));
                     var c2 = table.AddColumn(Px(460));
                     var c3 = table.AddColumn(Px(380));
@@ -305,17 +303,17 @@ namespace SharpLayout.Tests
                     var c5 = table.AddColumn(Px(350));
                     new[] {c5}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                     var r1 = table.AddRow();
-                    r1[c1].Add(NormalParagraph
-                        .Add("№ п/п", TimesNewRoman9_5));
+	                r1[c1].Add(NormalParagraph
+                        .Add("№ п/п"));
                     r1[c2].Add(NormalParagraph
                         .Add(@"Регистрационный номер
-банка ПС", TimesNewRoman9_5));
+банка ПС"));
                     r1[c3].Add(NormalParagraph
-                        .Add(@"Дата принятия паспорта сделки при его переводе", TimesNewRoman9_5));
+                        .Add(@"Дата принятия паспорта сделки при его переводе"));
                     r1[c4].Add(NormalParagraph
-                        .Add(@"Дата закрытия паспорта сделки", TimesNewRoman9_5));
+                        .Add(@"Дата закрытия паспорта сделки"));
                     r1[c5].Add(NormalParagraph
-                        .Add(@"Основание закрытия паспорта сделки", TimesNewRoman9_5));
+                        .Add(@"Основание закрытия паспорта сделки"));
                     var r2 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r2[table.Columns[i]].Add(NormalParagraph
@@ -323,42 +321,42 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c5].Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                        r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add(""));
+                        r[c4].Add(NormalParagraph.Add(""));
+                        r[c5].Add(NormalParagraph.Add(""));
                     }
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, verticalSpacing)
                     .Add("5. Сведения о переоформлении паспорта сделки", TimesNewRoman11_5Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn(Px(119));
                     var c2 = table.AddColumn(Px(323));
                     var c3 = table.AddColumn(Px(764));
                     var c4 = table.AddColumn(Px(405));
                     new[] {c3}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                     var r1 = table.AddRow();
-                    r1[c1].Rowspan(2).Add(NormalParagraph
+	                r1[c1].Rowspan(2).Add(NormalParagraph
                         .Add(@"№
-п/п", TimesNewRoman9_5));
+п/п"));
                     r1[c2].Rowspan(2).Add(NormalParagraph
-                        .Add("Дата", TimesNewRoman9_5));
+                        .Add("Дата"));
                     r1[c3].Colspan(c4).Add(NormalParagraph
-                        .Add("Документ, на основании которого внесены изменения в паспорт сделки", TimesNewRoman9_5));
+                        .Add("Документ, на основании которого внесены изменения в паспорт сделки"));
                     var r2 = table.AddRow();
                     r2[c3].Add(NormalParagraph
-                        .Add("№", TimesNewRoman9_5));
+                        .Add("№"));
                     r2[c4].Add(NormalParagraph
-                        .Add("дата", TimesNewRoman9_5));
+                        .Add("дата"));
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                        r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add(""));
+                        r[c4].Add(NormalParagraph.Add(""));
                     }
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing)
@@ -438,23 +436,23 @@ namespace SharpLayout.Tests
                     .Add(@"8.1. Процентные платежи, предусмотренные кредитным договором
 (за исключением платежей по возврату основного долга)", TimesNewRoman10Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn(Cm(4.3));
                     var c2 = table.AddColumn(Cm(2.25));
                     var c3 = table.AddColumn(Cm(3.25));
                     var c4 = table.AddColumn(Cm(6.3));
                     new[] {c1, c2, c3, c4}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                     var r1 = table.AddRow();
-                    r1[c1].Add(NormalParagraph
+	                r1[c1].Add(NormalParagraph
                         .Add(@"Фиксированный размер процентной ставки,
-% годовых", TimesNewRoman9_5));
+% годовых"));
                     r1[c2].Add(NormalParagraph
-                        .Add(@"Код ставки ЛИБОР", TimesNewRoman9_5));
+                        .Add(@"Код ставки ЛИБОР"));
                     r1[c3].Add(NormalParagraph
-                        .Add(@"Другие методы определения процентной ставки", TimesNewRoman9_5));
+                        .Add(@"Другие методы определения процентной ставки"));
                     r1[c4].Add(NormalParagraph
                         .Add(@"Размер процентной надбавки (дополнительных платежей)
-к базовой процентной ставке, % годовых", TimesNewRoman9_5));
+к базовой процентной ставке, % годовых"));
                     var r2 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r2[table.Columns[i]].Add(NormalParagraph
@@ -462,10 +460,10 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
+	                    r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add(""));
+                        r[c4].Add(NormalParagraph.Add(""));
                     }
                 }
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, smallVerticalSpacing)
@@ -545,7 +543,7 @@ namespace SharpLayout.Tests
                 section.Add(new Paragraph().Margin(Top, bigVerticalSpacing).Margin(Bottom, smallVerticalSpacing)
                     .Add("9.2. Описание графика платежей по возврату основного долга и процентных платежей", TimesNewRoman10Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn(Px(81));
                     var c2 = table.AddColumn(Px(185));
                     var c3 = table.AddColumn(Px(200));
@@ -555,42 +553,42 @@ namespace SharpLayout.Tests
                     var c7 = table.AddColumn(Px(330));
                     new[] {c7}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                     var r1 = table.AddRow();
-                    r1[c1].Rowspan(3).Add(NormalParagraph
+	                r1[c1].Rowspan(3).Add(NormalParagraph
                         .Add(@"№
-п/п", TimesNewRoman9_5));
+п/п"));
                     r1[c2].Rowspan(3).Add(NormalParagraph
                         .Add(@"Код
-валюты кредитного договора", TimesNewRoman9_5));
+валюты кредитного договора"));
                     r1[c3].Colspan(c6).Add(NormalParagraph
                         .Add(@"Суммы платежей по датам их осуществления,
-в единицах валюты кредитного договора", TimesNewRoman9_5));
+в единицах валюты кредитного договора"));
                     var r2 = table.AddRow();
                     r2[c3].Colspan(c4).Add(NormalParagraph
-                        .Add("по погашению основного долга", TimesNewRoman9_5));
+                        .Add("по погашению основного долга"));
                     r2[c5].Colspan(c6).Add(NormalParagraph
-                        .Add("в счет процентных платежей", TimesNewRoman9_5));
-                    r1[c7].Rowspan(3).VerticalAlign(VerticalAlign.Center).Add(NormalParagraph
-                            .Add(@"Описание
-особых условий", TimesNewRoman9_5));
+                        .Add("в счет процентных платежей"));
+	                r1[c7].Rowspan(3).VerticalAlign(VerticalAlign.Center).Add(NormalParagraph
+		                .Add(@"Описание
+особых условий"));
                     var r3 = table.AddRow();
                     r3[c3].Add(NormalParagraph
-                        .Add("дата", TimesNewRoman9_5));
+                        .Add("дата"));
                     r3[c4].Add(NormalParagraph
-                        .Add("сумма", TimesNewRoman9_5));
+                        .Add("сумма"));
                     r3[c5].Add(NormalParagraph
-                        .Add("дата", TimesNewRoman9_5));
+                        .Add("дата"));
                     r3[c6].Add(NormalParagraph
-                        .Add("сумма", TimesNewRoman9_5));
+                        .Add("сумма"));
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("88.88.8888", TimesNewRoman9_5));
-                        r[c4].Add(NormalParagraph.Add("1000000000000.00", TimesNewRoman9_5));
-                        r[c5].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c6].Add(NormalParagraph.Add("1000000000000.00", TimesNewRoman9_5));
-                        r[c7].Add(NormalParagraph.Add("Тест", TimesNewRoman9_5));
+                        r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add("88.88.8888"));
+                        r[c4].Add(NormalParagraph.Add("1000000000000.00"));
+                        r[c5].Add(NormalParagraph.Add(""));
+                        r[c6].Add(NormalParagraph.Add("1000000000000.00"));
+                        r[c7].Add(NormalParagraph.Add("Тест"));
                     }
                 }
                 {
@@ -636,7 +634,7 @@ namespace SharpLayout.Tests
                     .Margin(Left, indent).TextIndent(-indent)
                     .Add("9.5. Информация о привлечении резидентом кредита (займа), предоставленного нерезидентами\r\nна\u00A0синдицированной (консорциональной) основе", TimesNewRoman10Bold));
                 {
-                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center);
+                    var table = section.AddTable().Border(BorderWidth).ContentAlign(HorizontalAlign.Center).Font(TimesNewRoman9_5);
                     var c1 = table.AddColumn(Cm(0.8));
                     var c2 = table.AddColumn(Cm(4.5));
                     var c3 = table.AddColumn(Cm(3.45));
@@ -644,21 +642,21 @@ namespace SharpLayout.Tests
                     var c5 = table.AddColumn(Cm(3.3));
                     new[] {c2, c4}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                     var r1 = table.AddRow();
-                    r1[c1].Add(NormalParagraph
+	                r1[c1].Add(NormalParagraph
                         .Add(@"№
-п/п", TimesNewRoman9_5));
+п/п"));
                     r1[c2].Add(NormalParagraph
-                        .Add("Наименование нерезидента", TimesNewRoman9_5));
+                        .Add("Наименование нерезидента"));
                     r1[c3].Add(NormalParagraph
                         .Add(@"Код страны
 места
-нахождения нерезидента", TimesNewRoman9_5));
+нахождения нерезидента"));
                     r1[c4].Add(NormalParagraph
                         .Add(@"Предоставляемая сумма денежных средств,
-в единицах валюты кредитного договора", TimesNewRoman9_5));
+в единицах валюты кредитного договора"));
                     r1[c5].Add(NormalParagraph
                         .Add(@"Доля в общей
-сумме кредита (займа), %", TimesNewRoman9_5));
+сумме кредита (займа), %"));
                     var r2 = table.AddRow();
                     for (var i = 0; i < table.Columns.Count; i++)
                         r2[table.Columns[i]].Add(NormalParagraph
@@ -666,10 +664,10 @@ namespace SharpLayout.Tests
                     for (var i = 0; i < 2; i++)
                     {
                         var r = table.AddRow();
-                        r[c1].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c2].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c3].Add(NormalParagraph.Add("", TimesNewRoman9_5));
-                        r[c4].Add(NormalParagraph.Add("", TimesNewRoman9_5));
+                        r[c1].Add(NormalParagraph.Add(""));
+                        r[c2].Add(NormalParagraph.Add(""));
+                        r[c3].Add(NormalParagraph.Add(""));
+                        r[c4].Add(NormalParagraph.Add(""));
                     }
                 }
             }

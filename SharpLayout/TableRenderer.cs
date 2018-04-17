@@ -328,7 +328,7 @@ namespace SharpLayout
                                     Level = 1
                                 });
                                 ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
-									document);
+									document, info.Table);
                                 return new { };
                             },
                             table => {
@@ -566,7 +566,7 @@ namespace SharpLayout
         private static double GetInnerHeight(this Paragraph paragraph, XGraphics graphics, Table table, int row, Column column,
             Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document)
         {
-            return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc), mode, document);
+            return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc), mode, document, table);
         }
 
         private static Func<CellInfo, Option<XPen>> RightBorder(this Table table)

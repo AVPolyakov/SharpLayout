@@ -87,6 +87,15 @@ namespace SharpLayout
             return this;
         }
 
+	    public Paragraph Add(string text, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+		    => Add(new Span(text), line, filePath);
+
+	    public Paragraph Add(Expression<Func<string>> expression, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+		    => Add(new Span(expression), line, filePath);
+
+	    public Paragraph Add<T>(Expression<Func<T>> expression, Func<T, string> converter, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+		    => Add(Span.Create(expression, converter), line, filePath);
+
         public Paragraph Add(string text, XFont font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
             => Add(new Span(text, font), line, filePath);
 
