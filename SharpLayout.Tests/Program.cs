@@ -18,10 +18,10 @@ namespace SharpLayout.Tests
                     //CellLineNumbersAreVisible = true,
                     //ExpressionVisible = true,
                 };
-                //PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
                 //Svo.AddSection(document);
                 //ContractDealPassport.AddSection(document);
-                LoanAgreementDealPassport.AddSection(document);
+                //LoanAgreementDealPassport.AddSection(document);
 
                 document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
 
