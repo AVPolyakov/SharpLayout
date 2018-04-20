@@ -11,7 +11,7 @@ namespace SharpLayout
     {
 	    private readonly IText text;
 
-	    public IText Text(Table table)
+	    public IText Text(Option<Table> table)
 	    {
 		    if (!FontOrNone(table).HasValue) return new Text(new TextValue("Font not set"));
 		    return text;
@@ -25,14 +25,15 @@ namespace SharpLayout
 		    return this;
 	    }
 
-	    internal Option<XFont> FontOrNone(Table table)
+	    internal Option<XFont> FontOrNone(Option<Table> table)
 	    {
 		    if (Font().HasValue) return Font().Value;
-		    if (table.Font().HasValue) return table.Font().Value;
+	        var tableFont = table.Select(_ => _.Font());
+	        if (tableFont.HasValue) return tableFont.Value;
 		    return new Option<XFont>();
 	    }
 
-	    internal XFont Font(Table table) => FontOrNone(table).ValueOr(defaultFont);
+	    internal XFont Font(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
 
 	    private static readonly XFont defaultFont = new XFont("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
 
@@ -168,7 +169,12 @@ namespace SharpLayout
 
             public string Text(TextMode mode) => stringText;
 
-	        public SoftLinePart(Span span, string stringText)
+            public IText SubText(int startIndex, int length)
+            {
+                return new Text(new TextValue(stringText.Substring(startIndex, length)));
+            }
+
+            public SoftLinePart(Span span, string stringText)
             {
                 Span = span;
                 this.stringText = stringText;
@@ -206,6 +212,11 @@ namespace SharpLayout
                         throw new ArgumentOutOfRangeException(nameof(mode));
                 }
             }
+
+            public IText SubText(int startIndex, int length)
+            {
+                return new PageNumber();
+            }
         }
 
 	    public bool IsExpression => false;
@@ -239,6 +250,11 @@ namespace SharpLayout
                         throw new ArgumentOutOfRangeException(nameof(mode));
                 }
             }
+
+            public IText SubText(int startIndex, int length)
+            {
+                return new PageCount();
+            }
         }
 
 	    public bool IsExpression => false;
@@ -248,6 +264,7 @@ namespace SharpLayout
     {
         Span Span { get; }
         string Text(TextMode mode);
+        IText SubText(int startIndex, int length);
     }
 
     public class TextMode

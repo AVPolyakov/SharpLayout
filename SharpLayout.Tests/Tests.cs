@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,6 +13,32 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void ParagraphByPages()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
+                BottomMargin = Cm(2)
+            }));
+            for (var i = 0; i < 20; i++)
+            {
+                section.Add(new Paragraph()
+                    .Alignment(HorizontalAlign.Justify)
+                    .TextIndent(Cm(1))
+                    .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                        "inheritance is required by your design should it be used. If you use inheritance where " +
+                        "composition will work, your designs will become needlessly complicated. " +
+                        "Choose composition first when creating new classes from existing classes. Only if " +
+                        "inheritance is required by your design should it be used. If you use inheritance where " +
+                        "composition will work, your designs will become needlessly complicated. " +
+                        "Choose composition first when creating new classes from existing classes. Only if " +
+                        "inheritance is required by your design should it be used. If you use inheritance where " +
+                        "composition will work, your designs will become needlessly complicated. ",
+                        Styles.TimesNewRoman10));
+            }
+            Assert(nameof(ParagraphByPages), document.CreatePng().Item1);            
+        }
+
 	    [Fact]
 	    public void RowHeightGreaterThanPageHeight()
 	    {

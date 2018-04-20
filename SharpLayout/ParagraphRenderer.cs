@@ -15,7 +15,7 @@ namespace SharpLayout
             var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document, table));
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ToOption().ValueOr(0) : 0;
-            foreach (var softLineParts in GetSoftLines(paragraph, document, table))
+            foreach (var softLineParts in paragraph.GetSoftLines(document, table))
             {
                 var charInfos = GetCharInfos(softLineParts, mode);
                 var innerWidth = paragraph.GetInnerWidth(width);
@@ -77,7 +77,7 @@ namespace SharpLayout
                                     case DrawTextPart.Space space:
                                         var measureWidth = graphics.MeasureString(new string(space.Char, 1), font, MeasureTrailingSpacesStringFormat).Width;
                                         if (multiplier.Value.HasValue)
-                                            if (lineIndex < lineCount.Value - 1)
+                                            if (paragraph.IsParagraphPart || lineIndex < lineCount.Value - 1)
                                                 if (alignment == HorizontalAlign.Justify)
                                                     stringWidth = measureWidth + measureWidth * multiplier.Value.Value;
                                                 else
@@ -201,7 +201,7 @@ namespace SharpLayout
         public static double GetInnerWidth(this Paragraph paragraph, double width) 
             => width - paragraph.LeftMargin().ToOption().ValueOr(0) - paragraph.RightMargin().ToOption().ValueOr(0);
 
-        private static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document, Table table)
+        internal static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document, Option<Table> table)
         {
             var result = new List<List<ISoftLinePart>>();
             foreach (var span in paragraph.Spans)
@@ -224,7 +224,7 @@ namespace SharpLayout
 
         public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table)
         {
-            return GetSoftLines(paragraph, document, table).SelectMany(
+            return paragraph.GetSoftLines(document, table).SelectMany(
                 softLineParts => GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
                     GetCharInfos(softLineParts, mode), paragraph, mode, document, table)
             ).Count();
@@ -232,7 +232,7 @@ namespace SharpLayout
 
         public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table)
         {
-            return GetSoftLines(paragraph, document, table).Sum(softLineParts => {
+            return paragraph.GetSoftLines(document, table).Sum(softLineParts => {
                 var charInfos = GetCharInfos(softLineParts, mode);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
@@ -240,14 +240,14 @@ namespace SharpLayout
             });
         }
 
-        private static IEnumerable<Span> Spans(this IEnumerable<LinePart> lineParts, List<ISoftLinePart> softLineParts)
+        internal static IEnumerable<Span> Spans(this IEnumerable<LinePart> lineParts, List<ISoftLinePart> softLineParts)
         {
             return lineParts.Any() 
                 ? lineParts.Select(part => part.GetSoftLinePart(softLineParts).Span) 
                 : softLineParts.Select(softLinePart => softLinePart.Span);
         }
 
-        private static List<CharInfo> GetCharInfos(List<ISoftLinePart> softLineParts, TextMode mode)
+        internal static List<CharInfo> GetCharInfos(List<ISoftLinePart> softLineParts, TextMode mode)
         {
             return softLineParts.SelectMany(
                 (part, partIndex) => part.Text(mode)
@@ -264,8 +264,8 @@ namespace SharpLayout
                 2;
         }
 
-	    private static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, List<CharInfo> charInfos,
-		    Paragraph paragraph, TextMode mode, Document document, Table table)
+        internal static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, List<CharInfo> charInfos,
+		    Paragraph paragraph, TextMode mode, Document document, Option<Table> table)
         {
             var runningWidths = GetRunningWidths(softLineParts, graphics, mode, table);
             var startIndex = 0;
@@ -369,7 +369,7 @@ namespace SharpLayout
             return softLineParts[charInfo.PartIndex].Text(mode)[charInfo.CharIndex];
         }
 
-        private static Dictionary<ISoftLinePart, double> GetRunningWidths(List<ISoftLinePart> parts, XGraphics graphics, TextMode mode, Table table)
+        private static Dictionary<ISoftLinePart, double> GetRunningWidths(List<ISoftLinePart> parts, XGraphics graphics, TextMode mode, Option<Table> table)
         {
             var runningWidth = 0d;
             return parts.Select(part => {
@@ -378,7 +378,7 @@ namespace SharpLayout
             }).ToDictionary(_ => _.part, _ => _.runningWidth);
         }
 
-        private class LineInfo
+        internal class LineInfo
         {
             private int StartIndex { get; }
             private int EndIndex { get; }
@@ -394,21 +394,22 @@ namespace SharpLayout
                 return charInfos.Skip(StartIndex).Take(EndIndex - StartIndex + 1)
                     .GroupBy(charInfo => charInfo.PartIndex)
                     .Select(grouping => new LinePart(
-                        PartIndex: grouping.Key, 
+                        partIndex: grouping.Key, 
                         startIndex: grouping.First().CharIndex, 
                         endIndex: grouping.Last().CharIndex));
             }
         }
 
-        private class LinePart
+        internal class LinePart
         {
             private int PartIndex { get; }
             private int StartIndex { get; }
             private int EndIndex { get; }
+            private int Length => EndIndex - StartIndex + 1;
 
-            public LinePart(int PartIndex, int startIndex, int endIndex)
+            public LinePart(int partIndex, int startIndex, int endIndex)
             {
-                this.PartIndex = PartIndex;
+                PartIndex = partIndex;
                 StartIndex = startIndex;
                 EndIndex = endIndex;
             }
@@ -416,10 +417,13 @@ namespace SharpLayout
             public ISoftLinePart GetSoftLinePart(List<ISoftLinePart> softLineParts) => softLineParts[PartIndex];
 
             public string Text(List<ISoftLinePart> softLineParts, TextMode mode)
-                => GetSoftLinePart(softLineParts).Text(mode).Substring(StartIndex, EndIndex - StartIndex + 1);
+                => GetSoftLinePart(softLineParts).Text(mode).Substring(StartIndex, Length);
+
+            public IText SubText(List<ISoftLinePart> softLineParts) 
+                => GetSoftLinePart(softLineParts).SubText(StartIndex, Length);
         }
 
-        private class CharInfo
+        internal class CharInfo
         {
             public int PartIndex { get; }
             public int CharIndex { get; }

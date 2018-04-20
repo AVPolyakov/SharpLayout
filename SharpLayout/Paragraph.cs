@@ -10,6 +10,8 @@ namespace SharpLayout
     public class Paragraph : IElement
     {
         public List<Span> Spans { get; } = new List<Span>();
+        
+        internal bool IsParagraphPart { get; set; }
 
         private double? leftMargin;
         public double? LeftMargin() => leftMargin;
