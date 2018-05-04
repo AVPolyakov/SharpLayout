@@ -109,16 +109,16 @@ namespace SharpLayout.Tests
                 r7[c2].Colspan(c3)
                     .Add(NormalParagraph.Add("Номер дома (владение)"));
                 r7[c4].Border(All)
-                    .Add(NormalParagraph.Add(""));
+                    .Add(NormalParagraph.Alignment(HorizontalAlign.Center).Add(""));
                 r7[c5].Border(Right)
                     .Add(NormalParagraph.Alignment(HorizontalAlign.Right)
                         .Add("Корпус (строение)"));
                 r7[c6].Border(Bottom | Right)
-                    .Add(NormalParagraph.Add(""));
+                    .Add(NormalParagraph.Alignment(HorizontalAlign.Center).Add(""));
                 r7[c7].Border(Right).Add(NormalParagraph.Alignment(HorizontalAlign.Right)
                         .Add("Офис (квартира)"));
                 r7[c8].Border(Bottom | Right)
-                    .Add(NormalParagraph.Add(""));
+                    .Add(NormalParagraph.Alignment(HorizontalAlign.Center).Add(""));
             }
             var rowHeight = Cm(0.4);
             {
@@ -134,7 +134,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < cellCount; i++)
                     r1[c1.Index + 1 + i].VerticalAlign(VerticalAlign.Center).Border(Top | Right | Bottom)
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                            .Add("1", TimesNewRoman9_5));
+                            .Add("111111111111111".CellSubstring(i, cellCount), TimesNewRoman9_5));
             }
             {
                 var table = section.AddTable();
@@ -149,7 +149,7 @@ namespace SharpLayout.Tests
                 for (var i = 0; i < cellCount; i++)
                     r1[c1.Index + 1 + i].VerticalAlign(VerticalAlign.Center).Border(Right)
                         .Add(NormalParagraph.Alignment(HorizontalAlign.Center)
-                            .Add("3", TimesNewRoman9_5));
+                            .Add("3333333333".CellSubstring(i, cellCount), TimesNewRoman9_5));
             }
             {
                 var table = section.AddTable();
