@@ -1304,8 +1304,15 @@ aaaaaaaaa ")
         private static void Assert(string folderName, List<byte[]> pages)
         {
             for (var index = 0; index < pages.Count; index++)
-                Xunit.Assert.True(File.ReadAllBytes(GetPageFileName(folderName, index))
-                    .SequenceEqual(pages[index]));
+            {
+                var path = GetPageFileName(folderName, index);
+                if (!File.ReadAllBytes(path).SequenceEqual(pages[index]))
+                {
+                    var tempFileName = Path.ChangeExtension(Path.GetTempFileName(), ".png");
+                    ImageUtil.ImageDiff(path, pages[index], tempFileName);
+                    throw new Exception($@"Images are different, see file:///{tempFileName.Replace(@"\", "/")}");
+                }
+            }
         }
 
         public static void SavePages(string folderName, List<byte[]> pages)
