@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using static SharpLayout.InlineVerticalAlign;
 
 namespace SharpLayout
 {
@@ -33,11 +34,33 @@ namespace SharpLayout
 		    return new Option<XFont>();
 	    }
 
-	    internal XFont Font(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
+        internal XFont Font(Option<Table> table)
+        {
+            var xFont = FontWithoutInlineVerticalAlign(table);
+            if (new[] {Sub, Super}.Contains(InlineVerticalAlign()))
+            {
+                var ascent = xFont.FontFamily.GetCellAscent(xFont.Style);
+                var lineSpacing = xFont.FontFamily.GetLineSpacing(xFont.Style);
+                var inlineVerticalAlignScaling = 0.8 * ascent / lineSpacing;
+                return new XFont(xFont.Name, inlineVerticalAlignScaling * xFont.Size, xFont.Style, xFont.PdfOptions);
+            }
+            else
+                return xFont;
+        }
 
-	    private static readonly XFont defaultFont = new XFont("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+        internal XFont FontWithoutInlineVerticalAlign(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
 
-	    private Option<XBrush> brush;
+        private static readonly XFont defaultFont = new XFont("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+
+        private InlineVerticalAlign inlineVerticalAlign;
+        public InlineVerticalAlign InlineVerticalAlign() => inlineVerticalAlign;
+        public Span InlineVerticalAlign(InlineVerticalAlign value)
+        {
+            inlineVerticalAlign = value;
+            return this;
+        }
+
+        private Option<XBrush> brush;
         public Option<XBrush> Brush() => brush;
         public Span Brush(Option<XBrush> value)
         {
@@ -45,8 +68,8 @@ namespace SharpLayout
             return this;
         }
 
-        private XColor? backgroundColor;	    
-	    public XColor? BackgroundColor() => backgroundColor;
+        private XColor? backgroundColor;
+        public XColor? BackgroundColor() => backgroundColor;
         public Span BackgroundColor(XColor? value)
         {
             backgroundColor = value;

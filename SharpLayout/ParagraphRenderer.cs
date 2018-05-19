@@ -39,9 +39,9 @@ namespace SharpLayout
                         default:
                             throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
                     }
-                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics, table));
+                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics));
                     var x = x0 + paragraph.LeftMargin().ToOption().ValueOr(0) + dx + TextIndent();
-                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font(table).GetHeight(graphics));
+                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics));
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
                         return spaces.Any()
@@ -88,7 +88,7 @@ namespace SharpLayout
                                             stringWidth = measureWidth;
                                         break;
                                     case DrawTextPart.Word word:
-                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine);
+                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, graphics));
                                         stringWidth = graphics.MeasureString(word.Text, font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
@@ -100,7 +100,7 @@ namespace SharpLayout
                         else
                         {
                             var measureString = graphics.MeasureString(text, font, MeasureTrailingSpacesStringFormat);
-                            drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine);
+                            drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, graphics));
                             x += measureString.Width;
                             rectangleWidth += measureString.Width;
                         }
@@ -137,7 +137,23 @@ namespace SharpLayout
             }
         }
 
-	    private static XBrush CalculateBrush(this Span span, Document document, Table table)
+        private static double InlineVerticalAlignOffset(this Span span, Table table, XGraphics graphics)
+        {
+            switch (span.InlineVerticalAlign())
+            {
+                case InlineVerticalAlign.Baseline:
+                    return 0;
+                case InlineVerticalAlign.Sub:
+                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics) + BaseLine(span.Font(table), graphics) +
+                        span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics) - span.Font(table).GetHeight(graphics);
+                case InlineVerticalAlign.Super:
+                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics) + BaseLine(span.Font(table), graphics);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static XBrush CalculateBrush(this Span span, Document document, Table table)
 	    {
 		    if (!span.FontOrNone(table).HasValue) return new XSolidBrush(XColor.FromArgb(255, 0, 255));
 		    if (span.Text(table).ExpressionVisible(document)) return XBrushes.Red;
@@ -236,7 +252,7 @@ namespace SharpLayout
                 var charInfos = GetCharInfos(softLineParts, mode);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => span.Font(table).GetHeight(graphics))));
+                        .Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics))));
             });
         }
 
@@ -254,13 +270,13 @@ namespace SharpLayout
                     .Select((c, charIndex) => new CharInfo(partIndex, charIndex))).ToList();
         }
 
-        private static double BaseLine(Span span, XGraphics graphics, Table table)
+        private static double BaseLine(XFont font, XGraphics graphics)
         {
-            var lineSpace = span.Font(table).GetHeight(graphics);
+            var lineSpace = font.GetHeight(graphics);
             return (lineSpace +
-                    lineSpace * (span.Font(table).FontFamily.GetCellAscent(span.Font(table).Style) -
-                        span.Font(table).FontFamily.GetCellDescent(span.Font(table).Style))
-                    / span.Font(table).FontFamily.GetLineSpacing(span.Font(table).Style)) /
+                    lineSpace * (font.FontFamily.GetCellAscent(font.Style) -
+                        font.FontFamily.GetCellDescent(font.Style))
+                    / font.FontFamily.GetLineSpacing(font.Style)) /
                 2;
         }
 

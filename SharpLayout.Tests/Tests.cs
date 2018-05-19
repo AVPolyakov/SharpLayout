@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using Xunit;
 using static SharpLayout.Direction;
+using static SharpLayout.InlineVerticalAlign;
 using static SharpLayout.Util;
 using static SharpLayout.Tests.Styles;
 
@@ -13,6 +14,78 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void Superscript()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            {
+                var table = section.AddTable().Font(new XFont("Times New Roman", 20, XFontStyle.Regular, PdfOptions));
+                var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Margin(Bottom, Px(10))
+                    .Add("You can set the ")
+                    .Add(new Span("subscript").InlineVerticalAlign(Sub))
+                    .Add(" or ")
+                    .Add(new Span("superscript").InlineVerticalAlign(Super))
+                    .Add("."));
+            }
+            {
+                var table = section.AddTable()
+                    .Border(BorderWidth)
+                    .Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                table.AddColumn(Px(300));
+                var c2 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c2].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("Some text").Add(new Span("1").InlineVerticalAlign(Super)));
+            }
+            {
+                var table = section.AddTable().Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(new Span("1").InlineVerticalAlign(Super)).Add(" Footnote text"));
+            }
+            Assert(nameof(Superscript), document.CreatePng().Item1);
+        }
+
+        [Fact]
+        public void Superscript_LongText()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            const string note1 = "1";
+            const string note2 = "2";
+            const string note3 = "3";
+            {
+                var font = new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
+                section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).Margin(Bottom, Px(30))
+                    .Add("Choose composition first when creating new classes from existing classes. " +
+                        "Only if inheritance", font)
+                    .Add(new Span(note1, font).InlineVerticalAlign(Super))
+                    .Add(" is required by your design should it be used. If you use inheritance", font)
+                    .Add(new Span(note2, font).InlineVerticalAlign(Super))
+                    .Add(" where composition will work, your designs will become needlessly complicated", font)
+                    .Add(new Span(note3, font).InlineVerticalAlign(Super))
+                    .Add(".", font));
+            }
+            {
+                var font = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+                section.Add(new Paragraph()
+                    .Add(new Span(note1, font).InlineVerticalAlign(Super))
+                    .Add(" Text of first footnote", font));
+                section.Add(new Paragraph()
+                    .Add(new Span(note2, font).InlineVerticalAlign(Super))
+                    .Add(" Text of second footnote", font));
+                section.Add(new Paragraph()
+                    .Add(new Span(note3, font).InlineVerticalAlign(Super))
+                    .Add(" Text of third footnote", font));
+            }
+            Assert(nameof(Superscript_LongText), document.CreatePng().Item1);
+        }
+
         [Fact]
         public void ParagraphByPages()
         {

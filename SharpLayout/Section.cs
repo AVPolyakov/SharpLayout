@@ -65,6 +65,7 @@ namespace SharpLayout
                                         return new Span(linePart.SubText(softLineParts))
                                             .Font(span.Font())
                                             .Brush(span.Brush())
+                                            .InlineVerticalAlign(span.InlineVerticalAlign())
                                             .BackgroundColor(span.BackgroundColor());
                                     }));
                         }).ToList();
