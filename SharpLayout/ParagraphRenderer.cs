@@ -41,7 +41,7 @@ namespace SharpLayout
                     }
                     var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span, graphics, table));
                     var x = x0 + paragraph.LeftMargin().ToOption().ValueOr(0) + dx + TextIndent();
-                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font(table).LineSpace(graphics));
+                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.Font(table).GetHeight(graphics));
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
                         return spaces.Any()
@@ -112,7 +112,7 @@ namespace SharpLayout
 	                    if (alignment == HorizontalAlign.Justify && span.Font(table).Underline)
 		                    if (span.CalculateBrush(document, table) is XSolidBrush solidBrush)
 		                    {
-			                    var d = font.LineSpace(graphics) * (font.FontFamily.GetCellDescent(font.Style))
+			                    var d = font.GetHeight(graphics) * (font.FontFamily.GetCellDescent(font.Style))
 				                    / font.FontFamily.GetLineSpacing(font.Style);
 			                    double yMultiplier;
 			                    double widthMultiplier;
@@ -236,7 +236,7 @@ namespace SharpLayout
                 var charInfos = GetCharInfos(softLineParts, mode);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => span.Font(table).LineSpace(graphics))));
+                        .Max(span => span.Font(table).GetHeight(graphics))));
             });
         }
 
@@ -256,7 +256,7 @@ namespace SharpLayout
 
         private static double BaseLine(Span span, XGraphics graphics, Table table)
         {
-            var lineSpace = span.Font(table).LineSpace(graphics);
+            var lineSpace = span.Font(table).GetHeight(graphics);
             return (lineSpace +
                     lineSpace * (span.Font(table).FontFamily.GetCellAscent(span.Font(table).Style) -
                         span.Font(table).FontFamily.GetCellDescent(span.Font(table).Style))
@@ -444,8 +444,6 @@ namespace SharpLayout
                 return xStringFormat;
             }
         }
-
-        public static double LineSpace(this XFont font, XGraphics graphics) => font.GetHeight(graphics);
 
         public static void Add<TKey, TValue>(this Dictionary<TKey, List<TValue>> it, TKey key, TValue value)
         {

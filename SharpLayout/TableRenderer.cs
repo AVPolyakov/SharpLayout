@@ -905,7 +905,7 @@ namespace SharpLayout
                 if (column.Index == 0)
                 {
                     var text = $"r{row + 1}";
-                    var lineSpace = font.LineSpace(xGraphics);
+                    var lineSpace = font.GetHeight(xGraphics);
                     var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
                     var rnX = x - xGraphics.MeasureString(text, font).Width;
                     drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
