@@ -57,7 +57,7 @@ namespace SharpLayout
                         var rectangleWidth = 0d;
                         var rectangleX = x;
 	                    XFont font;
-	                    if (span.Font(table).Underline)
+	                    if (alignment == HorizontalAlign.Justify && span.Font(table).Underline)
 		                    font = new XFont(span.Font(table).FontFamily.Name, span.Font(table).Size,
 			                    new[] {
 				                    XFontStyle.Regular,
