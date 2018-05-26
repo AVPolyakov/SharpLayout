@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,26 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void Checkbox()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            var timesNewRoma = new XFont("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
+            var wingdings = new XFont("Wingdings", 11, XFontStyle.Bold, PdfOptions);
+            var wingdings2 = new XFont("Wingdings 2", 11, XFontStyle.Bold, PdfOptions);
+            section.Add(new Paragraph().Add("\u00A3", wingdings2)
+                    .Add(@" Одна тысяча
+одна тысяча", timesNewRoma))
+                .Add(new Paragraph().Add("\u0053", wingdings2)
+                    .Add(@" Две тысячи
+две тысячи", timesNewRoma))
+                .Add(new Paragraph().Margin(Top, Cm(2)).Add("\u00FE\u00FD\u00A8", wingdings)
+                    .Add("\u0054\u0053\u00A3\u0052\u0051", wingdings2)
+                    .Add("Одна тысяча", timesNewRoma));
+            //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+        }
+
         [Fact]
         public void Superscript()
         {
