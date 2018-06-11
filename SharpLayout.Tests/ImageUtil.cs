@@ -40,9 +40,9 @@ namespace SharpLayout.Tests
                                 }
                                 else
                                 {
-                                    values[i] = 24;
-                                    values[i + 1] = 0;
-                                    values[i + 2] = 193;
+                                    values[i] = 80;
+                                    values[i + 1] = 192;
+                                    values[i + 2] = 47;
                                     values[i + 3] = 255;
                                 }
                             }
