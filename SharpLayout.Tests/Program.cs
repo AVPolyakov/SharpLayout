@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using PdfSharp.Drawing;
 
 namespace SharpLayout.Tests
@@ -46,23 +47,36 @@ namespace SharpLayout.Tests
 
         public static void StartLiveViewer(this string fileName, bool alwaysShowWindow, bool findId = true)
         {
-            if (alwaysShowWindow || Process.GetProcessesByName("LiveViewer").Length <= 0)
+            var processes = Process.GetProcessesByName("LiveViewer");
+            if (processes.Length <= 0)
             {
                 string arguments;
-                if (findId)
+                if (findId && Ide == vs)
                 {
                     const string solutionName = "SharpLayout";
                     var firstOrDefault = Process.GetProcesses().FirstOrDefault(p => p.ProcessName == "devenv" &&
                         p.MainWindowTitle.Contains(solutionName));
                     if (firstOrDefault != null)
-                        arguments = $"{fileName} {firstOrDefault.Id}";
+                        arguments = $" {firstOrDefault.Id}";
                     else
-                        arguments = fileName;
+                        arguments = "";
                 }
                 else
-                    arguments = fileName;
-                Process.Start("LiveViewer", arguments);
+                    arguments = "";
+                Process.Start("LiveViewer", fileName + " " + Ide + arguments);
+            }
+            else
+            {
+                if (alwaysShowWindow)
+                    SetForegroundWindow(processes[0].MainWindowHandle);
             }
         }
+
+        private static string Ide => "rider";
+
+        private const string vs = "vs";
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }

@@ -101,11 +101,14 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
 
 Если запущено несколько экземпляров Visual Studio, то можно укзать PID процесса. Например,  
-`LiveViewer.exe Temp.png 15780`  
+`LiveViewer.exe Temp.png vs 15780`  
 
 [![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
 
 [![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
+
+Навигация в JetBrains Rider:  
+![SharpLayout_Rider.gif](Files/SharpLayout_Rider.gif?raw=true")
 
 ## Developer Tools
 Отображение адресов ячеек R1C1 – `document.R1C1AreVisible = true`  

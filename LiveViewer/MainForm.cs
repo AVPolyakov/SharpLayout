@@ -16,23 +16,36 @@ namespace LiveViewer
 {
     public partial class MainForm : Form
     {
+        private const string vs = "vs";
+        private const string rider = "rider";
+
         public MainForm()
         {
             InitializeComponent();
             pictureBox.MouseEnter += (sender, args) => panel1.Focus();
             panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
-            LoadFile(Environment.GetCommandLineArgs());
-            dte2 = GetDTE();
-            MessageFilter.Register();
+            var lineArgs = Environment.GetCommandLineArgs();
+            LoadFile(lineArgs);
+            if (lineArgs.Length >= 3)
+                switch (lineArgs[2])
+                {
+                    case vs:
+                        dte2 = GetDTE();
+                        MessageFilter.Register();
+                        break;
+                    case rider:
+                        Text = $"{Text} (Rider)";
+                        break;
+                }
         }
 
         private DTE2 GetDTE()
         {
             var lineArgs = Environment.GetCommandLineArgs();
-            if (lineArgs.Length >= 3)
+            if (lineArgs.Length >= 4)
             {
-                var processId = int.Parse(lineArgs[2]);
+                var processId = int.Parse(lineArgs[3]);
                 DTE2 result;
                 try
                 {
@@ -179,11 +192,23 @@ namespace LiveViewer
 
         private void GotoLine(int line, string filePath)
         {
-            dte2.ItemOperations.OpenFile(filePath, Constants.vsViewKindTextView);
-            var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
-            textSelection.GotoLine(line);
-            textSelection.WordRight();
-            SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+            var lineArgs = Environment.GetCommandLineArgs();
+            if (lineArgs.Length >= 3)
+                switch (lineArgs[2])
+                {
+                    case vs:
+                        dte2.ItemOperations.OpenFile(filePath, Constants.vsViewKindTextView);
+                        var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
+                        textSelection.GotoLine(line);
+                        textSelection.WordRight();
+                        SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+                        break;
+                    case rider:
+                        var process = Process.GetProcessesByName("rider64")[0];
+                        SetForegroundWindow(process.MainWindowHandle);
+                        Process.Start(process.MainModule.FileName, $"--line {line} {filePath}");
+                        break;
+                }
         }
 
         private SyncBitmapInfo GetSyncBitmapInfo()
