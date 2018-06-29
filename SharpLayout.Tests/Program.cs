@@ -19,21 +19,32 @@ namespace SharpLayout.Tests
                     //CellLineNumbersAreVisible = true,
                     //ExpressionVisible = true,
                 };
-                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                //PaymentOrder.AddSection2(document);
+                Console.WriteLine(stopwatch.Elapsed);
+                for (int i = 0; i < Count; i++)
+                    PaymentOrder.AddSection(document,
+                        new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                Console.WriteLine(stopwatch.Elapsed);
                 //Svo.AddSection(document);
                 //ContractDealPassport.AddSection(document);
                 //LoanAgreementDealPassport.AddSection(document);
 
-                document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+                //document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
 
                 //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+                var fileName = document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf");
+                Console.WriteLine(stopwatch.Elapsed);
+                Process.Start(fileName);
             }
             catch (Exception e)
             {
                 ShowException(e);
             }
         }
+
+        public const int Count = 1000*1;
 
         private static void ShowException(Exception e)
         {

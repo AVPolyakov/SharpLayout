@@ -1,4 +1,5 @@
 ﻿using System;
+using PdfSharp;
 using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 using static SharpLayout.Tests.Styles;
@@ -8,7 +9,46 @@ namespace SharpLayout.Tests
 {
     public static class PaymentOrder
     {
+        static readonly string text2 = "qweqwe qwetqwtqwrtwert qwetqwet QWEQWR asdasf".ToUpper();
+
+        public static void AddSection2(Document document)
+        {
+            document.Add(CreateSection2);
+        }
+
+        private static Section CreateSection2()
+        {
+            var pageSettings = new PageSettings {
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1),
+                Orientation = PageOrientation.Landscape
+            };
+            var section = new Section(pageSettings);
+            var table = section.AddTable().Border(BorderWidth).Font(TimesNewRoman8);
+            var columnCount = 14;
+            for (var i = 0; i < columnCount; i++)
+                table.AddColumn();
+            table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins);
+            for (var j = 0; j < Program.Count; j++)
+            {
+                var r = table.AddRow();
+                for (var i = 0; i < columnCount; i++)
+                {
+                    r[table.Columns[i]].Add(Paragraph.Add(text2));
+                }
+            }
+
+            return section;
+        }
+
         public static void AddSection(Document document, PaymentData data)
+        {
+            document.Add(() => CreateSection(data));
+        }
+
+        private static Section CreateSection(PaymentData data)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
@@ -16,7 +56,7 @@ namespace SharpLayout.Tests
                 LeftMargin = Cm(2),
                 RightMargin = Cm(1)
             };
-            var section = document.Add(new Section(pageSettings));
+            var section = new Section(pageSettings);
             {
                 var table = section.AddTable().Font(font);
                 var c1 = table.AddColumn(Px(351));
@@ -232,6 +272,7 @@ namespace SharpLayout.Tests
                     .Add(Paragraph.Add("").Alignment(HorizontalAlign.Center));
                 table.AddRow();
             }
+            return section;
         }        
 
         private static Table Stamp()
