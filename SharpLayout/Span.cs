@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using static SharpLayout.InlineVerticalAlign;
@@ -85,12 +84,12 @@ namespace SharpLayout
 	    {
 	    }
 
-	    public Span(Expression<Func<string>> expression): 
+	    public Span(Func<string> expression): 
 		    this(new Text(ExpressionValue.Get(expression)))
 	    {
 	    }
 
-	    public static Span Create<T>(Expression<Func<T>> expression, Func<T, string> converter) => 
+	    public static Span Create<T>(Func<T> expression, Func<T, string> converter) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)));
 
 	    public Span(IText text, XFont font) : this(text)
@@ -102,12 +101,12 @@ namespace SharpLayout
         {
         }
 
-	    public Span(Expression<Func<string>> expression, XFont font): 
+	    public Span(Func<string> expression, XFont font): 
 			this(new Text(ExpressionValue.Get(expression)), font)
 	    {
 	    }
 
-	    public static Span Create<T>(Expression<Func<T>> expression, Func<T, string> converter, XFont font) => 
+	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, XFont font) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)), font);
     }
 
@@ -133,27 +132,27 @@ namespace SharpLayout
 
 	public class ExpressionValue<T> : IValue
 	{
-		private readonly Expression<Func<T>> expression;
+		private readonly Func<T> expression;
 		private readonly Func<T, string> converter;
 
-		public ExpressionValue(Expression<Func<T>> expression, Func<T, string> converter)
+		public ExpressionValue(Func<T> expression, Func<T, string> converter)
 		{
 			this.expression = expression;
 			this.converter = converter;
 		}
 
 		public string GetText(Document document) => 
-			document.ExpressionVisible ? ((MemberExpression) expression.Body).Member.Name : converter(expression.Compile()());
+			document.ExpressionVisible ? ReflectionUtil.GetMemberInfo(expression).Name : converter(expression());
 
 		public bool IsExpression => true;
 	}
 
 	public static class ExpressionValue
 	{
-		public static ExpressionValue<T> Get<T>(Expression<Func<T>> expression, Func<T, string> converter) => 
+		public static ExpressionValue<T> Get<T>(Func<T> expression, Func<T, string> converter) => 
 			new ExpressionValue<T>(expression, converter);
 
-		public static ExpressionValue<string> Get(Expression<Func<string>> expression) => 
+		public static ExpressionValue<string> Get(Func<string> expression) => 
 			Get(expression, StringConverter);
 
 		public static Func<string, string> StringConverter => _ => _;

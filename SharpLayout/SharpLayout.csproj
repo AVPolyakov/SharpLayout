@@ -71,8 +71,10 @@
     <Compile Include="GraphicsType.cs" />
     <Compile Include="HorizontalAlign.cs" />
     <Compile Include="IElement.cs" />
+    <Compile Include="IlReader.cs" />
     <Compile Include="InlineVerticalAlign.cs" />
     <Compile Include="Lazy.cs" />
+    <Compile Include="ReflectionUtil.cs" />
     <Compile Include="Section.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="PageSettings.cs" />
