@@ -24,16 +24,23 @@ namespace SharpLayout
 
         public static implicit operator CellInfo(Cell cell) => new CellInfo(cell);
 
-        public bool Equals(CellInfo other) => Tuple.Equals(other.Tuple);
-
-        public override int GetHashCode() => Tuple.GetHashCode();
+        public bool Equals(CellInfo other)
+        {
+            return RowIndex == other.RowIndex && ColumnIndex == other.ColumnIndex;
+        }
 
         public override bool Equals(object obj)
         {
-            if (obj is CellInfo) return Equals((CellInfo) obj);
-            return false;
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is CellInfo info && Equals(info);
         }
 
-        private Tuple<int, int> Tuple => System.Tuple.Create(RowIndex, ColumnIndex);
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (RowIndex * 397) ^ ColumnIndex;
+            }
+        }
     }
 }
