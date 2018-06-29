@@ -451,15 +451,14 @@ namespace SharpLayout
             }
         }
 
-        public static XStringFormat MeasureTrailingSpacesStringFormat
+        static ParagraphRenderer()
         {
-            get
-            {
-                var xStringFormat = XStringFormats.Default;
-                xStringFormat.FormatFlags = (XStringFormatFlags) (StringFormat.GenericTypographic.FormatFlags | StringFormatFlags.MeasureTrailingSpaces);
-                return xStringFormat;
-            }
+            var xStringFormat = XStringFormats.Default;
+            xStringFormat.FormatFlags = (XStringFormatFlags)(StringFormat.GenericTypographic.FormatFlags | StringFormatFlags.MeasureTrailingSpaces);
+            MeasureTrailingSpacesStringFormat =  xStringFormat;
         }
+
+        public static XStringFormat MeasureTrailingSpacesStringFormat;
 
         public static void Add<TKey, TValue>(this Dictionary<TKey, List<TValue>> it, TKey key, TValue value)
         {
