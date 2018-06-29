@@ -72,7 +72,7 @@ namespace SharpLayout.Tests
             }
         }
 
-        private static string Ide => "rider";
+        private static string Ide => vs;
 
         private const string vs = "vs";
 

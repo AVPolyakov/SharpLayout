@@ -13,12 +13,17 @@ namespace SharpLayout
 {
     public class Document
     {
-        public List<Section> Sections { get; } = new List<Section>();
+        public List<Func<Section>> Sections { get; } = new List<Func<Section>>();
 
         public Section Add(Section section)
         {
-            Sections.Add(section);
+            Add(() => section);
             return section;
+        }
+
+        public void Add(Func<Section> section)
+        {
+            Sections.Add(section);
         }
 
         public bool CellsAreHighlighted { get; set; }
@@ -37,10 +42,11 @@ namespace SharpLayout
             {
                 pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
                 pdfDocument.Info.Creator = "SharpLayout";
-                foreach (var section in Sections)
+                foreach (var sectionFunc in Sections)
                 {
                     var page = pdfDocument.AddPage();
                     page.Size = PageSize.A4;
+                    var section = sectionFunc();
                     page.Orientation = section.PageSettings.Orientation;
                     using (var xGraphics = XGraphics.FromPdfPage(page))
                         TableRenderer.Draw(xGraphics, section, (pageIndex, action) => {
@@ -69,8 +75,9 @@ namespace SharpLayout
         {
             var list = new List<byte[]>();
             var syncBitmapInfos = new List<SyncBitmapInfo>();
-            foreach (var section in Sections)
+            foreach (var sectionFunc in Sections)
             {
+                var section = sectionFunc();
                 var pages = new List<byte[]> {null};
                 var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section,
                         (pageIndex, action) => {
