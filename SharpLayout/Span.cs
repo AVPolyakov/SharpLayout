@@ -36,7 +36,7 @@ namespace SharpLayout
         internal XFont Font(Option<Table> table)
         {
             var xFont = FontWithoutInlineVerticalAlign(table);
-            if (new[] {Sub, Super}.Contains(InlineVerticalAlign()))
+            if (InlineVerticalAlign() == Sub || InlineVerticalAlign() == Super)
             {
                 var ascent = xFont.FontFamily.GetCellAscent(xFont.Style);
                 var lineSpacing = xFont.FontFamily.GetLineSpacing(xFont.Style);
