@@ -266,15 +266,16 @@ namespace SharpLayout
                 foreach (var column in info.Table.Columns)
                 {
                     var cell = info.Table.Rows[row].Cells[column.Index];
-                    syncPageInfo.ItemInfos.Add(new SyncItemInfo {
-                        X = x,
-                        Y = y,
-                        Height = Range(0, cell.Rowspan().ToOption().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
-                        Width = Range(0, cell.Colspan().ToOption().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
-                        CallerInfos = cell.CallerInfos,
-                        TableLevel = tableLevel,
-                        Level = 0
-                    });
+                    if (graphicsType == GraphicsType.Image)
+                        syncPageInfo.ItemInfos.Add(new SyncItemInfo {
+                            X = x,
+                            Y = y,
+                            Height = Range(0, cell.Rowspan().ToOption().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
+                            Width = Range(0, cell.Colspan().ToOption().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
+                            CallerInfos = cell.CallerInfos,
+                            TableLevel = tableLevel,
+                            Level = 0
+                        });
                     var bottomBorder = info.BottomBorderFunc(new CellInfo(row, column.Index));
                     var backgroundColor = info.BackgroundColor(new CellInfo(cell));
                     if (backgroundColor.HasValue)
@@ -318,15 +319,16 @@ namespace SharpLayout
                                 table => new { });
                         element.Match(
                             paragraph => {
-                                syncPageInfo.ItemInfos.Add(new SyncItemInfo {
-                                    X = x,
-                                    Y = y + dy + paragraphY,
-                                    Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document),
-                                    Width = paragraph.GetInnerWidth(width),
-                                    CallerInfos = paragraph.CallerInfos,
-                                    TableLevel = tableLevel,
-                                    Level = 1
-                                });
+                                if (graphicsType == GraphicsType.Image)
+                                    syncPageInfo.ItemInfos.Add(new SyncItemInfo {
+                                        X = x,
+                                        Y = y + dy + paragraphY,
+                                        Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document),
+                                        Width = paragraph.GetInnerWidth(width),
+                                        CallerInfos = paragraph.CallerInfos,
+                                        TableLevel = tableLevel,
+                                        Level = 1
+                                    });
                                 ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
 									document, info.Table);
                                 return new { };
