@@ -11,7 +11,7 @@ namespace SharpLayout
     /// F# https://msdn.microsoft.com/en-us/visualfsharpdocs/conceptual/options-%5Bfsharp%5D
     /// C# Roslyn https://github.com/dotnet/roslyn/blob/56f605c41915317ccdb925f66974ee52282609e7/src/Compilers/Core/Portable/Optional.cs
     /// </summary>
-    public struct Option<T>
+    public struct Option<T> : IEquatable<Option<T>>
     {
         private readonly T value;
         public bool HasValue { get; }
@@ -62,6 +62,25 @@ namespace SharpLayout
 
         public Option<T> Where(Func<T, bool> predicate) 
             => HasValue ? (predicate(Value) ? this : new Option<T>()) : new Option<T>();
+
+        public bool Equals(Option<T> other)
+        {
+            return EqualityComparer<T>.Default.Equals(value, other.value) && HasValue == other.HasValue;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Option<T> option && Equals(option);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (EqualityComparer<T>.Default.GetHashCode(value) * 397) ^ HasValue.GetHashCode();
+            }
+        }
     }
 
     public static class Option
