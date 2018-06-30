@@ -407,12 +407,20 @@ namespace SharpLayout
 
             public IEnumerable<LinePart> GetLineParts(List<CharInfo> charInfos)
             {
-                return charInfos.Skip(StartIndex).Take(EndIndex - StartIndex + 1)
-                    .GroupBy(charInfo => charInfo.PartIndex)
-                    .Select(grouping => new LinePart(
-                        partIndex: grouping.Key, 
-                        startIndex: grouping.First().CharIndex, 
-                        endIndex: grouping.Last().CharIndex));
+                if (charInfos.Count <= StartIndex) yield break;
+                var info = charInfos[StartIndex];
+                for (var index = StartIndex; index <= EndIndex; index++)
+                {
+                    var charInfo = charInfos[index];
+                    if (info.PartIndex != charInfo.PartIndex)
+                    {
+                        yield return new LinePart(
+                            info.PartIndex, info.CharIndex, charInfos[index - 1].CharIndex);
+                        info = charInfo;
+                    }
+                }
+                yield return new LinePart(
+                    info.PartIndex, info.CharIndex, charInfos[EndIndex].CharIndex);
             }
         }
 
