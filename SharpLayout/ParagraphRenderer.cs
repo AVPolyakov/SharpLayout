@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using PdfSharp.Drawing;
 
@@ -39,9 +38,9 @@ namespace SharpLayout
                         default:
                             throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
                     }
-                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics));
+                    var baseLine = lineParts.Spans(softLineParts).Max(span => BaseLine(span.FontWithoutInlineVerticalAlign(table)));
                     var x = x0 + paragraph.LeftMargin().ToOption().ValueOr(0) + dx + TextIndent();
-                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics));
+                    var maxLineSpace = lineParts.Spans(softLineParts).Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight());
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
                         return spaces.Any()
@@ -88,7 +87,7 @@ namespace SharpLayout
                                             stringWidth = measureWidth;
                                         break;
                                     case DrawTextPart.Word word:
-                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, graphics));
+                                        drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table));
                                         stringWidth = graphics.MeasureString(word.Text, font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
@@ -100,7 +99,7 @@ namespace SharpLayout
                         else
                         {
                             var measureString = graphics.MeasureString(text, font, MeasureTrailingSpacesStringFormat);
-                            drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, graphics));
+                            drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table));
                             x += measureString.Width;
                             rectangleWidth += measureString.Width;
                         }
@@ -112,7 +111,7 @@ namespace SharpLayout
 	                    if (alignment == HorizontalAlign.Justify && span.Font(table).Underline)
 		                    if (span.CalculateBrush(document, table) is XSolidBrush solidBrush)
 		                    {
-			                    var d = font.GetHeight(graphics) * (font.FontFamily.GetCellDescent(font.Style))
+			                    var d = font.GetHeight() * (font.FontFamily.GetCellDescent(font.Style))
 				                    / font.FontFamily.GetLineSpacing(font.Style);
 			                    double yMultiplier;
 			                    double widthMultiplier;
@@ -137,17 +136,17 @@ namespace SharpLayout
             }
         }
 
-        private static double InlineVerticalAlignOffset(this Span span, Table table, XGraphics graphics)
+        private static double InlineVerticalAlignOffset(this Span span, Table table)
         {
             switch (span.InlineVerticalAlign())
             {
                 case InlineVerticalAlign.Baseline:
                     return 0;
                 case InlineVerticalAlign.Sub:
-                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics) + BaseLine(span.Font(table), graphics) +
-                        span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics) - span.Font(table).GetHeight(graphics);
+                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table)) + BaseLine(span.Font(table)) +
+                        span.FontWithoutInlineVerticalAlign(table).GetHeight() - span.Font(table).GetHeight();
                 case InlineVerticalAlign.Super:
-                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table), graphics) + BaseLine(span.Font(table), graphics);
+                    return -BaseLine(span.FontWithoutInlineVerticalAlign(table)) + BaseLine(span.Font(table));
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -252,7 +251,7 @@ namespace SharpLayout
                 var charInfos = GetCharInfos(softLineParts, mode);
                 return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(softLineParts)
-                        .Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight(graphics))));
+                        .Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight())));
             });
         }
 
@@ -270,9 +269,9 @@ namespace SharpLayout
                     .Select((c, charIndex) => new CharInfo(partIndex, charIndex))).ToList();
         }
 
-        private static double BaseLine(XFont font, XGraphics graphics)
+        private static double BaseLine(XFont font)
         {
-            var lineSpace = font.GetHeight(graphics);
+            var lineSpace = font.GetHeight();
             return (lineSpace +
                     lineSpace * (font.FontFamily.GetCellAscent(font.Style) -
                         font.FontFamily.GetCellDescent(font.Style))
@@ -462,7 +461,6 @@ namespace SharpLayout
         static ParagraphRenderer()
         {
             var xStringFormat = XStringFormats.Default;
-            xStringFormat.FormatFlags = (XStringFormatFlags)(StringFormat.GenericTypographic.FormatFlags | StringFormatFlags.MeasureTrailingSpaces);
             MeasureTrailingSpacesStringFormat =  xStringFormat;
         }
 
