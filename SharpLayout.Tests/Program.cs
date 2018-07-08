@@ -10,38 +10,27 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
-            try
+            M1(100);
+            for (int i = 1; i <= 100; i++)
             {
-                var document = new Document {
-                    //CellsAreHighlighted = true,
-                    //R1C1AreVisible = true,
-                    //ParagraphsAreHighlighted = true,
-                    //CellLineNumbersAreVisible = true,
-                    //ExpressionVisible = true,
-                };
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                //PaymentOrder.AddSection2(document);
-                Console.WriteLine(stopwatch.Elapsed);
-                for (int i = 0; i < Count; i++)
-                    PaymentOrder.AddSection(document,
-                        new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
-                Console.WriteLine(stopwatch.Elapsed);
-                //Svo.AddSection(document);
-                //ContractDealPassport.AddSection(document);
-                //LoanAgreementDealPassport.AddSection(document);
 
-                //document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+                var count = 1000 * i;
+                M1(count);
 
-                //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                var fileName = document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf");
-                Console.WriteLine(stopwatch.Elapsed);
-                Process.Start(fileName);
+                stopwatch.Stop();
+
+                Console.WriteLine($"{count} {stopwatch.ElapsedMilliseconds}");
             }
-            catch (Exception e)
-            {
-                ShowException(e);
-            }
+        }
+
+        private static string M1(int count)
+        {
+            var document = new Document();
+            PaymentOrder.AddSection2(document, count);
+            var fileName = document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf");
+            return fileName;
         }
 
         public const int Count = 1000*1;

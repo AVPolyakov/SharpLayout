@@ -9,14 +9,14 @@ namespace SharpLayout.Tests
 {
     public static class PaymentOrder
     {
-        static readonly string text2 = "qweqwe qwetqwtqwrtwert qwetqwet QWEQWR asdasf".ToUpper();
+        static readonly string text2 = "QWEQWE QWETQWTQ WRTWERT QWETQWET QWEQWR ASDASF".ToUpper();
 
-        public static void AddSection2(Document document)
+        public static void AddSection2(Document document, int count)
         {
-            document.Add(CreateSection2);
+            document.Add(() => CreateSection2(count));
         }
 
-        private static Section CreateSection2()
+        private static Section CreateSection2(int count)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
@@ -31,12 +31,12 @@ namespace SharpLayout.Tests
             for (var i = 0; i < columnCount; i++)
                 table.AddColumn();
             table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins);
-            for (var j = 0; j < Program.Count; j++)
+            for (var j = 0; j < count; j++)
             {
                 var r = table.AddRow();
                 for (var i = 0; i < columnCount; i++)
                 {
-                    r[table.Columns[i]].Add(Paragraph.Add(text2));
+                    r[i].Add(Paragraph.Add(text2));
                 }
             }
 
