@@ -59,15 +59,19 @@ namespace SharpLayout
                             var charInfos = GetCharInfos(softLineParts, new TextMode.Measure());
                             return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
                                     charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
-                                .Select(lineInfo => lineInfo.GetLineParts(charInfos)
-                                    .Select(linePart => {
-                                        var span = linePart.GetSoftLinePart(softLineParts).Span;
-                                        return new Span(linePart.SubText(softLineParts))
-                                            .Font(span.Font())
-                                            .Brush(span.Brush())
-                                            .InlineVerticalAlign(span.InlineVerticalAlign())
-                                            .BackgroundColor(span.BackgroundColor());
-                                    }));
+                                .Select(lineInfo => {
+		                            var lineParts = lineInfo.GetLineParts(charInfos);
+		                            return lineParts.Any()
+			                            ? lineParts.Select(linePart => {
+				                            var span = linePart.GetSoftLinePart(softLineParts).Span;
+				                            return new Span(linePart.SubText(softLineParts))
+					                            .Font(span.Font())
+					                            .Brush(span.Brush())
+					                            .InlineVerticalAlign(span.InlineVerticalAlign())
+					                            .BackgroundColor(span.BackgroundColor());
+			                            })
+			                            : softLineParts.Select(softLinePart => softLinePart.Span);
+	                            });
                         }).ToList();
                     return lines.Select((spans, i) => {
                         var p = new Paragraph {IsParagraphPart = i < lines.Count - 1}
