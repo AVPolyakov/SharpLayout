@@ -101,7 +101,16 @@ namespace SharpLayout
             return this;
         }
 
-        public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
+        public List<CallerInfo> callerInfos;
+        public List<CallerInfo> CallerInfos
+        {
+            get
+            {
+                if (Document.CollectCallerInfo && callerInfos == null)
+                    callerInfos = new List<CallerInfo>();
+                return callerInfos;
+            }
+        }
 
         internal Cell(Table table, int rowIndex, int columnIndex)
         {

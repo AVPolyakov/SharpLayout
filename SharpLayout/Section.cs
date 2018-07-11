@@ -86,7 +86,7 @@ namespace SharpLayout
                         if (i == lines.Count - 1)
                             p.BottomMargin(paragraph.BottomMargin());
                         p.Spans.AddRange(spans);
-                        p.CallerInfos.AddRange(paragraph.CallerInfos);
+                        p.CallerInfos?.AddRange(paragraph.CallerInfos);
                         var table = new Table(p.KeepWithNext(), line);
                         var c1 = table.AddColumn(width);
                         var r1 = table.AddRow();

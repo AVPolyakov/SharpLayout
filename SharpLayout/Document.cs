@@ -13,6 +13,8 @@ namespace SharpLayout
 {
     public class Document
     {
+        public static bool CollectCallerInfo;
+
         public List<Func<Section>> Sections { get; } = new List<Func<Section>>();
 
         public Section Add(Section section)

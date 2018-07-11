@@ -33,7 +33,7 @@ namespace SharpLayout
             get
             {
                 var cell = Cells[columnIndex];
-                cell.CallerInfos.Add(new CallerInfo {Line = line, FilePath = filePath});
+                cell.CallerInfos?.Add(new CallerInfo {Line = line, FilePath = filePath});
                 return cell;
             }
         }

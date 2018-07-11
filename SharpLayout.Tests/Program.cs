@@ -10,6 +10,7 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
+            Document.CollectCallerInfo = true;
             try
             {
                 var document = new Document {

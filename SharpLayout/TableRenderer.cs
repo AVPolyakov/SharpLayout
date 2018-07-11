@@ -272,7 +272,7 @@ namespace SharpLayout
                             Y = y,
                             Height = Range(0, cell.Rowspan().ToOption().ValueOr(1)).Sum(i => info.MaxHeights[row + i]),
                             Width = Range(0, cell.Colspan().ToOption().ValueOr(1)).Sum(i => info.Table.Columns[column.Index + i].Width),
-                            CallerInfos = cell.CallerInfos,
+                            CallerInfos = cell.CallerInfos ?? new List<CallerInfo>(),
                             TableLevel = tableLevel,
                             Level = 0
                         });
@@ -325,7 +325,7 @@ namespace SharpLayout
                                         Y = y + dy + paragraphY,
                                         Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document),
                                         Width = paragraph.GetInnerWidth(width),
-                                        CallerInfos = paragraph.CallerInfos,
+                                        CallerInfos = paragraph.CallerInfos ?? new List<CallerInfo>(),
                                         TableLevel = tableLevel,
                                         Level = 1
                                     });
@@ -931,8 +931,9 @@ namespace SharpLayout
         {
             if (!document.CellLineNumbersAreVisible) return;
             var cell = info.Table.Rows[row].Cells[column.Index];
-            if (cell.CallerInfos.Count <= 0) return;
-            var text = string.Join(" ", cell.CallerInfos.Select(_ => _.Line));
+            var callerInfos = cell.CallerInfos ?? new List<CallerInfo>();
+            if (callerInfos.Count <= 0) return;
+            var text = string.Join(" ", callerInfos.Select(_ => _.Line));
             var font = new XFont("Arial", 7, XFontStyle.Regular,
                 new XPdfFontOptions(PdfFontEncoding.Unicode));
             var height = info.MaxHeights[row] - bottomBorder.Select(_ => _.Width).ValueOr(0);

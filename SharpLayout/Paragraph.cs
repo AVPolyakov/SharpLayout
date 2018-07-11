@@ -83,7 +83,7 @@ namespace SharpLayout
         public Paragraph Add(Span span, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
         {
             if (Spans.Count == 0)
-                CallerInfos.Add(new CallerInfo {Line = line, FilePath = filePath});
+                CallerInfos?.Add(new CallerInfo {Line = line, FilePath = filePath});
             Spans.Add(span);
             return this;
         }
@@ -108,7 +108,16 @@ namespace SharpLayout
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);
 
-        public readonly List<CallerInfo> CallerInfos = new List<CallerInfo>();
+        public List<CallerInfo> callerInfos;
+        public List<CallerInfo> CallerInfos
+        {
+            get
+            {
+                if (Document.CollectCallerInfo && callerInfos == null)
+                    callerInfos = new List<CallerInfo>();
+                return callerInfos;
+            }
+        }
 
         private bool? keepWithNext;
         public bool? KeepWithNext() => keepWithNext;
