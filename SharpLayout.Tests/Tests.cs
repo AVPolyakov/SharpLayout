@@ -41,7 +41,7 @@ namespace SharpLayout.Tests
                 .Add(new Paragraph().Margin(Top, Cm(2)).Add("\u00FE\u00FD\u00A8", wingdings)
                     .Add("\u0054\u0053\u00A3\u0052\u0051", wingdings2)
                     .Add("Одна тысяча", timesNewRoma));
-            //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            Assert(nameof(Checkbox), document.CreatePng().Item1);
         }
 
         [Fact]
