@@ -15,7 +15,16 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
-        [Fact]
+	    [Fact]
+	    public void ParagraphWithSpace()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings()));
+		    section.Add(new Paragraph().Add(" ", Styles.TimesNewRoman10));
+		    document.CreatePng();
+		}
+
+		[Fact]
         public void Checkbox()
         {
             var document = new Document();

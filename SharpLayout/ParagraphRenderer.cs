@@ -419,8 +419,9 @@ namespace SharpLayout
                         info = charInfo;
                     }
                 }
-                yield return new LinePart(
-                    info.PartIndex, info.CharIndex, charInfos[EndIndex].CharIndex);
+	            if (StartIndex <= EndIndex)
+		            yield return new LinePart(
+			            info.PartIndex, info.CharIndex, charInfos[EndIndex].CharIndex);
             }
         }
 
