@@ -20,15 +20,15 @@ namespace SharpLayout.Tests
                     //CellLineNumbersAreVisible = true,
                     //ExpressionVisible = true,
                 };
-                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                PaymentClaim.AddSection(document);
                 //Svo.AddSection(document);
                 //ContractDealPassport.AddSection(document);
                 //LoanAgreementDealPassport.AddSection(document);
 
-                document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+                document.SavePng(0, "Temp.png", 120).StartLiveViewer(false);
 
                 //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+                Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
             }
             catch (Exception e)
             {
