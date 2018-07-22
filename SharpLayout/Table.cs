@@ -14,8 +14,17 @@ namespace SharpLayout
         public int Line { get; }
 
         public readonly List<Column> Columns = new List<Column>();
-        
-        public readonly List<Row> Rows = new List<Row>();
+
+        internal IEnumerable<Row> Rows
+        {
+            get
+            {
+                foreach (var rowFunc in RowFuncs)
+                    yield return rowFunc();
+            }
+        }
+
+        public readonly List<Func<Row>> RowFuncs = new List<Func<Row>>();
 
         public Table([CallerLineNumber] int line = 0)
             : this(false, line)
@@ -46,8 +55,24 @@ namespace SharpLayout
 
         public Row AddRow()
         {
-            var row = new Row(this, Rows.Count);
-            Rows.Add(row);
+            var row = CreateRow(RowFuncs.Count);
+            RowFuncs.Add(() => row);
+            return row;
+        }
+
+        public void AddRow(Action<Row> action)
+        {
+            var funcsCount = RowFuncs.Count;
+            RowFuncs.Add(() => {
+                var row = CreateRow(funcsCount);
+                action(row);
+                return row;
+            });
+        }
+
+        private Row CreateRow(int funcsCount)
+        {
+            var row = new Row(this, funcsCount);
             foreach (var column in Columns)
                 row.Cells.Add(new Cell(this, row.Index, column.Index));
             return row;
@@ -55,9 +80,9 @@ namespace SharpLayout
 
         internal Option<Cell> Find(CellInfo cell)
         {
-            if (cell.RowIndex >= Rows.Count) return new Option<Cell>();
+            if (cell.RowIndex >= RowFuncs.Count) return new Option<Cell>();
             if (cell.ColumnIndex >= Columns.Count) return new Option<Cell>();
-            return Rows[cell.RowIndex].Cells[cell.ColumnIndex];
+            return RowFuncs[cell.RowIndex]().Cells[cell.ColumnIndex];
         }
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
