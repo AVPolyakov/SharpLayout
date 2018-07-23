@@ -78,14 +78,14 @@ namespace SharpLayout
             return row;
         }
 
-        internal Option<Cell> Find(CellInfo cell)
+        internal Option<Cell> Find(CellInfo cell, Dictionary<Table, RowCache> rowCaches)
         {
             if (cell.RowIndex >= RowFuncs.Count) return new Option<Cell>();
             if (cell.ColumnIndex >= Columns.Count) return new Option<Cell>();
-            return RowFuncs[cell.RowIndex]().Cells[cell.ColumnIndex];
+	        return rowCaches.GetRowCache(this).Row(cell.RowIndex).Cells[cell.ColumnIndex];
         }
 
-        public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
+	    public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
 
         private HorizontalAlign? alignment;
         public HorizontalAlign? Alignment() => alignment;
