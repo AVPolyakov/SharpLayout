@@ -136,8 +136,8 @@ namespace SharpLayout
 		        }
 		        else
 		        {
-			        var mergedRows = MergedRows(infos[tableIndex].Table);
-			        var keepWithRows = KeepWithRows(infos[tableIndex].Table);
+			        var mergedRows = infos[tableIndex].MergedRows;
+			        var keepWithRows = infos[tableIndex].KeepWithRows;
 			        var y = currentTableY + infos[tableIndex].Table.TopMargin().ToOption().ValueOr(0) +
 				        infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(0, column.Index))
 					        .Select(_ => _.Width).ValueOr(0));
@@ -460,32 +460,21 @@ namespace SharpLayout
             }
         }
 
-        private static HashSet<int> MergedRows(Table table)
+        private static void MergedRows(Row row, Column column, HashSet<int> mergedRows)
         {
-            var set = new HashSet<int>();
-            foreach (var row in table.Rows)
-                foreach (var column in table.Columns)
-                {
-                    var rowspan = row.Cells[column.Index].Rowspan();
-                    if (rowspan.HasValue)
-                        for (var i = row.Index + 1; i < row.Index + rowspan.Value; i++)
-                            set.Add(i);
-                }
-            return set;
+            var rowspan = row.Cells[column.Index].Rowspan();
+            if (rowspan.HasValue)
+                for (var i = row.Index + 1; i < row.Index + rowspan.Value; i++)
+                    mergedRows.Add(i);
         }
 
-	    private static HashSet<int> KeepWithRows(Table table)
-	    {
-		    var set = new HashSet<int>();
-		    foreach (var row in table.Rows)
-		    {
-			    var keepWith = row.KeepWith();
-			    if (keepWith.HasValue)
-				    for (var i = row.Index + 1; i < row.Index + keepWith.Value; i++)
-					    set.Add(i);
-		    }
-		    return set;
-	    }
+        private static void KeepWithRows(Row row, HashSet<int> keepWithRows)
+        {
+            var keepWith = row.KeepWith();
+            if (keepWith.HasValue)
+                for (var i = row.Index + 1; i < row.Index + keepWith.Value; i++)
+                    keepWithRows.Add(i);
+        }
 
         private static double ContentWidth(this Table table, int row, Column column, Func<CellInfo, Option<XPen>> rightBorderFunc)
             => table.Find(new CellInfo(row, column.Index)).SelectMany(_ => _.Colspan().ToOption()).Match(
@@ -504,45 +493,53 @@ namespace SharpLayout
             Func<CellInfo, Option<XPen>> bottomBorderFunc, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
             var cellContentsByBottomRow = new Dictionary<CellInfo, CellInfo>();
-            foreach (var row in table.Rows)
-                foreach (var column in table.Columns)
+            var heights = new double?[table.RowFuncs.Count];
+            {
+                var rowIndex = 0;
+                foreach (var row in table.Rows)
                 {
-                    var cell = row.Cells[column.Index];
-                    var elements = cell.Elements;
-                    if (elements.Count > 0)
+                    foreach (var column in table.Columns)
                     {
-                        var rowspan = cell.Rowspan().ToOption();
-                        var rowIndex = rowspan.Match(value => row.Index + value - 1, () => row.Index);
-                        cellContentsByBottomRow.Add(new CellInfo(rowIndex, column.Index),
-                            new CellInfo(row, column));
+                        var cell = row.Cells[column.Index];
+                        var elements = cell.Elements;
+                        if (elements.Count > 0)
+                        {
+                            var rowspan = cell.Rowspan().ToOption();
+                            var rowIndex2 = rowspan.Match(value => row.Index + value - 1, () => row.Index);
+                            cellContentsByBottomRow.Add(new CellInfo(rowIndex2, column.Index),
+                                new CellInfo(row, column));
+                        }
                     }
+                    heights[rowIndex] = row.Height();
+                    rowIndex++;
                 }
+            }
             var result = new Dictionary<int, double>();
-            foreach (var row in table.Rows)
+            for (var rowIndex = 0; rowIndex < table.RowFuncs.Count; rowIndex++)
             {
                 var maxHeight = 0d;
                 foreach (var column in table.Columns)
                 {
                     double rowHeightByContent;
-                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(row, column), out var cellInfo))
+                    if (cellContentsByBottomRow.TryGetValue(new CellInfo(rowIndex, column.Index), out var cellInfo))
                     {
                         var cell = table.RowFuncs[cellInfo.RowIndex]().Cells[cellInfo.ColumnIndex];
                         var paragraphHeight = cell.Elements.Sum(_ => _.Match(
                             p => p.GetParagraphHeight(cell.RowIndex, column, table, graphics, rightBorderFunc, mode, document),
                             t => t.GetTableHeight(graphics, tableInfos, mode, document)));
                         rowHeightByContent = cell.Rowspan().ToOption().Match(
-                            _ => Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[row.Index - i]), 0),
+                            _ => Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[rowIndex - i]), 0),
                             () => paragraphHeight);
                     }
                     else
                         rowHeightByContent = 0;
-                    var innerHeight = row.Height().ToOption().Match(
+                    var innerHeight = heights[rowIndex].ToOption().Match(
                         _ => Max(rowHeightByContent, _), () => rowHeightByContent);
-                    var height = innerHeight + MaxBottomBorder(row.Index, table, bottomBorderFunc);
+                    var height = innerHeight + MaxBottomBorder(rowIndex, table, bottomBorderFunc);
                     if (maxHeight < height)
                         maxHeight = height;
                 }
-                result.Add(row.Index, maxHeight);
+                result.Add(rowIndex, maxHeight);
             }
             return result;
         }
@@ -572,41 +569,10 @@ namespace SharpLayout
             return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc), mode, document, table);
         }
 
-        private static Func<CellInfo, Option<XPen>> RightBorder(this Table table)
+        private static Func<CellInfo, Option<XPen>> RightBorder(this Table table, HashSet<CellInfo> rightMergedCells, 
+            Dictionary<CellInfo, List<BorderTuple>> rightBorderDictionary)
         {
-            var rightMergedCells = RightMergedCells(table);
-            var result = new Dictionary<CellInfo, List<BorderTuple>>();
-            foreach (var row in table.Rows)
-                foreach (var column in table.Columns)
-                {
-                    var cell = row.Cells[column.Index];
-                    var rightBorder = cell.RightBorder();
-                    if (rightBorder.HasValue)
-                    {
-                        var mergeRight = cell.Colspan().ToOption().Match(_ => _ - 1, () => 0);
-                        result.Add(new CellInfo(row.Index, column.Index + mergeRight),
-                            new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
-                        var rowspan = cell.Rowspan().ToOption();
-                        if (rowspan.HasValue)
-                            for (var i = 1; i <= rowspan.Value - 1; i++)
-                                result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
-                                    new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
-                    }
-                    var adjacentCell = table.Find(new CellInfo(row.Index, column.Index + 1));
-                    var leftBorder = adjacentCell.SelectMany(_ => _.LeftBorder());
-                    if (leftBorder.HasValue)
-                    {
-                        var mergeRight = cell.Colspan().ToOption().Match(_ => _ - 1, () => 0);
-                        result.Add(new CellInfo(row.Index, column.Index + mergeRight),
-                            new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
-                        var rowspan = adjacentCell.SelectMany(_ => _.Rowspan().ToOption());
-                        if (rowspan.HasValue)
-                            for (var i = 1; i <= rowspan.Value - 1; i++)
-                                result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
-                                    new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
-                    }
-                }
-            return cell => result.Get(cell).Select(list => {
+            return cell => rightBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
                     throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
@@ -619,73 +585,60 @@ namespace SharpLayout
             });
         }
 
-        private static HashSet<CellInfo> BottomMergedCells(Table table)
+        private static void RightBorderDictionary(Table table, Row row, Column column, Dictionary<CellInfo, List<BorderTuple>> result)
         {
-            var set = new HashSet<CellInfo>();
-            foreach (var row in table.Rows)
-            foreach (var column in table.Columns)
+            var cell = row.Cells[column.Index];
+            var rightBorder = cell.RightBorder();
+            if (rightBorder.HasValue)
             {
-                var cell = row.Cells[column.Index];
-                var rowspan = cell.Rowspan().ToOption().ValueOr(1);
-                var colspan = cell.Colspan().ToOption().ValueOr(1);
-                for (var i = row.Index + 1; i < row.Index + rowspan; i++)
-                for (var j = column.Index; j < column.Index + colspan; j++)
-                    set.Add(new CellInfo(i, j));
+                var mergeRight = cell.Colspan().ToOption().Match(_ => _ - 1, () => 0);
+                result.Add(new CellInfo(row.Index, column.Index + mergeRight),
+                    new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
+                var rowspan = cell.Rowspan().ToOption();
+                if (rowspan.HasValue)
+                    for (var i = 1; i <= rowspan.Value - 1; i++)
+                        result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
+                            new BorderTuple(rightBorder.Value, new CellInfo(row, column)));
             }
-            return set;
+
+            var adjacentCell = table.Find(new CellInfo(row.Index, column.Index + 1));
+            var leftBorder = adjacentCell.SelectMany(_ => _.LeftBorder());
+            if (leftBorder.HasValue)
+            {
+                var mergeRight = cell.Colspan().ToOption().Match(_ => _ - 1, () => 0);
+                result.Add(new CellInfo(row.Index, column.Index + mergeRight),
+                    new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
+                var rowspan = adjacentCell.SelectMany(_ => _.Rowspan().ToOption());
+                if (rowspan.HasValue)
+                    for (var i = 1; i <= rowspan.Value - 1; i++)
+                        result.Add(new CellInfo(row.Index + i, column.Index + mergeRight),
+                            new BorderTuple(leftBorder.Value, new CellInfo(row.Index, column.Index + 1)));
+            }
         }
 
-        private static HashSet<CellInfo> RightMergedCells(Table table)
+        private static void BottomMergedCells(Row row, Column column, HashSet<CellInfo> bottomMergedCells)
         {
-            var set = new HashSet<CellInfo>();
-            foreach (var row in table.Rows)
-            foreach (var column in table.Columns)
-            {
-                var cell = row.Cells[column.Index];
-                var rowspan = cell.Rowspan().ToOption().ValueOr(1);
-                var colspan = cell.Colspan().ToOption().ValueOr(1);
-                for (var i = row.Index; i < row.Index + rowspan; i++)
-                for (var j = column.Index + 1; j < column.Index + colspan; j++)
-                    set.Add(new CellInfo(i, j));
-            }
-            return set;
+            var cell = row.Cells[column.Index];
+            var rowspan = cell.Rowspan().ToOption().ValueOr(1);
+            var colspan = cell.Colspan().ToOption().ValueOr(1);
+            for (var i = row.Index + 1; i < row.Index + rowspan; i++)
+            for (var j = column.Index; j < column.Index + colspan; j++)
+                bottomMergedCells.Add(new CellInfo(i, j));
         }
 
-        private static Func<CellInfo, Option<XPen>> BottomBorder(this Table table)
+        private static void RightMergedCells(Row row, Column column, HashSet<CellInfo> rightMergedCells)
         {
-            var bottomMergedCells = BottomMergedCells(table);
-            var result = new Dictionary<CellInfo, List<BorderTuple>>();
-            foreach (var row in table.Rows)
-                foreach (var column in table.Columns)
-                {
-                    var bottomBorder = row.Cells[column.Index].BottomBorder();
-                    var cell = row.Cells[column.Index];
-                    if (bottomBorder.HasValue)
-                    {
-                        var mergeDown = cell.Rowspan().ToOption().Match(_ => _ - 1, () => 0);
-                        result.Add(new CellInfo(row.Index + mergeDown, column.Index), 
-                            new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
-                        var colspan = cell.Colspan().ToOption();
-                        if (colspan.HasValue)
-                            for (var i = 1; i <= colspan.Value - 1; i++)
-                                result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
-                                    new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
-                    }
-                    var adjacentCell= table.Find(new CellInfo(row.Index + 1, column.Index));
-                    var topBorder = adjacentCell.SelectMany(_ => _.TopBorder());
-                    if (topBorder.HasValue)
-                    {
-                        var mergeDown = cell.Rowspan().ToOption().Match(_ => _ - 1, () => 0);
-                        result.Add(new CellInfo(row.Index + mergeDown, column.Index),
-                            new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
-                        var colspan = adjacentCell.SelectMany(_ => _.Colspan().ToOption());
-                        if (colspan.HasValue)
-                            for (var i = 1; i <= colspan.Value - 1; i++)
-                                result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
-                                    new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
-                    }
-                }
-            return cell => result.Get(cell).Select(list => {
+            var cell = row.Cells[column.Index];
+            var rowspan = cell.Rowspan().ToOption().ValueOr(1);
+            var colspan = cell.Colspan().ToOption().ValueOr(1);
+            for (var i = row.Index; i < row.Index + rowspan; i++)
+            for (var j = column.Index + 1; j < column.Index + colspan; j++)
+                rightMergedCells.Add(new CellInfo(i, j));
+        }
+
+        private static Func<CellInfo, Option<XPen>> BottomBorder(this Table table, HashSet<CellInfo> bottomMergedCells, Dictionary<CellInfo, List<BorderTuple>> bottomBorderDictionary)
+        {
+            return cell => bottomBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
                     throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
@@ -698,29 +651,61 @@ namespace SharpLayout
             });
         }
 
-        private static Func<CellInfo, Option<XPen>> LeftBorder(this Table table)
+        private static void BottomBorderDictionary(Table table, Row row, Column column, Dictionary<CellInfo, List<BorderTuple>> result)
         {
-            var result = new Dictionary<CellInfo, List<BorderTuple>>();
-            foreach (var row in table.Rows)
+            var bottomBorder = row.Cells[column.Index].BottomBorder();
+            var cell = row.Cells[column.Index];
+            if (bottomBorder.HasValue)
             {
-                var cell = row.Cells[0];
-                var leftBorder = cell.LeftBorder();
-                if (leftBorder.HasValue)
-                {
-                    result.Add(new CellInfo(row.Index, 0), new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
-                    var rowspan = cell.Rowspan().ToOption();
-                    if (rowspan.HasValue)
-                        for (var i = 1; i <= rowspan.Value - 1; i++)
-                            result.Add(new CellInfo(row.Index + i, 0),
-                                new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
-                }
+                var mergeDown = cell.Rowspan().ToOption().Match(_ => _ - 1, () => 0);
+                result.Add(new CellInfo(row.Index + mergeDown, column.Index),
+                    new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
+                var colspan = cell.Colspan().ToOption();
+                if (colspan.HasValue)
+                    for (var i = 1; i <= colspan.Value - 1; i++)
+                        result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
+                            new BorderTuple(bottomBorder.Value, new CellInfo(row, column)));
             }
-            return cell => result.Get(cell).Select(list => {
+
+            var adjacentCell = table.Find(new CellInfo(row.Index + 1, column.Index));
+            var topBorder = adjacentCell.SelectMany(_ => _.TopBorder());
+            if (topBorder.HasValue)
+            {
+                var mergeDown = cell.Rowspan().ToOption().Match(_ => _ - 1, () => 0);
+                result.Add(new CellInfo(row.Index + mergeDown, column.Index),
+                    new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
+                var colspan = adjacentCell.SelectMany(_ => _.Colspan().ToOption());
+                if (colspan.HasValue)
+                    for (var i = 1; i <= colspan.Value - 1; i++)
+                        result.Add(new CellInfo(row.Index + mergeDown, column.Index + i),
+                            new BorderTuple(topBorder.Value, new CellInfo(row.Index + 1, column.Index)));
+            }
+        }
+
+        private static Func<CellInfo, Option<XPen>> LeftBorder(this Table table, Dictionary<CellInfo, List<BorderTuple>> leftBorderDictionary)
+        {
+            return cell => leftBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
                     throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
             }).Match(_ => _, table.Border);
+        }
+
+        private static void LeftBorderDictionary(Row row, Dictionary<CellInfo, List<BorderTuple>> leftBorderDictionary)
+        {
+            var cell = row.Cells[0];
+            var leftBorder = cell.LeftBorder();
+            if (leftBorder.HasValue)
+            {
+                leftBorderDictionary.Add(new CellInfo(row.Index, 0),
+                    new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
+                var rowspan = cell.Rowspan().ToOption();
+                if (rowspan.HasValue)
+                    for (var i = 1; i <= rowspan.Value - 1; i++)
+                        leftBorderDictionary.Add(new CellInfo(row.Index + i, 0),
+                            new BorderTuple(leftBorder.Value, new CellInfo(row.Index, 0)));
+            }
         }
 
         private static Func<CellInfo, Option<XPen>> TopBorder(this Table table)
@@ -749,25 +734,24 @@ namespace SharpLayout
             }).Match(_ => _, table.Border);
         }
 
-        private static Func<CellInfo, Option<XColor>> BackgroundColor(this Table table)
+        private static Func<CellInfo, Option<XColor>> BackgroundColor(this Table table, Dictionary<CellInfo, List<BackgroundTuple>> backgroundColorDictionary)
         {
-            var result = new Dictionary<CellInfo, List<BackgroundTuple>>();
-            foreach (var row in table.Rows)
-            foreach (var column in table.Columns)
-            {
-                var cell = row.Cells[column.Index];
-                if (cell.BackgroundColor().HasValue)
-                    for (var i = 0; i < cell.Rowspan().ToOption().ValueOr(1); i++)
-                    for (var j = 0; j < cell.Colspan().ToOption().ValueOr(1); j++)
-                        result.Add(new CellInfo(row.Index + i, column.Index + j),
-                            new BackgroundTuple(cell.BackgroundColor().Value, new CellInfo(cell)));
-            }
-            return cell => result.Get(cell).Select(list => {
+            return cell => backgroundColorDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
                     throw new Exception($"The background color is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Color;
             });
+        }
+
+        private static void BackgroundColor(Row row, Column column, Dictionary<CellInfo, List<BackgroundTuple>> backgroundColorDictionary)
+        {
+            var cell = row.Cells[column.Index];
+            if (cell.BackgroundColor().HasValue)
+                for (var i = 0; i < cell.Rowspan().ToOption().ValueOr(1); i++)
+                for (var j = 0; j < cell.Colspan().ToOption().ValueOr(1); j++)
+                    backgroundColorDictionary.Add(new CellInfo(row.Index + i, column.Index + j),
+                        new BackgroundTuple(cell.BackgroundColor().Value, new CellInfo(cell)));
         }
 
         private class BackgroundTuple
@@ -787,22 +771,43 @@ namespace SharpLayout
 
         private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document)
         {
-            var rightBorderFunc = table.RightBorder();            
-            var bottomBorderFunc = table.BottomBorder();
+            var rightMergedCells = new HashSet<CellInfo>();
+            var bottomMergedCells = new HashSet<CellInfo>();
+            var rightBorderDictionary = new Dictionary<CellInfo, List<BorderTuple>>();
+            var bottomBorderDictionary = new Dictionary<CellInfo, List<BorderTuple>>();
+            var backgroundColorDictionary = new Dictionary<CellInfo, List<BackgroundTuple>>();
+            var keepWithRows = new HashSet<int>();
+            var mergedRows = new HashSet<int>();
+            var leftBorderDictionary = new Dictionary<CellInfo, List<BorderTuple>>();
+            var tableHeaderRows = new HashSet<int>();
+            foreach (var row in table.Rows)
+            {
+                KeepWithRows(row, keepWithRows);
+                LeftBorderDictionary(row, leftBorderDictionary);
+                foreach (var column in table.Columns)
+                {
+                    RightMergedCells(row, column, rightMergedCells);
+                    MergedRows(row, column, mergedRows);
+                    BottomMergedCells(row, column, bottomMergedCells);
+                    RightBorderDictionary(table, row, column, rightBorderDictionary);
+                    BottomBorderDictionary(table, row, column, bottomBorderDictionary);
+                    BackgroundColor(row, column, backgroundColorDictionary);
+                    TableHeaderRows(row, column, tableHeaderRows);
+                }
+            }
+            var rightBorderFunc = table.RightBorder(rightMergedCells, rightBorderDictionary);
+            var bottomBorderFunc = table.BottomBorder(bottomMergedCells, bottomBorderDictionary);
             return new TableInfo(table, table.TopBorder(), bottomBorderFunc,
-                table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos, mode, document), table.LeftBorder(),
-                rightBorderFunc, table.BackgroundColor(), TableHeaderRows(table));
+                table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos, mode, document), table.LeftBorder(leftBorderDictionary),
+                rightBorderFunc, table.BackgroundColor(backgroundColorDictionary), tableHeaderRows,
+                keepWithRows, mergedRows);
         }
 
-        private static HashSet<int> TableHeaderRows(Table table)
+        private static void TableHeaderRows(Row row, Column column, HashSet<int> tableHeaderRows)
         {
-            var hashSet = new HashSet<int>();
-            foreach (var row in table.Rows)
-            foreach (var column in table.Columns)
-                for (var i = 0; i < row.Cells[column.Index].Rowspan().ToOption().ValueOr(1); i++)
-                    if (row.TableHeader())
-                        hashSet.Add(row.Index);
-            return hashSet;
+            for (var i = 0; i < row.Cells[column.Index].Rowspan().ToOption().ValueOr(1); i++)
+                if (row.TableHeader())
+                    tableHeaderRows.Add(row.Index);
         }
 
         private class TablePart
@@ -830,20 +835,28 @@ namespace SharpLayout
             public Func<CellInfo, Option<XPen>> RightBorderFunc { get; }
             public Func<CellInfo, Option<XColor>> BackgroundColor { get; }
             public HashSet<int> TableHeaderRows { get; }
+            public HashSet<int> KeepWithRows { get; }
+            public HashSet<int> MergedRows { get; }
             public Func<CellInfo, Option<XPen>> LeftBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> TopBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> BottomBorderFunc { get; }
             public Dictionary<int, double> MaxHeights { get; }
             public double MaxLeftBorder { get; }
 
-            public TableInfo(Table table, Func<CellInfo, Option<XPen>> topBorderFunc, Func<CellInfo, Option<XPen>> bottomBorderFunc,
-                Dictionary<int, double> maxHeights, Func<CellInfo, Option<XPen>> leftBorderFunc, Func<CellInfo, Option<XPen>> rightBorderFunc,
-                Func<CellInfo, Option<XColor>> backgroundColor, HashSet<int> tableHeaderRows)
+            public TableInfo(Table table, Func<CellInfo, Option<XPen>> topBorderFunc,
+                Func<CellInfo, Option<XPen>> bottomBorderFunc,
+                Dictionary<int, double> maxHeights, Func<CellInfo, Option<XPen>> leftBorderFunc,
+                Func<CellInfo, Option<XPen>> rightBorderFunc,
+                Func<CellInfo, Option<XColor>> backgroundColor, HashSet<int> tableHeaderRows,
+                HashSet<int> keepWithRows,
+                HashSet<int> mergedRows)
             {
                 Table = table;
                 RightBorderFunc = rightBorderFunc;
                 BackgroundColor = backgroundColor;
                 TableHeaderRows = tableHeaderRows;
+                KeepWithRows = keepWithRows;
+                MergedRows = mergedRows;
                 LeftBorderFunc = leftBorderFunc;
                 TopBorderFunc = topBorderFunc;
                 BottomBorderFunc = bottomBorderFunc;
