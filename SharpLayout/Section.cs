@@ -62,15 +62,12 @@ namespace SharpLayout
                                 .Select(lineInfo => {
 		                            var lineParts = lineInfo.GetLineParts(charInfos);
 		                            return lineParts.Any()
-			                            ? lineParts.Select(linePart => {
-				                            var span = linePart.GetSoftLinePart(softLineParts).Span;
-				                            return new Span(linePart.SubText(softLineParts))
-					                            .Font(span.Font())
-					                            .Brush(span.Brush())
-					                            .InlineVerticalAlign(span.InlineVerticalAlign())
-					                            .BackgroundColor(span.BackgroundColor());
-			                            })
-			                            : softLineParts.Select(softLinePart => softLinePart.Span);
+			                            ? lineParts.Select(linePart => Clone(
+				                            linePart.GetSoftLinePart(softLineParts).Span,
+				                            linePart.SubText(softLineParts)))
+			                            : softLineParts.Select(softLinePart => Clone(
+				                            softLinePart.Span,
+				                            new Text(new TextValue(""))));
 	                            });
                         }).ToList();
                     return lines.Select((spans, i) => {
@@ -98,7 +95,16 @@ namespace SharpLayout
             return this;
         }
 
-        public List<Table> GetTables(Document document, XGraphics xGraphics)
+	    private static Span Clone(Span span, IText subText)
+	    {
+		    return new Span(subText)
+			    .Font(span.Font())
+			    .Brush(span.Brush())
+			    .InlineVerticalAlign(span.InlineVerticalAlign())
+			    .BackgroundColor(span.BackgroundColor());
+	    }
+
+	    public List<Table> GetTables(Document document, XGraphics xGraphics)
         {
             return tableFuncs.Select(func => func(document, xGraphics)).SelectMany(_ => _).ToList();
         }

@@ -16,6 +16,30 @@ namespace SharpLayout.Tests
     public class Tests
     {
 	    [Fact]
+	    public void AddParagraph_LineBreak()
+	    {
+		    var document = new Document{};
+		    var section = document.Add(new Section(new PageSettings()));
+		    section.Add(new Paragraph().Add(@"qwe
+
+qwe2
+qwe3
+", Styles.TimesNewRoman10))
+			    .Add(new Paragraph().Add(@"test", Styles.TimesNewRoman10));
+		    Assert(nameof(AddParagraph_LineBreak), document.CreatePng().Item1);
+		}
+
+	    [Fact]
+	    public void AddParagraph_EmptyString()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings()));
+		    section.Add(new Paragraph().Add("", Styles.TimesNewRoman10))
+			    .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+		    Assert(nameof(AddParagraph_EmptyString), document.CreatePng().Item1);
+		}
+
+	    [Fact]
 	    public void ParagraphWithSpace()
 	    {
 		    var document = new Document();
