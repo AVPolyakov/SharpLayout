@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Newtonsoft.Json;
 using PdfSharp;
 using PdfSharp.Drawing;
@@ -38,32 +39,42 @@ namespace SharpLayout
 
 	    public bool ExpressionVisible { get; set; }
 
-	    public byte[] CreatePdf()
+        private static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(Environment.ProcessorCount);
+
+        public byte[] CreatePdf()
         {
-            using (var pdfDocument = new PdfDocument())
+            semaphoreSlim.Wait();
+            try
             {
-                pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
-                pdfDocument.Info.Creator = "SharpLayout";
-                foreach (var sectionFunc in Sections)
+                using (var pdfDocument = new PdfDocument())
                 {
-                    var page = pdfDocument.AddPage();
-                    page.Size = PageSize.A4;
-                    var section = sectionFunc();
-                    page.Orientation = section.PageSettings.Orientation;
-                    using (var xGraphics = XGraphics.FromPdfPage(page))
-                        TableRenderer.Draw(xGraphics, section, (pageIndex, action) => {
-                            var addPage = pdfDocument.AddPage();
-                            addPage.Size = PageSize.A4;
-                            addPage.Orientation = section.PageSettings.Orientation;
-                            using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
-                                action(xGraphics2);
-                        }, section.GetTables(this, xGraphics), this, GraphicsType.Pdf);
+                    pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
+                    pdfDocument.Info.Creator = "SharpLayout";
+                    foreach (var sectionFunc in Sections)
+                    {
+                        var page = pdfDocument.AddPage();
+                        page.Size = PageSize.A4;
+                        var section = sectionFunc();
+                        page.Orientation = section.PageSettings.Orientation;
+                        using (var xGraphics = XGraphics.FromPdfPage(page))
+                            TableRenderer.Draw(xGraphics, section, (pageIndex, action) => {
+                                var addPage = pdfDocument.AddPage();
+                                addPage.Size = PageSize.A4;
+                                addPage.Orientation = section.PageSettings.Orientation;
+                                using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
+                                    action(xGraphics2);
+                            }, section.GetTables(this, xGraphics), this, GraphicsType.Pdf);
+                    }
+                    using (var stream = new MemoryStream())
+                    {
+                        pdfDocument.Save(stream);
+                        return stream.ToArray();
+                    }
                 }
-                using (var stream = new MemoryStream())
-                {
-                    pdfDocument.Save(stream);
-                    return stream.ToArray();
-                }
+            }
+            finally
+            {
+                semaphoreSlim.Release();
             }
         }
 
