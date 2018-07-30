@@ -331,7 +331,9 @@ namespace SharpLayout
                 }
                 var shiftedEndIndex = ShiftEndIndex(endIndex2, charInfos, softLineParts, startIndex, mode);
                 yield return new LineInfo(startIndex, TrimEnd(shiftedEndIndex, charInfos, softLineParts, startIndex, mode));
-                lineIndex++;
+	            if (shiftedEndIndex == charInfos.Count - 1)
+		            yield break;
+				lineIndex++;
                 startIndex = shiftedEndIndex + 1;
                 var endPart = softLineParts[charInfos[shiftedEndIndex].PartIndex];
                 previousLineWidth = runningWidths[endPart] -
@@ -358,7 +360,7 @@ namespace SharpLayout
             if (IsLineBreakChar(chars.Char(endIndex + 1, softLineParts, mode)))
             {
                 var i = endIndex;
-                while (i < chars.Count && IsLineBreakChar(chars.Char(i + 1, softLineParts, mode)))
+                while (i < chars.Count - 1 && IsLineBreakChar(chars.Char(i + 1, softLineParts, mode)))
                     i++;
                 return i;
             }

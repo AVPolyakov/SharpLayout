@@ -16,6 +16,32 @@ namespace SharpLayout.Tests
     public class Tests
     {
 	    [Fact]
+	    public void AddParagraph_TrailingSpace()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings()));
+		    var table = section.AddTable();
+		    var c1 = table.AddColumn(Px(200));
+		    var r1 = table.AddRow();
+		    r1[c1].Add(new Paragraph().Add("wwxxxxxxxx ", Styles.TimesNewRoman10));
+		    Assert(nameof(AddParagraph_TrailingSpace), document.CreatePng().Item1);
+		}
+
+	    [Fact]
+	    public void AddParagraph_TrailingSpace2()
+	    {
+			var document = new Document();
+			var section = document.Add(new Section(new PageSettings()));
+		    var table = section.AddTable();
+		    var c1 = table.AddColumn(Px(200));
+		    var r1 = table.AddRow();
+		    r1[c1].Add(new Paragraph().Add(@"line1
+wwxxxxxxxx 
+line3", Styles.TimesNewRoman10));
+		    Assert(nameof(AddParagraph_TrailingSpace2), document.CreatePng().Item1);
+		}
+
+	    [Fact]
 	    public void AddParagraph_LineBreak()
 	    {
 		    var document = new Document{};
