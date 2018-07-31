@@ -16,6 +16,18 @@ namespace SharpLayout.Tests
     public class Tests
     {
 	    [Fact]
+	    public void UnderlineText()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings()));
+		    var table = section.AddTable();
+		    var c1 = table.AddColumn(Px(200));
+		    var r1 = table.AddRow();
+		    r1[c1].Add(new Paragraph().Add("Test", new XFont("Times New Roman", 10, XFontStyle.Underline, PdfOptions)));
+		    Assert(nameof(UnderlineText), document.CreatePng().Item1);
+		}
+
+	    [Fact]
 	    public void AddParagraph_TrailingSpace()
 	    {
 		    var document = new Document();
