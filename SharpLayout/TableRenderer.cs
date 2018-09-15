@@ -68,6 +68,23 @@ namespace SharpLayout
 		    yield return new TableGroup(list);
 	    }
 
+        private class PageFootnotes
+        {
+            public List<Table> Footnotes { get; set; } = new List<Table>();
+        }
+
+        private class Page
+        {
+            public List<TablePart> TableParts { get; }
+            public List<Table> Footnotes { get; }
+
+            public Page(List<TablePart> tableParts, List<Table> footnotes)
+            {
+                TableParts = tableParts;
+                Footnotes = footnotes;
+            }
+        }
+
         public static List<SyncPageInfo> Draw(XGraphics xGraphics, Section section, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
             Document document, GraphicsType graphicsType)
         {
@@ -75,24 +92,26 @@ namespace SharpLayout
             var rowCaches = new Dictionary<Table, RowCache>();
             var firstOnPage = true;
             var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches);
+            var pageFootnotes = new PageFootnotes();
             var tableParts = tables.GetTableGroups().Select(tableGroup => {
-                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches);
-	            var parts = slices.SelectMany(slice => slice.Rows.Select((rows, index) => new TablePart(rows, index, slice.TableInfo, slice.TableY))).ToList();
+                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches,
+                    pageFootnotes);
+	            var parts = slices.SelectMany(slice => slice.TablePieces.Select((tablePiece, index) => new TablePart(tablePiece, index, slice.TableInfo, slice.TableY))).ToList();
 	            if (parts.Count > 0)
                     firstOnPage = false;
                 y = endY;
                 return parts;
             }).ToList();
             if (tableParts.Count == 0) return new List<SyncPageInfo>();
-            var pages = new List<List<TablePart>>();
+            var pages = new List<Page>();
             foreach (var part in tableParts.SelectMany(_ => _))
                 if (pages.Count > 0)
                     if (part.IsFirst)
-                        pages[pages.Count - 1].Add(part);
+                        pages[pages.Count - 1].TableParts.Add(part);
                     else
-                        pages.Add(new List<TablePart> {part});
+                        pages.Add(new Page(new List<TablePart> {part}, part.TablePiece.Footnotes));
                 else
-                    pages.Add(new List<TablePart> {part});
+                    pages.Add(new Page(new List<TablePart> {part}, part.TablePiece.Footnotes));
             var syncPageInfos = new List<SyncPageInfo>();
             for (var index = 0; index < pages.Count; index++)
             {
@@ -105,7 +124,7 @@ namespace SharpLayout
                     {
                         Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches).GetValue(header),
                             Range(0, header.RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
+                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
                         y0 += header.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches);
                     }
                 }
@@ -119,17 +138,33 @@ namespace SharpLayout
                             Range(0, footer.RowFuncs.Count),
                             y0: y0,
                             xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
+                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
                         y0 += footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches);
+                    }
+                }
+                void DrawFootnotes(Drawer drawer, int pageIndex)
+                {
+                    var y0 = section.PageSettings.PageHeight -
+                             section.BottomMargin(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches) -
+                             pages[pageIndex].Footnotes.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches));
+                    foreach (var footnote in pages[pageIndex].Footnotes)
+                    {
+                        Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches).GetValue(footnote),
+                            Range(0, footnote.RowFuncs.Count),
+                            y0: y0,
+                            xGraphics, document, tableInfos,
+                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
+                        y0 += footnote.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches);
                     }
                 }
                 if (index == 0)
                 {
                     var drawer = new Drawer(xGraphics);
                     DrawHeaders(drawer, index);
-                    foreach (var part in pages[index])
-                        Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches), xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
+                    foreach (var part in pages[index].TableParts)
+                        Draw(part.TableInfo, part.TablePiece.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches), xGraphics, document, tableInfos,
+                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
+                    DrawFootnotes(drawer, index);
                     DrawFooters(drawer, index);
                     drawer.Flush();
                 }
@@ -137,10 +172,11 @@ namespace SharpLayout
                     pageAction(index, xGraphics2 => {
                         var drawer = new Drawer(xGraphics2);
                         DrawHeaders(drawer, index);
-		                    foreach (var part in pages[index])
-			                    Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches),
+		                    foreach (var part in pages[index].TableParts)
+			                    Draw(part.TableInfo, part.TablePiece.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches),
 				                    xGraphics2, document, tableInfos,
-				                    section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
+				                    section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
+                        DrawFootnotes(drawer, index);
                         DrawFooters(drawer, index);
                         drawer.Flush();
                     });
@@ -148,22 +184,35 @@ namespace SharpLayout
             return syncPageInfos;
         }
 
-	    private class TableSlice
+        private class TableSlice
 	    {
-		    public List<IEnumerable<int>> Rows { get; }
+		    public List<TablePiece> TablePieces { get; }
 		    public double TableY { get; }
 		    public TableInfo TableInfo { get; }
 
-		    public TableSlice(List<IEnumerable<int>> rows, double tableY, TableInfo tableInfo)
+		    public TableSlice(List<TablePiece> tablePieces, double tableY, TableInfo tableInfo)
 		    {
-			    Rows = rows;
+			    TablePieces = tablePieces;
 			    TableY = tableY;
 			    TableInfo = tableInfo;
 		    }
 	    }
 
+        private class TablePiece
+        {
+            public IEnumerable<int> Rows { get; }
+            public List<Table> Footnotes { get; }
+
+            public TablePiece(IEnumerable<int> rows, List<Table> footnotes)
+            {
+                Rows = rows;
+                Footnotes = footnotes;
+            }
+        }
+
         private static List<TableSlice> SplitByPages(TableGroup tableGroup, bool firstOnPage, out double endY, Section section, double tableY,
-            XGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches)
+            XGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
+            PageFootnotes pageFootnotes)
         {
 	        var slices = new List<TableSlice>();
 	        var currentTableY = tableY;
@@ -175,7 +224,7 @@ namespace SharpLayout
 		        if (infos[tableIndex].Table.RowFuncs.Count == 0)
 		        {
 			        currentEndY = currentTableY + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
-			        slices.Add(new TableSlice(new List<IEnumerable<int>>(), currentTableY, infos[tableIndex]));
+			        slices.Add(new TableSlice(new List<TablePiece>(), currentTableY, infos[tableIndex]));
 		        }
 		        else
 		        {
@@ -186,78 +235,92 @@ namespace SharpLayout
 					        .Select(_ => _.Width).ValueOr(0));
 			        var lastRowOnPreviousPage = new Option<int>();
 			        var row = 0;
-			        var sliceRows = new List<IEnumerable<int>>();
+			        var tablePieces = new List<TablePiece>();
 			        var addHeader = false;
 			        IEnumerable<int> RowRange(int start, int count) =>
 				        (!addHeader ? Empty<int>() : infos[tableIndex].TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
 		            var bottomMargin = section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches);
 		            var topMargin = section.TopMargin(xGraphics, tableInfos, mode, document, rowCaches);
                     while (true)
-			        {
-				        y += infos[tableIndex].MaxHeights[row];
-			            if (section.PageSettings.PageHeight - bottomMargin - y < 0)
-				        {
-					        var firstMergedRow = Min(FirstRow(mergedRows, row), FirstRow(keepWithRows, row));
-					        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
-					        if (firstMergedRow - start > 0)
-					        {
-						        sliceRows.Add(RowRange(start, firstMergedRow - start));
-						        addHeader = true;
-						        lastRowOnPreviousPage = firstMergedRow - 1;
-						        row = firstMergedRow;
-					        }
-					        else
-					        {
-						        if (firstMergedRow == 0 && tableGroupFirstPage && !firstOnPage)
-						        {
-							        sliceRows.Add(Empty<int>());
-							        lastRowOnPreviousPage = new Option<int>();
-							        row = 0;
-							        tableIndex = 0;
-							        slices.Clear();
-						        }
-						        else
-						        {
-							        var endMergedRow = Max(EndRow(infos[tableIndex].Table, mergedRows, row), EndRow(infos[tableIndex].Table, keepWithRows, row));
-							        sliceRows.Add(RowRange(start, endMergedRow - start + 1));
-							        addHeader = true;
-							        lastRowOnPreviousPage = endMergedRow;
-							        row = endMergedRow + 1;
-							        if (row >= infos[tableIndex].Table.RowFuncs.Count) break;
-						        }
-					        }
-					        tableGroupFirstPage = false;
-					        double topIndent;
-					        if (infos[tableIndex].TableHeaderRows.Count == 0)
-						        topIndent = row == 0
-							        ? infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
-							        : infos[tableIndex].Table.Columns.Max(column =>
-								        infos[tableIndex].BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0));
-					        else
-					        {
-						        var firstHeaderRow = infos[tableIndex].TableHeaderRows.OrderBy(_ => _).First();
-						        topIndent = (firstHeaderRow == 0
-								        ? infos[tableIndex].Table.Columns.Max(column =>
-									        infos[tableIndex].TopBorderFunc(new CellInfo(firstHeaderRow, column.Index)).Select(_ => _.Width).ValueOr(0))
-								        : infos[tableIndex].Table.Columns.Max(column =>
-									        infos[tableIndex].BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
-							        infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
-					        }
-				            y = topMargin + topIndent;
-				        }
-				        else
-				        {
-					        row++;
-					        if (row >= infos[tableIndex].Table.RowFuncs.Count) break;
-				        }
-			        }
-			        {
+		            {
+		                y += infos[tableIndex].MaxHeights[row];
+		                var footnotes = infos[tableIndex].Footnotes[row];
+		                var footnotesAndSeparators = new List<Table>();
+		                if (footnotes.Count > 0)
+		                {
+		                    if (pageFootnotes.Footnotes.Count == 0)
+		                        footnotesAndSeparators.AddRange(section.FootnoteSeparators);
+		                    footnotesAndSeparators.AddRange(footnotes);
+		                }
+		                if (section.PageSettings.PageHeight - bottomMargin -
+		                    pageFootnotes.Footnotes.Concat(footnotesAndSeparators).Sum(table => table.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches)) -
+		                    y < 0)
+		                {
+		                    var firstMergedRow = Min(FirstRow(mergedRows, row), FirstRow(keepWithRows, row));
+		                    var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
+		                    if (firstMergedRow - start > 0)
+		                    {
+		                        tablePieces.Add(new TablePiece(RowRange(start, firstMergedRow - start), pageFootnotes.Footnotes));
+		                        pageFootnotes.Footnotes = new List<Table>();
+		                        addHeader = true;
+		                        lastRowOnPreviousPage = firstMergedRow - 1;
+		                        row = firstMergedRow;
+		                    }
+		                    else
+		                    {
+		                        if (firstMergedRow == 0 && tableGroupFirstPage && !firstOnPage)
+		                        {
+		                            tablePieces.Add(new TablePiece(Empty<int>(), pageFootnotes.Footnotes));
+		                            pageFootnotes.Footnotes = new List<Table>();
+		                            lastRowOnPreviousPage = new Option<int>();
+		                            row = 0;
+		                            tableIndex = 0;
+		                            slices.Clear();
+		                        }
+		                        else
+		                        {
+		                            var endMergedRow = Max(EndRow(infos[tableIndex].Table, mergedRows, row), EndRow(infos[tableIndex].Table, keepWithRows, row));
+		                            tablePieces.Add(new TablePiece(RowRange(start, endMergedRow - start + 1), pageFootnotes.Footnotes));
+		                            pageFootnotes.Footnotes = new List<Table>();
+		                            addHeader = true;
+		                            lastRowOnPreviousPage = endMergedRow;
+		                            row = endMergedRow + 1;
+		                            if (row >= infos[tableIndex].Table.RowFuncs.Count) break;
+		                        }
+		                    }
+		                    tableGroupFirstPage = false;
+		                    double topIndent;
+		                    if (infos[tableIndex].TableHeaderRows.Count == 0)
+		                        topIndent = row == 0
+		                            ? infos[tableIndex].Table.Columns.Max(column => infos[tableIndex].TopBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0))
+		                            : infos[tableIndex].Table.Columns.Max(column =>
+		                                infos[tableIndex].BottomBorderFunc(new CellInfo(row - 1, column.Index)).Select(_ => _.Width).ValueOr(0));
+		                    else
+		                    {
+		                        var firstHeaderRow = infos[tableIndex].TableHeaderRows.OrderBy(_ => _).First();
+		                        topIndent = (firstHeaderRow == 0
+		                                        ? infos[tableIndex].Table.Columns.Max(column =>
+		                                            infos[tableIndex].TopBorderFunc(new CellInfo(firstHeaderRow, column.Index)).Select(_ => _.Width).ValueOr(0))
+		                                        : infos[tableIndex].Table.Columns.Max(column =>
+		                                            infos[tableIndex].BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
+		                                    infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
+		                    }
+		                    y = topMargin + topIndent;
+		                }
+		                else
+		                {
+		                    row++;
+		                    pageFootnotes.Footnotes.AddRange(footnotesAndSeparators);
+		                    if (row >= infos[tableIndex].Table.RowFuncs.Count) break;
+		                }
+		            }
+		            {
 				        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
 				        if (start < infos[tableIndex].Table.RowFuncs.Count)
-					        sliceRows.Add(RowRange(start, infos[tableIndex].Table.RowFuncs.Count - start));
+					        tablePieces.Add(new TablePiece(RowRange(start, infos[tableIndex].Table.RowFuncs.Count - start), pageFootnotes.Footnotes));
 			        }
 			        currentEndY = y + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
-			        slices.Add(new TableSlice(sliceRows, currentTableY, infos[tableIndex]));
+			        slices.Add(new TableSlice(tablePieces, currentTableY, infos[tableIndex]));
 		        }
 		        currentTableY = currentEndY;
 	        }
@@ -835,6 +898,7 @@ namespace SharpLayout
             var mergedRows = new HashSet<int>();
             var leftBorderDictionary = new Dictionary<CellInfo, List<BorderTuple>>();
             var tableHeaderRows = new HashSet<int>();
+            var footnotes = new List<Table>[table.RowFuncs.Count];
             foreach (var row in table.Rows)
             {
                 KeepWithRows(row, keepWithRows);
@@ -849,13 +913,20 @@ namespace SharpLayout
                     BackgroundColor(row, column, backgroundColorDictionary);
                     TableHeaderRows(row, column, tableHeaderRows);
                 }
+                footnotes[row.Index] = row.Cells.SelectMany(cell => cell.Elements
+                    .SelectMany(element => element.Match(
+                        paragraph => paragraph.Spans.SelectMany(span => span.Footnotes),
+                        table1 => {
+                            var tableInfo = GetTableInfo(tableInfos, xGraphics, mode, document, rowCaches).GetValue(table1);
+                            return table1.RowFuncs.SelectMany((func, i) => tableInfo.Footnotes[i]);
+                        }))).ToList();
             }
             var rightBorderFunc = table.RightBorder(rightMergedCells, rightBorderDictionary);
             var bottomBorderFunc = table.BottomBorder(bottomMergedCells, bottomBorderDictionary);
             return new TableInfo(table, table.TopBorder(rowCaches), bottomBorderFunc,
                 table.MaxHeights(xGraphics, rightBorderFunc, bottomBorderFunc, tableInfos, mode, document, rowCaches), table.LeftBorder(leftBorderDictionary),
                 rightBorderFunc, table.BackgroundColor(backgroundColorDictionary), tableHeaderRows,
-                keepWithRows, mergedRows);
+                keepWithRows, mergedRows, footnotes);
         }
 
         private static void TableHeaderRows(Row row, Column column, HashSet<int> tableHeaderRows)
@@ -868,7 +939,7 @@ namespace SharpLayout
         private class TablePart
         {
             private double TableY { get; }
-            public IEnumerable<int> Rows { get; }
+            public TablePiece TablePiece { get; }
             private int Index { get; }
             public TableInfo TableInfo { get; }
             public bool IsFirst => Index == 0;
@@ -876,10 +947,10 @@ namespace SharpLayout
 	            Dictionary<Table, RowCache> rowCaches) => 
                 IsFirst ? TableY : section.TopMargin(graphics, tableInfos, mode, document, rowCaches);
 
-            public TablePart(IEnumerable<int> rows, int index, TableInfo tableInfo, double tableY)
+            public TablePart(TablePiece tablePiece, int index, TableInfo tableInfo, double tableY)
             {
                 TableY = tableY;
-                Rows = rows;
+                TablePiece = tablePiece;
                 Index = index;
                 TableInfo = tableInfo;
             }
@@ -893,6 +964,7 @@ namespace SharpLayout
             public HashSet<int> TableHeaderRows { get; }
             public HashSet<int> KeepWithRows { get; }
             public HashSet<int> MergedRows { get; }
+            public List<Table>[] Footnotes { get; }
             public Func<CellInfo, Option<XPen>> LeftBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> TopBorderFunc { get; }
             public Func<CellInfo, Option<XPen>> BottomBorderFunc { get; }
@@ -905,7 +977,7 @@ namespace SharpLayout
                 Func<CellInfo, Option<XPen>> rightBorderFunc,
                 Func<CellInfo, Option<XColor>> backgroundColor, HashSet<int> tableHeaderRows,
                 HashSet<int> keepWithRows,
-                HashSet<int> mergedRows)
+                HashSet<int> mergedRows, List<Table>[] footnotes)
             {
                 Table = table;
                 RightBorderFunc = rightBorderFunc;
@@ -913,6 +985,7 @@ namespace SharpLayout
                 TableHeaderRows = tableHeaderRows;
                 KeepWithRows = keepWithRows;
                 MergedRows = mergedRows;
+                Footnotes = footnotes;
                 LeftBorderFunc = leftBorderFunc;
                 TopBorderFunc = topBorderFunc;
                 BottomBorderFunc = bottomBorderFunc;

@@ -108,9 +108,17 @@ namespace SharpLayout
 
 	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, XFont font) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)), font);
+
+        public List<Table> Footnotes { get; } = new List<Table>();
+
+        public Span AddFootnote(Table table)
+        {
+            Footnotes.Add(table);
+            return this;
+        }
     }
 
-	public interface IValue
+    public interface IValue
 	{
 		string GetText(Document document);
 		bool IsExpression { get; }

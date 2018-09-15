@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -15,7 +14,78 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
-	    [Fact]
+        [Fact]
+        public void Footnotes()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
+                TopMargin = Cm(0.7)
+            }));
+            var footnoteFont = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+            var footnoteSeparator = new Table().Margin(Top | Bottom, Px(15));
+            {
+                var c = footnoteSeparator.AddColumn(Cm(5));
+                var r = footnoteSeparator.AddRow();
+                r[c].Border(Top);
+            }
+            section.AddFootnoteSeparator(footnoteSeparator);
+            var noteTable1 = new Table().Font(footnoteFont);
+            {
+                var c = noteTable1.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r = noteTable1.AddRow();
+                r[c].Add(new Paragraph()
+                    .Add(new Span("1").InlineVerticalAlign(Super))
+                    .Add(" Footnote1"));
+            }
+            var noteTable2 = new Table().Font(footnoteFont);
+            {
+                var c = noteTable2.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r = noteTable2.AddRow();
+                r[c].Add(new Paragraph()
+                    .Add(new Span("2").InlineVerticalAlign(Super))
+                    .Add(" Footnote2"));
+            }
+            var noteTable3 = new Table().Font(footnoteFont);
+            {
+                var c = noteTable3.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r = noteTable3.AddRow();
+                r[c].Add(new Paragraph()
+                    .Add(new Span("3").InlineVerticalAlign(Super))
+                    .Add(" Footnote3"));
+            }
+            {
+                var table = section.AddTable()
+                    .Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                var c1 = table.AddColumn(Px(500));
+                for (var i = 0; i < 3; i++)
+                    table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                        .Add("Text"));
+                table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("First text").Add(new Span("1")
+                        .InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable1)));
+                for (var i = 0; i < 3; i++)
+                    table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                        .Add("Text"));
+                table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("Second text").Add(new Span("2")
+                        .InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable2)));
+                for (var i = 0; i < 65; i++)
+                    table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                        .Add("Text"));
+                table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("Third text").Add(new Span("3")
+                        .InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable3)));
+                for (var i = 0; i < 100; i++)
+                    table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
+                        .Add("Text"));
+            }
+            Assert(nameof(Footnotes), document.CreatePng().Item1);
+        }
+
+        [Fact]
 	    public void UnderlineText()
 	    {
 		    var document = new Document();
@@ -56,7 +126,7 @@ line3", Styles.TimesNewRoman10));
 	    [Fact]
 	    public void AddParagraph_LineBreak()
 	    {
-		    var document = new Document{};
+		    var document = new Document();
 		    var section = document.Add(new Section(new PageSettings()));
 		    section.Add(new Paragraph().Add(@"qwe
 
