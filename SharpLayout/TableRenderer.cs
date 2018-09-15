@@ -182,10 +182,12 @@ namespace SharpLayout
 			        var addHeader = false;
 			        IEnumerable<int> RowRange(int start, int count) =>
 				        (!addHeader ? Empty<int>() : infos[tableIndex].TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
-			        while (true)
+		            var bottomMargin = section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches);
+		            var topMargin = section.TopMargin(xGraphics, tableInfos, mode, document, rowCaches);
+                    while (true)
 			        {
 				        y += infos[tableIndex].MaxHeights[row];
-				        if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches) - y < 0)
+			            if (section.PageSettings.PageHeight - bottomMargin - y < 0)
 				        {
 					        var firstMergedRow = Min(FirstRow(mergedRows, row), FirstRow(keepWithRows, row));
 					        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
@@ -233,7 +235,7 @@ namespace SharpLayout
 									        infos[tableIndex].BottomBorderFunc(new CellInfo(firstHeaderRow - 1, column.Index)).Select(_ => _.Width).ValueOr(0))) +
 							        infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
 					        }
-					        y = section.TopMargin(xGraphics, tableInfos, mode, document, rowCaches) + topIndent;
+				            y = topMargin + topIndent;
 				        }
 				        else
 				        {
