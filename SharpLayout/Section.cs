@@ -13,6 +13,7 @@ namespace SharpLayout
         private readonly List<Func<Document, XGraphics, Table[]>> tableFuncs = new List<Func<Document, XGraphics, Table[]>>();
         public List<Table> Headers { get; } = new List<Table>();
         public List<Table> Footers { get; } = new List<Table>();
+        public List<Table> FootnoteSeparators { get; } = new List<Table>();
 
         public Section(PageSettings pageSettings)
         {
@@ -22,22 +23,49 @@ namespace SharpLayout
         public Table AddTable([CallerLineNumber] int line = 0)
         {
             var table = new Table(line);
-            tableFuncs.Add((d, g) => new[]{table});
+            Add(table);
             return table;
+        }
+
+        public Section Add(Table table)
+        {
+            tableFuncs.Add((d, g) => new[] {table});
+            return this;
         }
 
         public Table AddHeader([CallerLineNumber] int line = 0)
         {
             var table = new Table(line);
-            Headers.Add(table);
+            AddHeader(table);
             return table;
+        }
+
+        public Section AddHeader(Table table)
+        {
+            Headers.Add(table);
+            return this;
         }
 
         public Table AddFooter([CallerLineNumber] int line = 0)
         {
             var table = new Table(line);
-            Footers.Add(table);
+            AddFooter(table);
             return table;
+        }
+
+        public Section AddFooter(Table table)
+        {
+            Footers.Add(table);
+            return this;
+        }
+
+        /// <summary>
+        /// See https://superuser.com/q/1130373
+        /// </summary>
+        public Section AddFootnoteSeparator(Table table)
+        {
+            FootnoteSeparators.Add(table);
+            return this;
         }
 
         public Section Add(Paragraph paragraph, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")

@@ -15,7 +15,64 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
-	    [Fact]
+        [Fact]
+        public void Footnote()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            var font = new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
+            var footnoteSeparator = new Table().Margin(Top, Px(25));
+            footnoteSeparator.AddColumn();
+            footnoteSeparator.AddRow();
+            section.AddFootnoteSeparator(footnoteSeparator);
+            Table noteTable1;
+            {
+                noteTable1 = new Table().Font(font);
+                var c = noteTable1.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r = noteTable1.AddRow();
+                r[c].Add(new Paragraph()
+                    .Add(new Span("1").InlineVerticalAlign(Super))
+                    .Add(" Footnote1"));
+            }
+            Table noteTable2;
+            {
+                noteTable2 = new Table().Font(font);
+                var c = noteTable2.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r = noteTable2.AddRow();
+                r[c].Add(new Paragraph()
+                    .Add(new Span("2").InlineVerticalAlign(Super))
+                    .Add(" Footnote2"));
+            }
+            {
+                var table = section.AddTable()
+                    .Border(BorderWidth)
+                    .Font(font);
+                table.AddColumn(Px(300));
+                var c2 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c2].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("First text").Add(new Span("1")
+                        .InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable1)));
+                for (var i = 0; i < 70; i++)
+                {
+                    var r2 = table.AddRow();
+                    r2[c2].Add(new Paragraph().Margin(Left | Right, Px(5))
+                        .Add("Text"));
+                }
+                var r3 = table.AddRow();
+                r3[c2].Add(new Paragraph().Margin(Left | Right, Px(5))
+                    .Add("Second text").Add(new Span("2")
+                        .InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable2)));
+            }
+            section.Add(footnoteSeparator);
+            section.Add(noteTable1);
+            section.Add(noteTable2);
+            Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+        }
+
+        [Fact]
 	    public void UnderlineText()
 	    {
 		    var document = new Document();
@@ -56,7 +113,7 @@ line3", Styles.TimesNewRoman10));
 	    [Fact]
 	    public void AddParagraph_LineBreak()
 	    {
-		    var document = new Document{};
+		    var document = new Document();
 		    var section = document.Add(new Section(new PageSettings()));
 		    section.Add(new Paragraph().Add(@"qwe
 
