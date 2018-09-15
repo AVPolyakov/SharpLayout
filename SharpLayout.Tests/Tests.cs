@@ -380,7 +380,7 @@ qwe3
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
             {
-                var footers = section.AddFooters();
+                var footers = section.AddFooter();
                 var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = footers.AddRow().Height(Px(700));
                 r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)

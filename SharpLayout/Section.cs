@@ -33,7 +33,7 @@ namespace SharpLayout
             return table;
         }
 
-        public Table AddFooters([CallerLineNumber] int line = 0)
+        public Table AddFooter([CallerLineNumber] int line = 0)
         {
             var table = new Table(line);
             Footers.Add(table);

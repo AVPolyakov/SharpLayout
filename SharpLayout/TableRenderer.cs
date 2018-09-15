@@ -163,10 +163,10 @@ namespace SharpLayout
 	        var tableGroupFirstPage = true;
 	        for (var tableIndex = 0; tableIndex < infos.Count; tableIndex++)
 	        {
-		        double currentEntY;
+		        double currentEndY;
 		        if (infos[tableIndex].Table.RowFuncs.Count == 0)
 		        {
-			        currentEntY = currentTableY + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
+			        currentEndY = currentTableY + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
 			        slices.Add(new TableSlice(new List<IEnumerable<int>>(), currentTableY, infos[tableIndex]));
 		        }
 		        else
@@ -187,7 +187,7 @@ namespace SharpLayout
 				        y += infos[tableIndex].MaxHeights[row];
 				        if (section.PageSettings.PageHeight - section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches) - y < 0)
 				        {
-					        var firstMergedRow = Min(FirstdRow(mergedRows, row), FirstdRow(keepWithRows, row));
+					        var firstMergedRow = Min(FirstRow(mergedRows, row), FirstRow(keepWithRows, row));
 					        var start = lastRowOnPreviousPage.Match(_ => _ + 1, () => 0);
 					        if (firstMergedRow - start > 0)
 					        {
@@ -246,10 +246,10 @@ namespace SharpLayout
 				        if (start < infos[tableIndex].Table.RowFuncs.Count)
 					        sliceRows.Add(RowRange(start, infos[tableIndex].Table.RowFuncs.Count - start));
 			        }
-			        currentEntY = y + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
+			        currentEndY = y + infos[tableIndex].Table.BottomMargin().ToOption().ValueOr(0);
 			        slices.Add(new TableSlice(sliceRows, currentTableY, infos[tableIndex]));
 		        }
-		        currentTableY = currentEntY;
+		        currentTableY = currentEndY;
 	        }
 	        endY = currentTableY;
 	        return slices;
@@ -487,7 +487,7 @@ namespace SharpLayout
             }
         }
 
-        private static int FirstdRow(HashSet<int> set, int row)
+        private static int FirstRow(HashSet<int> set, int row)
         {
             var i = row;
             while (true)
