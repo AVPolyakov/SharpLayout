@@ -76,8 +76,7 @@ namespace SharpLayout
             var firstOnPage = true;
             var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches);
             var tableParts = tables.GetTableGroups().Select(tableGroup => {
-                var tableY = y;
-                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, tableY, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches);
+                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches);
 	            var parts = slices.SelectMany(slice => slice.Rows.Select((rows, index) => new TablePart(rows, index, slice.TableInfo, slice.TableY))).ToList();
 	            if (parts.Count > 0)
                     firstOnPage = false;
@@ -101,26 +100,35 @@ namespace SharpLayout
                 syncPageInfos.Add(syncPageInfo);
                 void DrawHeaders(Drawer drawer, int pageIndex)
                 {
+                    var y0 = 0d;
                     foreach (var header in section.Headers)
+                    {
                         Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches).GetValue(header),
-                            Range(0, header.RowFuncs.Count), 0, xGraphics, document, tableInfos,
+                            Range(0, header.RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
                             section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
+                        y0 += header.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches);
+                    }
                 }
                 void DrawFooters(Drawer drawer, int pageIndex)
                 {
+                    var y0 = section.PageSettings.PageHeight -
+                             section.Footers.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches));
                     foreach (var footer in section.Footers)
+                    {
                         Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches).GetValue(footer),
                             Range(0, footer.RowFuncs.Count),
-                            section.PageSettings.PageHeight - footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches),
+                            y0: y0,
                             xGraphics, document, tableInfos,
                             section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches);
+                        y0 += footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches);
+                    }
                 }
                 if (index == 0)
                 {
                     var drawer = new Drawer(xGraphics);
                     DrawHeaders(drawer, index);
                     foreach (var part in pages[index])
-                        Draw(part.TableInfo, part.Rows, part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches), xGraphics, document, tableInfos,
+                        Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches), xGraphics, document, tableInfos,
                             section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
                     DrawFooters(drawer, index);
                     drawer.Flush();
@@ -130,7 +138,7 @@ namespace SharpLayout
                         var drawer = new Drawer(xGraphics2);
                         DrawHeaders(drawer, index);
 		                    foreach (var part in pages[index])
-			                    Draw(part.TableInfo, part.Rows, part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches),
+			                    Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches),
 				                    xGraphics2, document, tableInfos,
 				                    section.PageSettings.LeftMargin, syncPageInfo, 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches);
                         DrawFooters(drawer, index);
