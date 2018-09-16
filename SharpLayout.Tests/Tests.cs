@@ -257,19 +257,31 @@ qwe3
             }));
             for (var i = 0; i < 20; i++)
             {
-                section.Add(new Paragraph()
+                var paragraph = new Paragraph()
                     .Alignment(HorizontalAlign.Justify)
                     .TextIndent(Cm(1))
                     .Add("Choose composition first when creating new classes from existing classes. Only if " +
-                        "inheritance is required by your design should it be used. If you use inheritance where " +
-                        "composition will work, your designs will become needlessly complicated. " +
-                        "Choose composition first when creating new classes from existing classes. Only if " +
-                        "inheritance is required by your design should it be used. If you use inheritance where " +
-                        "composition will work, your designs will become needlessly complicated. " +
-                        "Choose composition first when creating new classes from existing classes. Only if " +
-                        "inheritance is required by your design should it be used. If you use inheritance where " +
-                        "composition will work, your designs will become needlessly complicated. ",
-                        Styles.TimesNewRoman10));
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated. " +
+                         "Choose composition first when creating new classes from existing classes. Only if " +
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated. " +
+                         "Choose composition first when creating new classes from existing classes. Only if " +
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated.",
+                        Styles.TimesNewRoman10);
+                if (i == 10)
+                {
+                    var noteTable = new Table().Font(Styles.TimesNewRoman10);
+                    var c = noteTable.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                    var r = noteTable.AddRow();
+                    r[c].Add(new Paragraph()
+                        .Add(new Span("1").InlineVerticalAlign(Super))
+                        .Add(" Footnote1"));
+                    paragraph.Add(new Span("1", Styles.TimesNewRoman10).InlineVerticalAlign(Super)
+                        .AddFootnote(noteTable));
+                }
+                section.Add(paragraph);
             }
             Assert(nameof(ParagraphByPages), document.CreatePng().Item1);            
         }

@@ -88,14 +88,14 @@ namespace SharpLayout
                             return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
                                     charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
                                 .Select(lineInfo => {
-		                            var lineParts = lineInfo.GetLineParts(charInfos);
-		                            return lineParts.Any()
-			                            ? lineParts.Select(linePart => Clone(
+                                    var lineParts = lineInfo.GetLineParts(charInfos).ToList();
+                                    return lineParts.Any()
+			                            ? lineParts.Select((linePart, i) => Clone(
 				                            linePart.GetSoftLinePart(softLineParts).Span,
-				                            linePart.SubText(softLineParts)))
+				                            linePart.SubText(softLineParts), i == lineParts.Count - 1))
 			                            : softLineParts.Select(softLinePart => Clone(
 				                            softLinePart.Span,
-				                            new Text(new TextValue(""))));
+				                            new Text(new TextValue("")), true));
 	                            });
                         }).ToList();
                     return lines.Select((spans, i) => {
@@ -123,13 +123,17 @@ namespace SharpLayout
             return this;
         }
 
-	    private static Span Clone(Span span, IText subText)
+	    private static Span Clone(Span span, IText subText, bool last)
 	    {
-		    return new Span(subText)
-			    .Font(span.Font())
-			    .Brush(span.Brush())
-			    .InlineVerticalAlign(span.InlineVerticalAlign())
-			    .BackgroundColor(span.BackgroundColor());
+	        var clone = new Span(subText)
+	            .Font(span.Font())
+	            .Brush(span.Brush())
+	            .InlineVerticalAlign(span.InlineVerticalAlign())
+	            .BackgroundColor(span.BackgroundColor());
+	        if (last)
+	            foreach (var footnote in span.Footnotes)
+	                clone.AddFootnote(footnote);
+	        return clone;
 	    }
 
 	    public List<Table> GetTables(Document document, XGraphics xGraphics)
