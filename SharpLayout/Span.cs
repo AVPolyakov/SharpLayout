@@ -110,21 +110,24 @@ namespace SharpLayout
 	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, XFont font) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)), font);
 
-        public List<Table> Footnotes { get; } = new List<Table>();
+        internal List<Func<Section, Table>> Footnotes { get; } = new List<Func<Section, Table>>();
 
         public Span AddFootnote(Table table)
         {
-            Footnotes.Add(table);
+            Footnotes.Add(section => table);
             return this;
         }
 
-	    public Span AddFootnote(Paragraph paragraph, Section section, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
+	    public Span AddFootnote(Paragraph paragraph, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
 	    {
-		    var table = new Table(line);
-		    var c = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
-		    var r = table.AddRow();
-		    r[c].Add(paragraph);
-		    return AddFootnote(table);
+	        Footnotes.Add(section => {
+	            var table = new Table(line);
+	            var c = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+	            var r = table.AddRow();
+	            r[c].Add(paragraph);
+	            return table;
+	        });
+            return this;
 	    }
     }
 

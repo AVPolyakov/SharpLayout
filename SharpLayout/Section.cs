@@ -143,7 +143,7 @@ namespace SharpLayout
 			    .BackgroundColor(span.BackgroundColor());
 		    if (isLast)
 			    foreach (var footnote in span.Footnotes)
-				    clone.AddFootnote(footnote);
+				    clone.Footnotes.Add(footnote);
 		    return clone;
 	    }
 

@@ -22,37 +22,7 @@ namespace SharpLayout.Tests
                 TopMargin = Cm(0.7)
             }));
             var footnoteFont = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
-            var footnoteSeparator = new Table().Margin(Top | Bottom, Px(15));
-            {
-                var c = footnoteSeparator.AddColumn(Cm(5));
-                var r = footnoteSeparator.AddRow();
-                r[c].Border(Top);
-            }
-            section.AddFootnoteSeparator(footnoteSeparator);
-            var noteTable1 = new Table().Font(footnoteFont);
-            {
-                var c = noteTable1.AddColumn(section.PageSettings.PageWidthWithoutMargins);
-                var r = noteTable1.AddRow();
-                r[c].Add(new Paragraph()
-                    .Add(new Span("1").InlineVerticalAlign(Super))
-                    .Add(" Footnote1"));
-            }
-            var noteTable2 = new Table().Font(footnoteFont);
-            {
-                var c = noteTable2.AddColumn(section.PageSettings.PageWidthWithoutMargins);
-                var r = noteTable2.AddRow();
-                r[c].Add(new Paragraph()
-                    .Add(new Span("2").InlineVerticalAlign(Super))
-                    .Add(" Footnote2"));
-            }
-            var noteTable3 = new Table().Font(footnoteFont);
-            {
-                var c = noteTable3.AddColumn(section.PageSettings.PageWidthWithoutMargins);
-                var r = noteTable3.AddRow();
-                r[c].Add(new Paragraph()
-                    .Add(new Span("3").InlineVerticalAlign(Super))
-                    .Add(" Footnote3"));
-            }
+            section.AddFootnoteSeparator(FootnoteSeparator());
             {
                 var table = section.AddTable()
                     .Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
@@ -61,28 +31,73 @@ namespace SharpLayout.Tests
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
                         .Add("Text"));
                 table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
-                    .Add("First text").Add(new Span("1")
-                        .InlineVerticalAlign(Super)
-                        .AddFootnote(noteTable1)));
+                    .Add("First text")
+                    .Add(new Span("1").InlineVerticalAlign(Super)
+                        .AddFootnote(new Paragraph()
+                                .Add(new Span("1", footnoteFont).InlineVerticalAlign(Super))
+                                .Add(" Footnote1", footnoteFont))));
                 for (var i = 0; i < 3; i++)
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
                         .Add("Text"));
                 table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
-                    .Add("Second text").Add(new Span("2")
-                        .InlineVerticalAlign(Super)
-                        .AddFootnote(noteTable2)));
+                    .Add("Second text")
+                    .Add(new Span("2").InlineVerticalAlign(Super)
+                        .AddFootnote(new Paragraph()
+                                .Add(new Span("2", footnoteFont).InlineVerticalAlign(Super))
+                                .Add(" Footnote2", footnoteFont))));
                 for (var i = 0; i < 65; i++)
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
                         .Add("Text"));
                 table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
-                    .Add("Third text").Add(new Span("3")
-                        .InlineVerticalAlign(Super)
-                        .AddFootnote(noteTable3)));
+                    .Add("Third text")
+                    .Add(new Span("3").InlineVerticalAlign(Super)
+                        .AddFootnote(new Paragraph()
+                                .Add(new Span("3", footnoteFont).InlineVerticalAlign(Super))
+                                .Add(" Footnote3", footnoteFont))));
                 for (var i = 0; i < 100; i++)
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
                         .Add("Text"));
             }
             Assert(nameof(Footnotes), document.CreatePng().Item1);
+        }
+
+        [Fact]
+        public void Footnotes2()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings {
+                TopMargin = Cm(0.7)
+            }));
+            var footnoteFont = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+            var font = new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
+            section.AddFootnoteSeparator(FootnoteSeparator());
+            for (var i = 0; i < 54; i++)
+                section.Add(new Paragraph()
+                    .Add("Text", font));
+            var table = section.AddTable().Font(font).Border(BorderWidth);
+            var c1 = table.AddColumn(Cm(5));
+            table.AddRow().KeepWith(2)[c1].Add(new Paragraph()
+                .Add("r1c1")
+                .Add(new Span("1").InlineVerticalAlign(Super)
+                    .AddFootnote(new Paragraph()
+                        .Add(new Span("1", footnoteFont).InlineVerticalAlign(Super))
+                        .Add("FootnoteFont1", footnoteFont))));
+            table.AddRow()[c1].Add(new Paragraph()
+                .Add("r2c1")
+                .Add(new Span("2").InlineVerticalAlign(Super)
+                    .AddFootnote(new Paragraph()
+                        .Add(new Span("2", footnoteFont).InlineVerticalAlign(Super))
+                        .Add("FootnoteFont2", footnoteFont))));
+            Assert(nameof(Footnotes2), document.CreatePng().Item1);
+        }
+
+        private static Table FootnoteSeparator()
+        {
+            var table = new Table().Margin(Top | Bottom, Px(15));
+            var c = table.AddColumn(Cm(5));
+            var r = table.AddRow();
+            r[c].Border(Top);
+            return table;
         }
 
         [Fact]
