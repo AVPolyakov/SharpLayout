@@ -82,23 +82,34 @@ namespace SharpLayout
             {
                 var width = PageSettings.PageWidthWithoutMargins;
                 tableFuncs.Add((document, graphics) => {
-                    var lines = paragraph.GetSoftLines(document, new Option<Table>())
-                        .SelectMany(softLineParts => {
-                            var charInfos = GetCharInfos(softLineParts, new TextMode.Measure());
-                            return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
-                                    charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
-                                .Select(lineInfo => {
-                                    var lineParts = lineInfo.GetLineParts(charInfos).ToList();
-                                    return lineParts.Any()
-			                            ? lineParts.Select((linePart, i) => Clone(
-				                            linePart.GetSoftLinePart(softLineParts).Span,
-				                            linePart.SubText(softLineParts), i == lineParts.Count - 1))
-			                            : softLineParts.Select(softLinePart => Clone(
-				                            softLinePart.Span,
-				                            new Text(new TextValue("")), true));
-	                            });
-                        }).ToList();
-                    return lines.Select((spans, i) => {
+	                var index = 0;
+	                var lines = paragraph.GetSoftLines(document, new Option<Table>())
+		                .SelectMany(softLineParts => {
+			                var charInfos = GetCharInfos(softLineParts, new TextMode.Measure());
+			                return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
+					                charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
+				                .Select(lineInfo => {
+					                var lineParts = lineInfo.GetLineParts(charInfos);
+					                return lineParts.Any()
+						                ? lineParts.Select(linePart => new {
+								                linePart.GetSoftLinePart(softLineParts).Span,
+								                Text = linePart.SubText(softLineParts)
+							                }
+						                )
+						                : softLineParts.Select(softLinePart => new {
+								                softLinePart.Span,
+								                Text = (IText) new Text(new TextValue(""))
+							                }
+						                );
+				                });
+		                })
+		                .Select(enumerable => enumerable.Select(_ => new {_.Span, _.Text, index = index++}).ToList())
+		                .ToList();
+	                var dictionary = lines.SelectMany(_ => _)
+		                .ToLookup(_ => _.Span)
+		                .Select(_ => new {_.Key, MaxIndex = _.Max(x => x.index)})
+		                .ToDictionary(_ => _.Key, _ => _.MaxIndex);
+	                return lines.Select((spans, i) => {
                         var p = new Paragraph {IsParagraphPart = i < lines.Count - 1}
                             .Alignment(paragraph.Alignment())
                             .LeftMargin(paragraph.LeftMargin())
@@ -110,7 +121,7 @@ namespace SharpLayout
                                 .TopMargin(paragraph.TopMargin());
                         if (i == lines.Count - 1)
                             p.BottomMargin(paragraph.BottomMargin());
-                        p.Spans.AddRange(spans);
+                        p.Spans.AddRange(spans.Select(_ => Clone(_.Span, _.Text, _.index == dictionary[_.Span])));
                         p.CallerInfos?.AddRange(paragraph.CallerInfos);
                         var table = new Table(p.KeepWithNext(), line);
                         var c1 = table.AddColumn(width);
@@ -123,17 +134,17 @@ namespace SharpLayout
             return this;
         }
 
-	    private static Span Clone(Span span, IText subText, bool last)
+	    private static Span Clone(Span span, IText subText, bool isLast)
 	    {
-	        var clone = new Span(subText)
-	            .Font(span.Font())
-	            .Brush(span.Brush())
-	            .InlineVerticalAlign(span.InlineVerticalAlign())
-	            .BackgroundColor(span.BackgroundColor());
-	        if (last)
-	            foreach (var footnote in span.Footnotes)
-	                clone.AddFootnote(footnote);
-	        return clone;
+		    var clone = new Span(subText)
+			    .Font(span.Font())
+			    .Brush(span.Brush())
+			    .InlineVerticalAlign(span.InlineVerticalAlign())
+			    .BackgroundColor(span.BackgroundColor());
+		    if (isLast)
+			    foreach (var footnote in span.Footnotes)
+				    clone.AddFootnote(footnote);
+		    return clone;
 	    }
 
 	    public List<Table> GetTables(Document document, XGraphics xGraphics)
