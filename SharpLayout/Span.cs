@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using static SharpLayout.InlineVerticalAlign;
@@ -116,6 +117,15 @@ namespace SharpLayout
             Footnotes.Add(table);
             return this;
         }
+
+	    public Span AddFootnote(Paragraph paragraph, Section section, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
+	    {
+		    var table = new Table(line);
+		    var c = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+		    var r = table.AddRow();
+		    r[c].Add(paragraph);
+		    return AddFootnote(table);
+	    }
     }
 
     public interface IValue
