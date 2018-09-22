@@ -412,40 +412,17 @@ namespace SharpLayout
         internal static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
 		    Paragraph paragraph, TextMode mode, Document document, Option<Table> table)
         {
-            var runningWidths = GetRunningWidths(softLineParts, graphics, mode, table);
             var startIndex = 0;
-            double previousLineWidth = 0;
             var lineIndex = 0;
             double GetWidth() => lineIndex == 0 ? width - paragraph.TextIndent().ToOption().ValueOr(0) : width;
             while (true)
             {
-                var binarySearch = BinarySearch(startIndex, charInfos.Length - startIndex, i => {
-                    var previousSpansWidth = charInfos[i].PartIndex == charInfos[startIndex].PartIndex
-                        ? 0
-                        : runningWidths[softLineParts[charInfos[i].PartIndex - 1]] - previousLineWidth;
-                    if (previousSpansWidth > GetWidth()) return 1;
-                    var part = softLineParts[charInfos[i].PartIndex];
-                    var spanStartIndex = charInfos[i].PartIndex == charInfos[startIndex].PartIndex 
-                        ? charInfos[startIndex].CharIndex 
-                        : 0;
-                    var text = part.Text(mode).Substring(spanStartIndex, charInfos[i].CharIndex - spanStartIndex + 1);
-                    var endWidth = graphics.MeasureString(text, part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
-                    return (previousSpansWidth + endWidth).CompareTo(GetWidth());
-                });
-                int endIndex;
-                if (binarySearch < 0)
-                    if (~binarySearch == charInfos.Length)
-                    {
-                        yield return new LineInfo(startIndex, TrimEnd(charInfos.Length - 1, charInfos, softLineParts, startIndex, mode));
-                        lineIndex++;
-                        yield break;
-                    }
-                    else if (~binarySearch == startIndex)
-                        endIndex = startIndex;
-                    else
-                        endIndex = ~binarySearch - 1;
-                else
-                    endIndex = binarySearch;
+                var endIndex = GetEndIndex(GetWidth(), charInfos, softLineParts, mode, startIndex, graphics, table);
+                if (endIndex == charInfos.Length - 1)
+                {
+                    yield return new LineInfo(startIndex, TrimEnd(charInfos.Length - 1, charInfos, softLineParts, startIndex, mode));
+                    yield break;
+                }
                 int endIndex2;
                 if (softLineParts[charInfos[endIndex].PartIndex].Span.Text(table).ExpressionVisible(document))
                     endIndex2 = endIndex + softLineParts[charInfos[endIndex].PartIndex].Text(mode).Length -
@@ -455,7 +432,6 @@ namespace SharpLayout
                 if (endIndex2 == charInfos.Length - 1)
                 {
                     yield return new LineInfo(startIndex, TrimEnd(endIndex2, charInfos, softLineParts, startIndex, mode));
-                    lineIndex++;
                     yield break;
                 }
                 var shiftedEndIndex = ShiftEndIndex(endIndex2, charInfos, softLineParts, startIndex, mode);
@@ -464,14 +440,34 @@ namespace SharpLayout
 		            yield break;
 				lineIndex++;
                 startIndex = shiftedEndIndex + 1;
-                var endPart = softLineParts[charInfos[shiftedEndIndex].PartIndex];
-                previousLineWidth = runningWidths[endPart] -
-                    graphics.MeasureString(endPart.Text(mode).Substring(charInfos[shiftedEndIndex].CharIndex + 1),
-                        endPart.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
             }
         }
 
-	    private static bool ExpressionVisible(this IText text, Document document) => document.ExpressionVisible && text.IsExpression;
+        private static int GetEndIndex(double width, CharInfo[] charInfos, List<ISoftLinePart> softLineParts, TextMode mode, int startIndex, XGraphics graphics, Option<Table> table)
+        {
+            var i = startIndex;
+            double currentWidth = 0;
+            while (true)
+            {
+                if (i >= charInfos.Length) return charInfos.Length - 1;
+                var charInfo = charInfos[i];
+                var part = softLineParts[charInfo.PartIndex];
+                currentWidth += part.Text(mode).GetCharWidth(charInfo.CharIndex, part.Span.Font(table), graphics);
+                if (currentWidth >= width)
+                    if (i == startIndex)
+                        return i;
+                    else
+                        return i - 1;
+                i++;
+            }
+        }
+
+        private static double GetCharWidth(this string text, int charIndex, XFont xFont, XGraphics graphics)
+        {
+            return graphics.MeasureString(text.Substring(charIndex, 1), xFont, MeasureTrailingSpacesStringFormat).Width;
+        }
+
+        private static bool ExpressionVisible(this IText text, Document document) => document.ExpressionVisible && text.IsExpression;
 
 	    private static int TrimEnd(int endIndex, CharInfo[] chars, List<ISoftLinePart> softLineParts, int startIndex, TextMode mode)
         {
@@ -516,15 +512,6 @@ namespace SharpLayout
             return softLineParts[charInfo.PartIndex].Text(mode)[charInfo.CharIndex];
         }
 
-        private static Dictionary<ISoftLinePart, double> GetRunningWidths(List<ISoftLinePart> parts, XGraphics graphics, TextMode mode, Option<Table> table)
-        {
-            var runningWidth = 0d;
-            return parts.Select(part => {
-                runningWidth += graphics.MeasureString(part.Text(mode), part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
-                return new {part, runningWidth};
-            }).ToDictionary(_ => _.part, _ => _.runningWidth);
-        }
-
         static ParagraphRenderer()
         {
             var xStringFormat = XStringFormats.Default;
@@ -539,27 +526,6 @@ namespace SharpLayout
                 list.Add(value);
             else
                 it.Add(key, new List<TValue> {value});
-        }
-
-        /// <summary>
-        /// https://referencesource.microsoft.com/#mscorlib/system/collections/generic/arraysorthelper.cs,188
-        /// </summary>
-        private static int BinarySearch(int index, int length, Func<int, int> comparer)
-        {
-            int lo = index;
-            int hi = index + length - 1;
-            while (lo <= hi)
-            {
-                int i = lo + ((hi - lo) >> 1);
-                int order = comparer(i);
-                if (order == 0)
-                    return i;
-                if (order < 0)
-                    lo = i + 1;
-                else
-                    hi = i - 1;
-            } 
-            return ~lo;
         }
 
         public static string[] SplitToLines(this string text)
