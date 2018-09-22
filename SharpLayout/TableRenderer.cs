@@ -17,14 +17,16 @@ namespace SharpLayout
     public class DrawCache
     {
         public readonly Dictionary<XFont, double> BaseLines = new Dictionary<XFont, double>();
-        private readonly Dictionary<XFont, CharSizeCache> charSizeCaches = new Dictionary<XFont, CharSizeCache>();
+        private readonly Dictionary<(string Name, double Size, XFontStyle Style, PdfFontEncoding FontEncoding), CharSizeCache> charSizeCaches = 
+            new Dictionary<(string Name, double Size, XFontStyle Style, PdfFontEncoding FontEncoding), CharSizeCache>();
 
         public CharSizeCache GetCharSizeCache(XFont font)
         {
-            if (charSizeCaches.TryGetValue(font, out var value))
+            var key = (font.Name, font.Size, font.Style, font.PdfOptions.FontEncoding);
+            if (charSizeCaches.TryGetValue(key, out var value))
                 return value;
             var charSizeCache = new CharSizeCache();
-            charSizeCaches.Add(font, charSizeCache);
+            charSizeCaches.Add(key, charSizeCache);
             return charSizeCache;
         }
     }
