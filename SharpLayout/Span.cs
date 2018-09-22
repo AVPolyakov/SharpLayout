@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -181,7 +180,7 @@ namespace SharpLayout
 
     public interface IText
     {
-        IEnumerable<ISoftLinePart> GetSoftLineParts(Span span, Document document);
+        ISoftLinePart[] GetSoftLineParts(Span span, Document document);
 	    bool IsExpression { get; }
     }
 
@@ -195,14 +194,18 @@ namespace SharpLayout
 	        this.value = value;
         }
 
-        public IEnumerable<ISoftLinePart> GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
         {
             var lines = GetTextOrEmpty(document).SplitToLines();
-            if (!lines.Any())
-                yield return new SoftLinePart(span, GetTextOrEmpty(document));
+            if (lines.Length == 0)
+                return new ISoftLinePart[] {new SoftLinePart(span, GetTextOrEmpty(document))};
             else
-                foreach (var line in lines)
-                    yield return new SoftLinePart(span, line);
+            {
+                var result = new ISoftLinePart[lines.Length];
+                for (var index = 0; index < lines.Length; index++)
+                    result[index] = new SoftLinePart(span, lines[index]);
+                return result;
+            }
         }
 
         private class SoftLinePart: ISoftLinePart
@@ -229,9 +232,9 @@ namespace SharpLayout
 
     public class PageNumber : IText
     {
-        public IEnumerable<ISoftLinePart> GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
         {
-            yield return new SoftLinePart(span);
+            return new ISoftLinePart[] {new SoftLinePart(span)};
         }
 
         private class SoftLinePart : ISoftLinePart
@@ -267,9 +270,9 @@ namespace SharpLayout
 
     public class PageCount : IText
     {
-        public IEnumerable<ISoftLinePart> GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
         {
-            yield return new SoftLinePart(span);
+            return new ISoftLinePart[] {new SoftLinePart(span)};
         }
 
         private class SoftLinePart : ISoftLinePart

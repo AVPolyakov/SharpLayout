@@ -90,7 +90,7 @@ namespace SharpLayout
 					                charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
 				                .Select(lineInfo => {
 					                var lineParts = lineInfo.GetLineParts(charInfos);
-					                return lineParts.Any()
+					                return lineParts.Count > 0
 						                ? lineParts.Select(linePart => new {
 								                linePart.GetSoftLinePart(softLineParts).Span,
 								                Text = linePart.SubText(softLineParts)
