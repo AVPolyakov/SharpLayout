@@ -2,7 +2,10 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using PdfSharp;
 using PdfSharp.Drawing;
+using static SharpLayout.Direction;
+using static SharpLayout.Util;
 
 namespace SharpLayout.Tests
 {
@@ -10,37 +13,59 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
-            Document.CollectCallerInfo = true;
-            try
+            for (var j = 1; j <= 5; j++)
+                M1(3000);
+            for (var j = 1; j <= 20; j++)
             {
-                var document = new Document {
-                    //CellsAreHighlighted = true,
-                    //R1C1AreVisible = true,
-                    //ParagraphsAreHighlighted = true,
-                    //CellLineNumbersAreVisible = true,
-                    //ExpressionVisible = true,
-                };
-                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
-                //Svo.AddSection(document);
-                //ContractDealPassport.AddSection(document);
-                //LoanAgreementDealPassport.AddSection(document);
-
-                document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
-
-                //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                M1(3000);
+                stopwatch.Stop();
+                Console.WriteLine($"{stopwatch.ElapsedMilliseconds}");
             }
-            catch (Exception e)
+        }
+
+        private static byte[] M1(int count)
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings
             {
-                ShowException(e);
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1),
+                Orientation = PageOrientation.Landscape
+            }));
+            var table = section.AddTable().Border(Styles.BorderWidth);
+            var columnCount = 14;
+            for (var i = 0; i < columnCount; i++)
+                table.AddColumn();
+            table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins);
+            for (var j = 0; j < count; j++)
+            {
+                table.AddRow(r => {
+                    for (var i = 0; i < columnCount; i++)
+                    {
+                        r[table.Columns[i]].Add(new Paragraph().Margin(Left | Right, Cm(0.05))
+                            .Add("QWEQWE QWETQWTQWRTWERT QWETQWET QWEQWR ASDASF", Styles.TimesNewRoman8));
+                    }
+                });
             }
+
+            var bytes = document.CreatePdf();
+
+            //var path = $"Temp_{Guid.NewGuid():N}.pdf";
+            //File.WriteAllBytes(path, bytes);
+            //Process.Start(path);
+
+            return bytes;
         }
 
         private static void ShowException(Exception e)
         {
             var document = new Document();
             var settings = new PageSettings();
-            settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
+            settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
                 .Add($"{e}", new Font("Consolas", 9.5, XFontStyle.Regular, Styles.PdfOptions))));
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(true, false);
