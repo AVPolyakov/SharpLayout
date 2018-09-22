@@ -124,7 +124,7 @@ namespace SharpLayout
 	            var table = new Table(line);
 	            var c = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
 	            var r = table.AddRow();
-	            r[c].Add(paragraph);
+	            r[c, line, filePath].Add(paragraph);
 	            return table;
 	        });
             return this;
