@@ -9,10 +9,25 @@ using static System.Math;
 
 namespace SharpLayout
 {
-    internal class DrawCache
+    public class CharSizeCache
+    {
+        public readonly Dictionary<char, double> Dictionary = new Dictionary<char, double>();
+    }
+
+    public class DrawCache
     {
         public readonly Dictionary<Table, ParagraphCache> ParagraphCaches = new Dictionary<Table, ParagraphCache>();
         public readonly Dictionary<XFont, double> BaseLines = new Dictionary<XFont, double>();
+        private readonly Dictionary<XFont, CharSizeCache> charSizeCaches = new Dictionary<XFont, CharSizeCache>();
+
+        public CharSizeCache GetCharSizeCache(XFont font)
+        {
+            if (charSizeCaches.TryGetValue(font, out var value))
+                return value;
+            var charSizeCache = new CharSizeCache();
+            charSizeCaches.Add(font, charSizeCache);
+            return charSizeCache;
+        }
     }
 
     internal class RowCache

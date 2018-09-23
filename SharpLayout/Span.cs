@@ -180,7 +180,7 @@ namespace SharpLayout
 
     public interface IText
     {
-        ISoftLinePart[] GetSoftLineParts(Span span, Document document);
+        ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table);
 	    bool IsExpression { get; }
     }
 
@@ -194,16 +194,19 @@ namespace SharpLayout
 	        this.value = value;
         }
 
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
         {
             var lines = GetTextOrEmpty(document).SplitToLines();
             if (lines.Length == 0)
-                return new ISoftLinePart[] {new SoftLinePart(span, GetTextOrEmpty(document))};
+                return new ISoftLinePart[] {
+                    new SoftLinePart(span, GetTextOrEmpty(document),
+                        drawCache.GetCharSizeCache(span.Font(table)))
+                };
             else
             {
                 var result = new ISoftLinePart[lines.Length];
                 for (var index = 0; index < lines.Length; index++)
-                    result[index] = new SoftLinePart(span, lines[index]);
+                    result[index] = new SoftLinePart(span, lines[index], drawCache.GetCharSizeCache(span.Font(table)));
                 return result;
             }
         }
@@ -212,6 +215,7 @@ namespace SharpLayout
         {
             private readonly string stringText;
 	        public Span Span { get; }
+            public CharSizeCache CharSizeCache { get; }
 
             public string Text(TextMode mode) => stringText;
 
@@ -220,9 +224,10 @@ namespace SharpLayout
                 return new Text(new TextValue(stringText.Substring(startIndex, length)));
             }
 
-            public SoftLinePart(Span span, string stringText)
+            public SoftLinePart(Span span, string stringText, CharSizeCache charSizeCache)
             {
                 Span = span;
+                CharSizeCache = charSizeCache;
                 this.stringText = stringText;
             }
         }
@@ -232,19 +237,21 @@ namespace SharpLayout
 
     public class PageNumber : IText
     {
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
         {
-            return new ISoftLinePart[] {new SoftLinePart(span)};
+            return new ISoftLinePart[] {new SoftLinePart(span, drawCache.GetCharSizeCache(span.Font(table)))};
         }
 
         private class SoftLinePart : ISoftLinePart
         {
-            public SoftLinePart(Span span)
+            public SoftLinePart(Span span, CharSizeCache charSizeCache)
             {
                 Span = span;
+                CharSizeCache = charSizeCache;
             }
 
             public Span Span { get; }
+            public CharSizeCache CharSizeCache { get; }
 
             public string Text(TextMode mode)
             {
@@ -270,19 +277,21 @@ namespace SharpLayout
 
     public class PageCount : IText
     {
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
         {
-            return new ISoftLinePart[] {new SoftLinePart(span)};
+            return new ISoftLinePart[] {new SoftLinePart(span, drawCache.GetCharSizeCache(span.Font(table)))};
         }
 
         private class SoftLinePart : ISoftLinePart
         {
-            public SoftLinePart(Span span)
+            public SoftLinePart(Span span, CharSizeCache charSizeCache)
             {
                 Span = span;
+                CharSizeCache = charSizeCache;
             }
 
             public Span Span { get; }
+            public CharSizeCache CharSizeCache { get; }
 
             public string Text(TextMode mode)
             {
@@ -309,6 +318,7 @@ namespace SharpLayout
     public interface ISoftLinePart
     {
         Span Span { get; }
+        CharSizeCache CharSizeCache { get; }
         string Text(TextMode mode);
         IText SubText(int startIndex, int length);
     }

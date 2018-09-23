@@ -81,9 +81,10 @@ namespace SharpLayout
             else
             {
                 var width = PageSettings.PageWidthWithoutMargins;
+                var drawCache = new DrawCache();
                 tableFuncs.Add((document, graphics) => {
 	                var index = 0;
-	                var lines = paragraph.GetSoftLines(document, new Option<Table>())
+                    var lines = paragraph.GetSoftLines(document, new Option<Table>(), drawCache)
 		                .SelectMany(softLineParts => {
 			                var charInfos = GetCharInfos(softLineParts, new TextMode.Measure());
 			                return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
