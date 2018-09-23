@@ -382,36 +382,31 @@ namespace SharpLayout
         }
 
         internal static List<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
-            Paragraph paragraph, TextMode mode, Document document, Option<Table> table, ParagraphKey paragraphKey,
+            Paragraph paragraph, TextMode mode, Document document, Table table, ParagraphKey paragraphKey,
             DrawCache drawCaches, int softLineIndex)
         {
-            if (table.HasValue)
-            {
-                ParagraphCache cache;
-                if (drawCaches.ParagraphCaches.TryGetValue(table.Value, out var paragraphCache))
-                    cache = paragraphCache;
-                else
-                {
-                    cache = new ParagraphCache();
-                    drawCaches.ParagraphCaches.Add(table.Value, cache);
-                }
-                var lineKey = new LineKey(
-                    paragraphKey.RowIndex,
-                    paragraphKey.ColumnIndex,
-                    paragraphKey.ElementIndex,
-                    softLineIndex
-                );
-                if (cache.Lines.TryGetValue(lineKey, out var result))
-                    return result;
-                else
-                {
-                    var lines = GetLines(graphics, softLineParts, width, charInfos, paragraph, mode, document, table).ToList();
-                    cache.Lines.Add(lineKey, lines);
-                    return lines;
-                }
-            }
+            ParagraphCache cache;
+            if (drawCaches.ParagraphCaches.TryGetValue(table, out var paragraphCache))
+                cache = paragraphCache;
             else
-                return GetLines(graphics, softLineParts, width, charInfos, paragraph, mode, document, table).ToList();
+            {
+                cache = new ParagraphCache();
+                drawCaches.ParagraphCaches.Add(table, cache);
+            }
+            var lineKey = new LineKey(
+                paragraphKey.RowIndex,
+                paragraphKey.ColumnIndex,
+                paragraphKey.ElementIndex,
+                softLineIndex
+            );
+            if (cache.Lines.TryGetValue(lineKey, out var result))
+                return result;
+            else
+            {
+                var lines = GetLines(graphics, softLineParts, width, charInfos, paragraph, mode, document, table).ToList();
+                cache.Lines.Add(lineKey, lines);
+                return lines;
+            }
         }
 
         internal static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
