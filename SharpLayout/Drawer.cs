@@ -15,9 +15,9 @@ namespace SharpLayout
             this.graphics = graphics;            
         }
 
-        public void DrawString(string s, XFont font, XBrush brush, double x, double y)
+        public void DrawString(string s, Font font, XBrush brush, double x, double y)
         {
-            Add(DrawType.Foreground, () => graphics.DrawString(s, font, brush, x, y));
+            Add(DrawType.Foreground, () => graphics.DrawString(s, font.XFont, brush, x, y));
         }
 
         public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)

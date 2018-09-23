@@ -21,11 +21,11 @@ namespace SharpLayout.Tests
             var section = document.Add(new Section(new PageSettings {
                 TopMargin = Cm(0.7)
             }));
-            var footnoteFont = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+            var footnoteFont = new Font("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
             section.AddFootnoteSeparator(FootnoteSeparator());
             {
                 var table = section.AddTable()
-                    .Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                    .Font(new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
                 var c1 = table.AddColumn(Px(500));
                 for (var i = 0; i < 3; i++)
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
@@ -68,8 +68,8 @@ namespace SharpLayout.Tests
             var section = document.Add(new Section(new PageSettings {
                 TopMargin = Cm(0.7)
             }));
-            var footnoteFont = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
-            var font = new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
+            var footnoteFont = new Font("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+            var font = new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
             section.AddFootnoteSeparator(FootnoteSeparator());
             for (var i = 0; i < 54; i++)
                 section.Add(new Paragraph()
@@ -108,7 +108,7 @@ namespace SharpLayout.Tests
 		    var table = section.AddTable();
 		    var c1 = table.AddColumn(Px(200));
 		    var r1 = table.AddRow();
-		    r1[c1].Add(new Paragraph().Add("Test", new XFont("Times New Roman", 10, XFontStyle.Underline, PdfOptions)));
+		    r1[c1].Add(new Paragraph().Add("Test", new Font("Times New Roman", 10, XFontStyle.Underline, PdfOptions)));
 		    Assert(nameof(UnderlineText), document.CreatePng().Item1);
 		}
 
@@ -176,9 +176,9 @@ qwe3
         {
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
-            var timesNewRoma = new XFont("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
-            var wingdings = new XFont("Wingdings", 11, XFontStyle.Bold, PdfOptions);
-            var wingdings2 = new XFont("Wingdings 2", 11, XFontStyle.Bold, PdfOptions);
+            var timesNewRoma = new Font("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
+            var wingdings = new Font("Wingdings", 11, XFontStyle.Bold, PdfOptions);
+            var wingdings2 = new Font("Wingdings 2", 11, XFontStyle.Bold, PdfOptions);
             section.Add(new Paragraph().Add("\u00A3", wingdings2)
                     .Add(@" Одна тысяча
 одна тысяча", timesNewRoma))
@@ -197,7 +197,7 @@ qwe3
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
             {
-                var table = section.AddTable().Font(new XFont("Times New Roman", 20, XFontStyle.Regular, PdfOptions));
+                var table = section.AddTable().Font(new Font("Times New Roman", 20, XFontStyle.Regular, PdfOptions));
                 var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 r1[c1].Add(new Paragraph()
@@ -211,7 +211,7 @@ qwe3
             {
                 var table = section.AddTable()
                     .Border(BorderWidth)
-                    .Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                    .Font(new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
                 table.AddColumn(Px(300));
                 var c2 = table.AddColumn(Px(500));
                 var r1 = table.AddRow();
@@ -219,7 +219,7 @@ qwe3
                     .Add("Some text").Add(new Span("1").InlineVerticalAlign(Super)));
             }
             {
-                var table = section.AddTable().Font(new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
+                var table = section.AddTable().Font(new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions));
                 var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 r1[c1].Add(new Paragraph()
@@ -237,7 +237,7 @@ qwe3
             const string note2 = "2";
             const string note3 = "3";
             {
-                var font = new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
+                var font = new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
                 section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).Margin(Bottom, Px(30))
                     .Add("Choose composition first when creating new classes from existing classes. " +
                         "Only if inheritance", font)
@@ -249,7 +249,7 @@ qwe3
                     .Add(".", font));
             }
             {
-                var font = new XFont("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
+                var font = new Font("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
                 section.Add(new Paragraph()
                     .Add(new Span(note1, font).InlineVerticalAlign(Super))
                     .Add(" Text of first footnote", font));
@@ -439,7 +439,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Px(651));
@@ -495,7 +495,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             {
                 var table = section.AddTable();
                 var c1 = table.AddColumn(Px(651));
@@ -542,7 +542,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             var table = section.AddTable();
             var c1 = table.AddColumn(Px(651));
             var c2 = table.AddColumn(Px(400));
@@ -608,7 +608,7 @@ qwe3
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                .Add(new Span("know something", new Font("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
                     .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
@@ -639,14 +639,14 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).TextIndent(Cm(1))
                 .Add(new Span("Choose ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("interfaces", TimesNewRoman10Bold))
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                .Add(new Span("know something", new Font("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
                     .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
@@ -661,7 +661,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             section.Add(new Paragraph().Alignment(HorizontalAlign.Center).TextIndent(Cm(1))
                 .Add("Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
@@ -669,7 +669,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             section.Add(new Paragraph().Alignment(HorizontalAlign.Right).TextIndent(Cm(1))
                 .Add("Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
@@ -677,7 +677,7 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             Assert(nameof(TextIndent), document.CreatePng().Item1);
         }
 
@@ -701,14 +701,14 @@ qwe3
                     "Choose composition first when creating new classes from existing classes. Only if " +
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
+                    new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions)));
             section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
                 .Add(new Span("Choose ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("interfaces", TimesNewRoman10Bold))
                 .Add(new Span(" over ", Styles.TimesNewRoman10))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                .Add(new Span("know something", new Font("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
                     .Brush(XBrushes.Red))
                 .Add(new Span(" is going to be a baseclass, your first choice should be to make it an", Styles.TimesNewRoman10))
                 .Add(new Span(" interface", TimesNewRoman10Bold))
@@ -733,22 +733,22 @@ qwe3
                 .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
 		            "inheritance is required by your design should it be used. If you use inheritance where " +
 		            "composition will work, your designs will become needlessly complicated. ",
-                    new XFont("Times New Roman", 10, XFontStyle.Underline, PdfOptions))));
+                    new Font("Times New Roman", 10, XFontStyle.Underline, PdfOptions))));
 	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
 		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
 			        "inheritance is required by your design should it be used. If you use inheritance where " +
 			        "composition will work, your designs will become needlessly complicated. ",
-			        new XFont("Times New Roman", 20, XFontStyle.Underline, PdfOptions))));
+			        new Font("Times New Roman", 20, XFontStyle.Underline, PdfOptions))));
 	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
 		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
 			        "inheritance is required by your design should it be used. If you use inheritance where " +
 			        "composition will work, your designs will become needlessly complicated. ",
-			        new XFont("Times New Roman", 10, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
+			        new Font("Times New Roman", 10, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
 	        section.Add(new Paragraph().Alignment(HorizontalAlign.Justify)
 		        .Add(new Span("Choose composition first when creating new classes from existing classes. Only if " +
 			        "inheritance is required by your design should it be used. If you use inheritance where " +
 			        "composition will work, your designs will become needlessly complicated. ",
-			        new XFont("Times New Roman", 20, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
+			        new Font("Times New Roman", 20, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
             Assert(nameof(HorizontalAlign_Justify_Underline), document.CreatePng().Item1);
         }
 
@@ -1318,9 +1318,9 @@ qwe3
                     cell.Add(TimesNewRoman10(@"a
 
 aaaaaaaaa ")
-                        .Add(new Span("0123", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
+                        .Add(new Span("0123", new Font("Arial", 12, XFontStyle.Bold, PdfOptions)))
                         .Add(new Span("у", Styles.TimesNewRoman10))
-                        .Add(new Span("567", new XFont("Arial", 12, XFontStyle.Bold, PdfOptions)))
+                        .Add(new Span("567", new Font("Arial", 12, XFontStyle.Bold, PdfOptions)))
                         .Add(new Span("ЙЙЙ", Styles.TimesNewRoman10)));
                 }
                 {
@@ -1440,7 +1440,7 @@ aaaaaaaaa ")
                     .Add(new Span(" over ", Styles.TimesNewRoman10))
                     .Add(new Span("abstract", TimesNewRoman10Bold))
                     .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
+                    .Add(new Span("know something", new Font("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions)))
                     .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
                         Styles.TimesNewRoman10))
                     .Add(new Span("interface", TimesNewRoman10Bold))
@@ -1457,7 +1457,7 @@ aaaaaaaaa ")
                     .Add(new Span(" over ", Styles.TimesNewRoman10))
                     .Add(new Span("abstract", TimesNewRoman10Bold))
                     .Add(new Span(" classes. If you ", Styles.TimesNewRoman10))
-                    .Add(new Span("know something", new XFont("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
+                    .Add(new Span("know something", new Font("Times New Roman", 18, XFontStyle.BoldItalic, PdfOptions))
                         .Brush(XBrushes.Red))
                     .Add(new Span(" is going to be a baseclass, your first choice should be to make it an ",
                         Styles.TimesNewRoman10))

@@ -254,7 +254,7 @@ xxx xxxxx Xxxxxx xxxxxxxxx
         }
 
         private static readonly double cellMargin = Cm(0.05);
-        private static XFont font => TimesNewRoman10;
+        private static Font font => TimesNewRoman10;
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
         private static Paragraph LeftIndentParagraph => Paragraph.Margin(Left, cellMargin + Cm(0.1));
     }

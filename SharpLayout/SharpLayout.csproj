@@ -63,6 +63,8 @@
     <Compile Include="Direction.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Drawer.cs" />
+    <Compile Include="Font.cs" />
+    <Compile Include="FontKey.cs" />
     <Compile Include="GraphicsType.cs" />
     <Compile Include="HorizontalAlign.cs" />
     <Compile Include="IElement.cs" />

@@ -17,23 +17,23 @@ namespace SharpLayout
 		    return text;
 	    }
 
-	    private Option<XFont> font;
-	    public Option<XFont> Font() => font;
-	    public Span Font(Option<XFont> value)
+	    private Option<Font> font;
+	    public Option<Font> Font() => font;
+	    public Span Font(Option<Font> value)
 	    {
 		    font = value;
 		    return this;
 	    }
 
-	    internal Option<XFont> FontOrNone(Option<Table> table)
+	    internal Option<Font> FontOrNone(Option<Table> table)
 	    {
 		    if (Font().HasValue) return Font().Value;
 	        var tableFont = table.Select(_ => _.Font());
 	        if (tableFont.HasValue) return tableFont.Value;
-		    return new Option<XFont>();
+		    return new Option<Font>();
 	    }
 
-        internal XFont Font(Option<Table> table)
+        internal Font Font(Option<Table> table)
         {
             var xFont = FontWithoutInlineVerticalAlign(table);
             if (InlineVerticalAlign() == Sub || InlineVerticalAlign() == Super)
@@ -41,15 +41,15 @@ namespace SharpLayout
                 var ascent = xFont.FontFamily.GetCellAscent(xFont.Style);
                 var lineSpacing = xFont.FontFamily.GetLineSpacing(xFont.Style);
                 var inlineVerticalAlignScaling = 0.8 * ascent / lineSpacing;
-                return new XFont(xFont.Name, inlineVerticalAlignScaling * xFont.Size, xFont.Style, xFont.PdfOptions);
+                return new Font(xFont.Name, inlineVerticalAlignScaling * xFont.Size, xFont.Style, xFont.PdfOptions);
             }
             else
                 return xFont;
         }
 
-        internal XFont FontWithoutInlineVerticalAlign(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
+        internal Font FontWithoutInlineVerticalAlign(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
 
-        private static readonly XFont defaultFont = new XFont("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+        private static readonly Font defaultFont = new Font("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
 
         private InlineVerticalAlign inlineVerticalAlign;
         public InlineVerticalAlign InlineVerticalAlign() => inlineVerticalAlign;
@@ -92,21 +92,21 @@ namespace SharpLayout
 	    public static Span Create<T>(Func<T> expression, Func<T, string> converter) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)));
 
-	    public Span(IText text, XFont font) : this(text)
+	    public Span(IText text, Font font) : this(text)
         {
             this.font = font;
         }
 
-        public Span(string text, XFont font): this(new Text(new TextValue(text)), font)
+        public Span(string text, Font font): this(new Text(new TextValue(text)), font)
         {
         }
 
-	    public Span(Func<string> expression, XFont font): 
+	    public Span(Func<string> expression, Font font): 
 			this(new Text(ExpressionValue.Get(expression)), font)
 	    {
 	    }
 
-	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, XFont font) => 
+	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, Font font) => 
 		    new Span(new Text(ExpressionValue.Get(expression, converter)), font);
 
         internal List<Func<Section, Table>> Footnotes { get; } = new List<Func<Section, Table>>();

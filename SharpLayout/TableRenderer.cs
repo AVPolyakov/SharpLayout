@@ -16,13 +16,13 @@ namespace SharpLayout
 
     public class DrawCache
     {
-        public readonly Dictionary<XFont, double> BaseLines = new Dictionary<XFont, double>();
-        private readonly Dictionary<(string Name, double Size, XFontStyle Style, PdfFontEncoding FontEncoding), CharSizeCache> charSizeCaches = 
-            new Dictionary<(string Name, double Size, XFontStyle Style, PdfFontEncoding FontEncoding), CharSizeCache>();
+        public readonly Dictionary<Font, double> BaseLines = new Dictionary<Font, double>();
+        private readonly Dictionary<FontKey, CharSizeCache> charSizeCaches = 
+            new Dictionary<FontKey, CharSizeCache>();
 
-        public CharSizeCache GetCharSizeCache(XFont font)
+        public CharSizeCache GetCharSizeCache(Font font)
         {
-            var key = (font.Name, font.Size, font.Style, font.PdfOptions.FontEncoding);
+            var key = new FontKey(font.Name, font.Size, font.Style, font.PdfOptions.FontEncoding);
             if (charSizeCaches.TryGetValue(key, out var value))
                 return value;
             var charSizeCache = new CharSizeCache();
@@ -1073,8 +1073,7 @@ namespace SharpLayout
             }
             if (document.R1C1AreVisible)
             {
-                var font = new XFont("Times New Roman", 10, XFontStyle.Regular,
-                    new XPdfFontOptions(PdfFontEncoding.Unicode));
+                var font = new Font("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
                 var redBrush = new XSolidBrush(XColor.FromArgb(200, 255, 0, 0));
                 var purpleBrush = new XSolidBrush(XColor.FromArgb(200, 87, 0, 127));
                 if (column.Index == 0)
@@ -1082,7 +1081,7 @@ namespace SharpLayout
                     var text = $"r{row + 1}";
                     var lineSpace = font.GetHeight();
                     var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
-                    var rnX = x - xGraphics.MeasureString(text, font).Width;
+                    var rnX = x - xGraphics.MeasureString(text, font.XFont).Width;
                     drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
                     if (row == 0)
                     {
@@ -1090,7 +1089,7 @@ namespace SharpLayout
                         drawer.DrawString(lineText,
                             font,
                             purpleBrush,
-                            rnX - xGraphics.MeasureString($"{lineText} ", font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
+                            rnX - xGraphics.MeasureString($"{lineText} ", font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
                             y + rnHeight);
                     }
                 }
@@ -1107,14 +1106,13 @@ namespace SharpLayout
             var callerInfos = cell.CallerInfos ?? new List<CallerInfo>();
             if (callerInfos.Count <= 0) return;
             var text = string.Join(" ", callerInfos.Select(_ => _.Line));
-            var font = new XFont("Arial", 7, XFontStyle.Regular,
-                new XPdfFontOptions(PdfFontEncoding.Unicode));
+            var font = new Font("Arial", 7, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
             var height = info.MaxHeights[row] - bottomBorder.Select(_ => _.Width).ValueOr(0);
             var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
             drawer.DrawString(text,
                 font,
                 new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
-                x + width - xGraphics.MeasureString(text, font).Width,
+                x + width - xGraphics.MeasureString(text, font.XFont).Width,
                 y + height);
         }
 

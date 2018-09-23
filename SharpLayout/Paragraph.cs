@@ -97,13 +97,13 @@ namespace SharpLayout
 	    public Paragraph Add<T>(Func<T> expression, Func<T, string> converter, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(Span.Create(expression, converter), line, filePath);
 
-        public Paragraph Add(string text, XFont font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+        public Paragraph Add(string text, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
             => Add(new Span(text, font), line, filePath);
 
-	    public Paragraph Add(Func<string> expression, XFont font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+	    public Paragraph Add(Func<string> expression, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(new Span(expression, font), line, filePath);
 
-	    public Paragraph Add<T>(Func<T> expression, Func<T, string> converter, XFont font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+	    public Paragraph Add<T>(Func<T> expression, Func<T, string> converter, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(Span.Create(expression, converter, font), line, filePath);
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);

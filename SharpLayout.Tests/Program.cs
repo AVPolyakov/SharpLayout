@@ -42,7 +42,7 @@ namespace SharpLayout.Tests
             var settings = new PageSettings();
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
-                .Add($"{e}", new XFont("Consolas", 9.5))));
+                .Add($"{e}", new Font("Consolas", 9.5, XFontStyle.Regular, Styles.PdfOptions))));
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(true, false);
         }
 

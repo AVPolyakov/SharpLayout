@@ -164,9 +164,9 @@ namespace SharpLayout
 		    return this;
 	    }
 
-	    private Option<XFont> font;
-	    public Option<XFont> Font() => font;
-	    public Table Font(Option<XFont> value)
+	    private Option<Font> font;
+	    public Option<Font> Font() => font;
+	    public Table Font(Option<Font> value)
 	    {
 		    font = value;
 		    return this;
