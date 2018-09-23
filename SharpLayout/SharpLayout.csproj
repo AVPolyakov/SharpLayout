@@ -70,7 +70,6 @@
     <Compile Include="InlineVerticalAlign.cs" />
     <Compile Include="Lazy.cs" />
     <Compile Include="LineKey.cs" />
-    <Compile Include="ParagraphKey.cs" />
     <Compile Include="ReflectionUtil.cs" />
     <Compile Include="Section.cs" />
     <Compile Include="Option.cs" />

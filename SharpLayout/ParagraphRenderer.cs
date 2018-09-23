@@ -81,11 +81,11 @@ namespace SharpLayout
     internal static class ParagraphRenderer
     {
 	    public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment, Drawer drawer,
-		    GraphicsType graphicsType, TextMode mode, Document document, Table table, ParagraphKey paragraphKey,
+		    GraphicsType graphicsType, TextMode mode, Document document, Table table,
 	        DrawCache drawCache)
         {
             var y = y0 + paragraph.TopMargin().ToOption().ValueOr(0);
-            var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document, table, paragraphKey, drawCache));
+            var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document, table, drawCache));
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ToOption().ValueOr(0) : 0;
             var softLines = paragraph.GetSoftLines(document, table, drawCache);
@@ -94,9 +94,7 @@ namespace SharpLayout
                 var softLineParts = softLines[softLineIndex];
                 var charInfos = GetCharInfos(softLineParts, mode);
                 var innerWidth = paragraph.GetInnerWidth(width);
-                var lineInfos = GetLines(graphics, softLineParts, innerWidth, charInfos, paragraph, mode, document, table,
-                    paragraphKey, drawCache, softLineIndex);
-                foreach (var line in lineInfos)
+                foreach (var line in GetLines(graphics, softLineParts, innerWidth, charInfos, paragraph, mode, document, table))
                 {
                     var lineParts = line.GetLineParts(charInfos);
                     double dx;
@@ -315,22 +313,18 @@ namespace SharpLayout
                 part.GetSoftLinePart(softLineParts).Span.Font(table), MeasureTrailingSpacesStringFormat).Width);
         }
 
-        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table,
-            ParagraphKey paragraphKey, DrawCache drawCache)
+        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
             return paragraph.GetSoftLines(document, table, drawCache).Select((softLineParts, i) => (softLineParts, i)).Select(
-                _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width),
-                    GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table, paragraphKey, drawCache, _.i).Count
+                _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table).Count()
             ).Sum();
         }
 
-        public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table,
-            ParagraphKey paragraphKey, DrawCache drawCache)
+        public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
             return paragraph.GetSoftLines(document, table, drawCache).Select((softLineParts, i) => (softLineParts, i)).Sum(_ => {
                 var charInfos = GetCharInfos(_.softLineParts, mode);
-                return GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table,
-                        paragraphKey, drawCache, _.i)
+                return GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
                     .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(_.softLineParts)
                         .Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight())));
             });
@@ -379,34 +373,6 @@ namespace SharpLayout
                            2;
             drawCache.BaseLines.Add(font, baseLine);
             return baseLine;
-        }
-
-        internal static List<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
-            Paragraph paragraph, TextMode mode, Document document, Table table, ParagraphKey paragraphKey,
-            DrawCache drawCaches, int softLineIndex)
-        {
-            ParagraphCache cache;
-            if (drawCaches.ParagraphCaches.TryGetValue(table, out var paragraphCache))
-                cache = paragraphCache;
-            else
-            {
-                cache = new ParagraphCache();
-                drawCaches.ParagraphCaches.Add(table, cache);
-            }
-            var lineKey = new LineKey(
-                paragraphKey.RowIndex,
-                paragraphKey.ColumnIndex,
-                paragraphKey.ElementIndex,
-                softLineIndex
-            );
-            if (cache.Lines.TryGetValue(lineKey, out var result))
-                return result;
-            else
-            {
-                var lines = GetLines(graphics, softLineParts, width, charInfos, paragraph, mode, document, table).ToList();
-                cache.Lines.Add(lineKey, lines);
-                return lines;
-            }
         }
 
         internal static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,

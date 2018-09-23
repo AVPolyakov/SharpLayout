@@ -16,7 +16,6 @@ namespace SharpLayout
 
     public class DrawCache
     {
-        public readonly Dictionary<Table, ParagraphCache> ParagraphCaches = new Dictionary<Table, ParagraphCache>();
         public readonly Dictionary<XFont, double> BaseLines = new Dictionary<XFont, double>();
         private readonly Dictionary<XFont, CharSizeCache> charSizeCaches = new Dictionary<XFont, CharSizeCache>();
 
@@ -432,9 +431,8 @@ namespace SharpLayout
                         .Sum(i => info.MaxHeights[row + i] -
                             MaxBottomBorder(row + cell.Rowspan().ToOption().ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
                     var width = info.Table.ContentWidth(row, column, info.RightBorderFunc, rowCaches);
-                    var contentHeight = cell.Elements.Select((element, i) => (element, i)).Sum(_ => _.element.Match(
-                        p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, 
-                            new ParagraphKey(row, column.Index, _.i), drawCaches),
+                    var contentHeight = cell.Elements.Sum(_ => _.Match(
+                        p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
                         t => t.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
                     double dy;
                     switch (GetVerticalAlign(cell, info.Table))
@@ -455,12 +453,10 @@ namespace SharpLayout
                     for (var elementIndex = 0; elementIndex < cell.Elements.Count; elementIndex++)
                     {
                         var element = cell.Elements[elementIndex];
-                        var paragraphKey = new ParagraphKey(row, column.Index, elementIndex);
                         if (document.ParagraphsAreHighlighted)
                             element.Match(
                                 paragraph => {
-                                    HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics, drawer, mode, document, rowCaches,
-                                        paragraphKey, drawCaches);
+                                    HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics, drawer, mode, document, rowCaches, drawCaches);
                                     return new { };
                                 },
                                 table => new { });
@@ -470,15 +466,14 @@ namespace SharpLayout
                                     syncPageInfo.ItemInfos.Add(new SyncItemInfo {
                                         X = x,
                                         Y = y + dy + paragraphY,
-                                        Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches,
-                                            paragraphKey, drawCaches),
+                                        Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
                                         Width = paragraph.GetInnerWidth(width),
                                         CallerInfos = paragraph.CallerInfos ?? new List<CallerInfo>(),
                                         TableLevel = tableLevel,
                                         Level = 1
                                     });
                                 ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
-                                    document, info.Table, paragraphKey, drawCaches);
+                                    document, info.Table, drawCaches);
                                 return new { };
                             },
                             table => {
@@ -505,7 +500,7 @@ namespace SharpLayout
                                 return new { };
                             });
                         paragraphY += element.Match(
-                            paragraph => paragraph.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, paragraphKey, drawCaches),
+                            paragraph => paragraph.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
                             table => table.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches));
                     }
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
@@ -678,9 +673,8 @@ namespace SharpLayout
                     if (cellContentsByBottomRow.TryGetValue(new CellInfo(rowIndex, column.Index), out var cellInfo))
                     {
 						var cell = rowCaches.GetRowCache(table).Row(cellInfo.RowIndex).Cells[cellInfo.ColumnIndex];
-                        var paragraphHeight = cell.Elements.Select((element, i) => (element, i)).Sum(_ => _.element.Match(
-                            p => p.GetParagraphHeight(cell.RowIndex, column, table, graphics, rightBorderFunc, mode, document, rowCaches,
-                                new ParagraphKey(rowIndex, column.Index, _.i), drawCaches),
+                        var paragraphHeight = cell.Elements.Sum(_ => _.Match(
+                            p => p.GetParagraphHeight(cell.RowIndex, column, table, graphics, rightBorderFunc, mode, document, rowCaches, drawCaches),
                             t => t.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
                         rowHeightByContent = cell.Rowspan().ToOption().Match(
                             _ => Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[rowIndex - i]), 0),
@@ -714,18 +708,16 @@ namespace SharpLayout
         }
 
         private static double GetParagraphHeight(this Paragraph paragraph, int row, Column column, Table table, XGraphics graphics,
-            Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
-            ParagraphKey paragraphKey, DrawCache drawCaches)
+            Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
-            return paragraph.GetInnerHeight(graphics, table, row, column, rightBorderFunc, mode, document, rowCaches, paragraphKey, drawCaches) +
+            return paragraph.GetInnerHeight(graphics, table, row, column, rightBorderFunc, mode, document, rowCaches, drawCaches) +
                 paragraph.TopMargin().ToOption().ValueOr(0) + paragraph.BottomMargin().ToOption().ValueOr(0);
         }
 
         private static double GetInnerHeight(this Paragraph paragraph, XGraphics graphics, Table table, int row, Column column,
-            Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
-            ParagraphKey paragraphKey, DrawCache drawCaches)
+            Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
-            return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc, rowCaches), mode, document, table, paragraphKey, drawCaches);
+            return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc, rowCaches), mode, document, table, drawCaches);
         }
 
         private static Func<CellInfo, Option<XPen>> RightBorder(this Table table, HashSet<CellInfo> rightMergedCells, 
@@ -1054,9 +1046,9 @@ namespace SharpLayout
         }
 
         private static void HighlightParagraph(Paragraph paragraph, Column column, int row, double x, double y, double width, TableInfo info, XGraphics xGraphics, Drawer drawer,
-            TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, ParagraphKey paragraphKey, DrawCache drawCaches)
+            TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
-            var innerHeight = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches, paragraphKey, drawCaches);
+            var innerHeight = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches, drawCaches);
             var innerWidth = paragraph.GetInnerWidth(width);
             if (innerWidth > 0 && innerHeight > 0)
                 FillRectangle(drawer, XColor.FromArgb(32, 0, 0, 255),
