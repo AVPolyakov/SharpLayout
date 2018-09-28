@@ -359,7 +359,7 @@ namespace SharpLayout
         {
             var result = footnotes;
             foreach (var table in tables)
-                result = footnotes.Enqueue(table);
+                result = result.Enqueue(table);
             return result;
         }
 
