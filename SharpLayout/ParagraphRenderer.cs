@@ -363,7 +363,8 @@ namespace SharpLayout
 
         private static double BaseLine(Font font, DrawCache drawCache)
         {
-            if (drawCache.BaseLines.TryGetValue(font, out var value)) 
+            var key = new FontKey(font.Name, font.Size, font.Style, font.PdfOptions.FontEncoding);
+            if (drawCache.BaseLines.TryGetValue(key, out var value)) 
                 return value;
             var lineSpace = font.GetHeight();
             var baseLine = (lineSpace +
@@ -371,7 +372,7 @@ namespace SharpLayout
                                          font.FontFamily.GetCellDescent(font.Style))
                             / font.FontFamily.GetLineSpacing(font.Style)) /
                            2;
-            drawCache.BaseLines.Add(font, baseLine);
+            drawCache.BaseLines.Add(key, baseLine);
             return baseLine;
         }
 

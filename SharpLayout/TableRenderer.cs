@@ -16,7 +16,7 @@ namespace SharpLayout
 
     public class DrawCache
     {
-        public readonly Dictionary<Font, double> BaseLines = new Dictionary<Font, double>();
+        public readonly Dictionary<FontKey, double> BaseLines = new Dictionary<FontKey, double>();
         private readonly Dictionary<FontKey, CharSizeCache> charSizeCaches = 
             new Dictionary<FontKey, CharSizeCache>();
 
