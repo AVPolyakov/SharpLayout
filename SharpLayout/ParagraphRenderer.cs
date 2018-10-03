@@ -431,11 +431,16 @@ namespace SharpLayout
         private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part, XGraphics graphics, Option<Table> table)
         {
             var key = text[charIndex];
-            if (part.CharSizeCache.Dictionary.TryGetValue(key, out var value)) 
-                return value;
-            var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width;
-            part.CharSizeCache.Dictionary.Add(key, width);
-            return width;
+	        var index = part.CharSizeCache.Array[key];
+	        if (index != 0)
+		        return part.CharSizeCache.List[index - 1];
+	        else
+	        {
+		        var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width;
+		        part.CharSizeCache.List.Add(width);
+		        part.CharSizeCache.Array[key] = (ushort) part.CharSizeCache.List.Count;
+		        return width;
+	        }
         }
 
         private static bool ExpressionVisible(this IText text, Document document) => document.ExpressionVisible && text.IsExpression;

@@ -11,7 +11,8 @@ namespace SharpLayout
 {
     public class CharSizeCache
     {
-        public readonly Dictionary<char, double> Dictionary = new Dictionary<char, double>();
+	    public readonly ushort[] Array = new ushort[ushort.MaxValue + 1];
+	    public readonly List<double> List = new List<double>();
     }
 
     public class DrawCache
