@@ -446,7 +446,7 @@ namespace SharpLayout
 
         private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part, XGraphics graphics, Option<Table> table)
         {
-            var key = text[charIndex];
+            int key = text[charIndex];
             if (part.CharSizeCache.Dictionary.TryGetValue(key, out var value)) 
                 return value;
             var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width;

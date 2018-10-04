@@ -11,7 +11,7 @@ namespace SharpLayout
 {
     public class CharSizeCache
     {
-        public readonly Dictionary<char, double> Dictionary = new Dictionary<char, double>();
+        public readonly Dictionary<int, double> Dictionary = new Dictionary<int, double>(512);
     }
 
     public class DrawCache
