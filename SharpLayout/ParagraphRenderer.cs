@@ -35,7 +35,7 @@ namespace SharpLayout
 
         public List<LinePart> GetLineParts(CharInfo[] charInfos)
         {
-            var list = new List<LinePart>();
+            var list = new List<LinePart>(4);
             if (charInfos.Length <= StartIndex) return list;
             var info = charInfos[StartIndex];
             for (var index = StartIndex; index <= EndIndex; index++)
@@ -89,6 +89,7 @@ namespace SharpLayout
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ToOption().ValueOr(0) : 0;
             var softLines = paragraph.GetSoftLines(document, table, drawCache);
+            var leftIndent = x0 + paragraph.LeftMargin().ToOption().ValueOr(0);
             for (var softLineIndex = 0; softLineIndex < softLines.Count; softLineIndex++)
             {
                 var softLineParts = softLines[softLineIndex];
@@ -115,7 +116,7 @@ namespace SharpLayout
                     }
                     var spans = lineParts.Spans(softLineParts);
                     var baseLine = spans.Max(span => BaseLine(span.FontWithoutInlineVerticalAlign(table), drawCache));
-                    var x = x0 + paragraph.LeftMargin().ToOption().ValueOr(0) + dx + TextIndent();
+                    var x = leftIndent + TextIndent() + dx;
                     var maxLineSpace = spans.Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight());
                     var multiplier = Lazy.Create(() => {
                         var spaces = GetSpaces(lineParts, softLineParts, mode);
@@ -298,7 +299,7 @@ namespace SharpLayout
             foreach (var span in paragraph.Spans)
             {
                 if (result.Count == 0)
-                    result.Add(new List<ISoftLinePart>());
+                    result.Add(new List<ISoftLinePart>(4));
                 var parts = span.Text(table).GetSoftLineParts(span, document, drawCache, table);
                 result[result.Count - 1].Add(parts[0]);
                 for (var i = 1; i < parts.Length; i++)
@@ -316,18 +317,31 @@ namespace SharpLayout
         public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
             return paragraph.GetSoftLines(document, table, drawCache).Select((softLineParts, i) => (softLineParts, i)).Select(
-                _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table).Count()
+                _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table).Count
             ).Sum();
         }
 
         public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
-            return paragraph.GetSoftLines(document, table, drawCache).Select((softLineParts, i) => (softLineParts, i)).Sum(_ => {
-                var charInfos = GetCharInfos(_.softLineParts, mode);
-                return GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table)
-                    .Sum(line => paragraph.LineSpacingFunc()(line.GetLineParts(charInfos).Spans(_.softLineParts)
-                        .Max(span => span.FontWithoutInlineVerticalAlign(table).GetHeight())));
-            });
+            var softLines = paragraph.GetSoftLines(document, table, drawCache);
+            double sum = 0;
+            for (var index = 0; index < softLines.Count; index++)
+            {
+                var softLineParts = softLines[index];
+                var charInfos = GetCharInfos(softLineParts, mode);
+                foreach (var line in GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width), charInfos, paragraph, mode, document, table))
+                {
+                    double max = 0;
+                    var spans = Spans(line.GetLineParts(charInfos), softLineParts);
+                    for (var i = 0; i < spans.Length; i++)
+                    {
+                        var height = spans[i].FontWithoutInlineVerticalAlign(table).GetHeight();
+                        if (max < height) max = height;
+                    }
+                    sum += paragraph.LineSpacingFunc()(max);
+                }
+            }
+            return sum;
         }
 
         internal static Span[] Spans(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts)
@@ -376,9 +390,10 @@ namespace SharpLayout
             return baseLine;
         }
 
-        internal static IEnumerable<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
+        internal static List<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
 		    Paragraph paragraph, TextMode mode, Document document, Option<Table> table)
         {
+            var result = new List<LineInfo>(4);
             var startIndex = 0;
             var lineIndex = 0;
             double GetWidth() => lineIndex == 0 ? width - paragraph.TextIndent().ToOption().ValueOr(0) : width;
@@ -387,8 +402,8 @@ namespace SharpLayout
                 var endIndex = GetEndIndex(GetWidth(), charInfos, softLineParts, mode, startIndex, graphics, table);
                 if (endIndex == charInfos.Length - 1)
                 {
-                    yield return new LineInfo(startIndex, TrimEnd(charInfos.Length - 1, charInfos, softLineParts, startIndex, mode));
-                    yield break;
+                    result.Add(new LineInfo(startIndex, TrimEnd(charInfos.Length - 1, charInfos, softLineParts, startIndex, mode)));
+                    return result;
                 }
                 int endIndex2;
                 if (softLineParts[charInfos[endIndex].PartIndex].Span.Text(table).ExpressionVisible(document))
@@ -398,13 +413,13 @@ namespace SharpLayout
                     endIndex2 = endIndex;
                 if (endIndex2 == charInfos.Length - 1)
                 {
-                    yield return new LineInfo(startIndex, TrimEnd(endIndex2, charInfos, softLineParts, startIndex, mode));
-                    yield break;
+                    result.Add(new LineInfo(startIndex, TrimEnd(endIndex2, charInfos, softLineParts, startIndex, mode)));
+                    return result;
                 }
                 var shiftedEndIndex = ShiftEndIndex(endIndex2, charInfos, softLineParts, startIndex, mode);
-                yield return new LineInfo(startIndex, TrimEnd(shiftedEndIndex, charInfos, softLineParts, startIndex, mode));
-	            if (shiftedEndIndex == charInfos.Length - 1)
-		            yield break;
+                result.Add(new LineInfo(startIndex, TrimEnd(shiftedEndIndex, charInfos, softLineParts, startIndex, mode)));
+                if (shiftedEndIndex == charInfos.Length - 1)
+                    return result;
 				lineIndex++;
                 startIndex = shiftedEndIndex + 1;
             }
