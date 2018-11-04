@@ -395,6 +395,8 @@ namespace SharpLayout
                 }
             }
             var y = tableY + maxTopBorder;
+            var count = rows.Count();
+            var index = 0;
             foreach (var row in rows)
             {
                 {
@@ -509,7 +511,8 @@ namespace SharpLayout
                     if (rightBorder.HasValue)
                     {
                         double bottomBorderWidth;
-                        if (!info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue &&
+                        if ((index == count - 1 ||
+                             !info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue) &&
                             info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
                             bottomBorderWidth = info.BottomBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
                         else
@@ -538,6 +541,7 @@ namespace SharpLayout
                     x += column.Width;
                 }
                 y += info.MaxHeights[row];
+                index++;
             }
         }
 
