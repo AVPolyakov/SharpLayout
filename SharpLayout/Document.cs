@@ -75,6 +75,11 @@ namespace SharpLayout
 
         public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution = defaultResolution)
         {
+            return CreateImage(ImageFormat.Png, resolution);
+        }
+
+        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, int resolution = defaultResolution)
+        {
             var list = new List<byte[]>();
             var syncBitmapInfos = new List<SyncBitmapInfo>();
             foreach (var sectionFunc in Sections)
@@ -87,10 +92,10 @@ namespace SharpLayout
                                     action(graphics);
                                     return new { };
                                 },
-                                bitmap => pages.Add(ToBytes(bitmap)),
+                                bitmap => pages.Add(ToBytes(bitmap, imageFormat)),
                                 section.PageSettings, resolution);
                         }, section.GetTables(this, xGraphics), this, GraphicsType.Image),
-                    bitmap => pages[0] = ToBytes(bitmap),
+                    bitmap => pages[0] = ToBytes(bitmap, imageFormat),
                     section.PageSettings, resolution);
                 syncBitmapInfos.AddRange(syncPageInfos.Select(pageInfo => new SyncBitmapInfo {
                     PageInfo = pageInfo,
@@ -142,11 +147,11 @@ namespace SharpLayout
         private static int HorizontalPixelCount(PageSettings pageSettings, int resolution) 
             => (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
 
-        public static byte[] ToBytes(Bitmap bitmap)
+        public static byte[] ToBytes(Bitmap bitmap, ImageFormat imageFormat)
         {
             using (var stream = new MemoryStream())
             {
-                bitmap.Save(stream, ImageFormat.Png);
+                bitmap.Save(stream, imageFormat);
                 return stream.ToArray();
             }
         }
