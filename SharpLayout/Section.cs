@@ -72,7 +72,7 @@ namespace SharpLayout
         {
             if (paragraph.KeepWithNext().GetValueOrDefault(false))
             {
-                var table = new Table(paragraph.KeepWithNext(), line);
+                var table = new Table(line).KeepWithNext(paragraph.KeepWithNext());
                 tableFuncs.Add((document, graphics) => new []{table});
                 var c1 = table.AddColumn(PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
@@ -124,7 +124,7 @@ namespace SharpLayout
                             p.BottomMargin(paragraph.BottomMargin());
                         p.Spans.AddRange(spans.Select(_ => Clone(_.Span, _.Text, _.index == dictionary[_.Span])));
                         p.CallerInfos?.AddRange(paragraph.CallerInfos);
-                        var table = new Table(p.KeepWithNext(), line);
+                        var table = new Table(line).KeepWithNext(p.KeepWithNext());
                         var c1 = table.AddColumn(width);
                         var r1 = table.AddRow();
                         r1[c1, line, filePath].Add(p);

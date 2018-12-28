@@ -9,7 +9,13 @@ namespace SharpLayout
 {
     public class Table : IElement
     {
-        internal bool? KeepWithNext { get; }
+        private bool? keepWithNext;
+        public bool? KeepWithNext() => keepWithNext;
+        public Table KeepWithNext(bool? value)
+        {
+            keepWithNext = value;
+            return this;
+        }
 
         public int Line { get; }
 
@@ -27,13 +33,7 @@ namespace SharpLayout
         public readonly List<Func<Row>> RowFuncs = new List<Func<Row>>();
 
         public Table([CallerLineNumber] int line = 0)
-            : this(false, line)
         {
-        }
-
-        internal Table(bool? keepWithNext, [CallerLineNumber] int line = 0)
-        {
-            KeepWithNext = keepWithNext;
             Line = line;
         }
 
@@ -165,7 +165,7 @@ namespace SharpLayout
 	    }
 
 	    private Option<Font> font;
-	    public Option<Font> Font() => font;
+        public Option<Font> Font() => font;
 	    public Table Font(Option<Font> value)
 	    {
 		    font = value;

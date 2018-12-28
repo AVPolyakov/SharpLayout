@@ -82,7 +82,7 @@ namespace SharpLayout
 		    foreach (var table in tables)
 		    {
 			    list.Add(table);
-			    if (!table.KeepWithNext.ToOption().ValueOr(false))
+			    if (!table.KeepWithNext().ToOption().ValueOr(false))
 			    {
 				    yield return new TableGroup(list);
 				    list = new List<Table>();
