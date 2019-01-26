@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SharpLayout</id>
-    <version>1.0.47</version>
+    <version>1.0.50</version>
     <title>C# library for creating PDF.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
@@ -11,11 +11,11 @@
     <projectUrl>https://github.com/AVPolyakov/SharpLayout</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/AVPolyakov/SharpLayout/master/Files/icon.png</iconUrl>
     <description>C# library for creating PDF.</description>
-    <releaseNotes>Upgrade to .NET Standard 2.0</releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <releaseNotes>Upgrade of Newtonsoft.Json package</releaseNotes>
+    <copyright>Copyright 2019</copyright>
     <tags>PDF CSharp PDFsharp</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="10.0.3" />
+      <dependency id="Newtonsoft.Json" version="11.0.2" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
       <dependency id="System.Drawing.Common" version="4.5.1" />
     </dependencies>    
