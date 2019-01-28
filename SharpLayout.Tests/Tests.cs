@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,44 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void Image()
+        {
+            Document.CollectCallerInfo = true;
+            var document = new Document {
+                //CellsAreHighlighted = true,
+                //R1C1AreVisible = true,
+                //ParagraphsAreHighlighted = true,
+                //CellLineNumbersAreVisible = true,
+                //ExpressionVisible = true,
+            };
+            var section = document.Add(new Section(new PageSettings()));
+            var table = section.AddTable().Border(BorderWidth);
+            var c1 = table.AddColumn(Px(800));
+            var r1 = table.AddRow();
+            r1[c1].Add(new Paragraph().Add("Test", new Font("Times New Roman", 10, XFontStyle.Underline, PdfOptions)));
+            for (var i = 0; i < 10; i++)
+            {
+                var r2 = table.AddRow().Height(Cm(10));
+                r2[c1].Add(new Image()
+                    .LeftMargin(Cm(1))
+                    .TopMargin(Cm(1)).BottomMargin(Cm(2))
+                    .Content(new ImageContent()));
+            }
+            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+            Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+        }
+
+        public class ImageContent : IImageContent
+        {
+            public T Process<T>(Func<XImage, T> func)
+            {
+                using (var stream = typeof(Tests).Assembly.GetManifestResourceStream("SharpLayout.Tests.Images.icon.png"))
+                using (var image = XImage.FromStream(stream))
+                    return func(image);
+            }
+        }
+
         [Fact]
         public void Footnotes()
         {
