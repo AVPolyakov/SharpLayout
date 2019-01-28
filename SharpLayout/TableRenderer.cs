@@ -435,9 +435,14 @@ namespace SharpLayout
                         .Sum(i => info.MaxHeights[row + i] -
                             MaxBottomBorder(row + cell.Rowspan().ToOption().ValueOr(1) - 1, info.Table, info.BottomBorderFunc));
                     var width = info.Table.ContentWidth(row, column, info.RightBorderFunc, rowCaches);
-                    var contentHeight = cell.Elements.Sum(_ => _.Match(
-                        p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
-                        t => t.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
+                    var elements = cell.Elements.Select(_ => new {
+                        Element = _,
+                        Height = _.Match(
+                            p => p.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
+                            t => t.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches),
+                            image => image.GetImageHeight())
+                    }).ToList();
+                    var contentHeight = elements.Sum(_ => _.Height);
                     double dy;
                     switch (GetVerticalAlign(cell, info.Table))
                     {
@@ -454,17 +459,18 @@ namespace SharpLayout
                             throw new ArgumentOutOfRangeException();
                     }
                     double paragraphY = 0;
-                    for (var elementIndex = 0; elementIndex < cell.Elements.Count; elementIndex++)
+                    for (var elementIndex = 0; elementIndex < elements.Count; elementIndex++)
                     {
-                        var element = cell.Elements[elementIndex];
+                        var element = elements[elementIndex];
                         if (document.ParagraphsAreHighlighted)
-                            element.Match(
+                            element.Element.Match(
                                 paragraph => {
                                     HighlightParagraph(paragraph, column, row, x, y + dy + paragraphY, width, info, xGraphics, drawer, mode, document, rowCaches, drawCaches);
                                     return new { };
                                 },
-                                table => new { });
-                        element.Match(
+                                table => new { },
+                                image => new { });
+                        element.Element.Match(
                             paragraph => {
                                 if (graphicsType == GraphicsType.Image)
                                     syncPageInfo.ItemInfos.Add(new SyncItemInfo {
@@ -476,7 +482,7 @@ namespace SharpLayout
                                         TableLevel = tableLevel,
                                         Level = 1
                                     });
-                                ParagraphRenderer.Draw(xGraphics, paragraph, x, y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
+                                ParagraphRenderer.Draw(xGraphics, paragraph, x0: x, y0: y + dy + paragraphY, width, Alignment(paragraph, info.Table), drawer, graphicsType, mode,
                                     document, info.Table, drawCaches);
                                 return new { };
                             },
@@ -498,14 +504,16 @@ namespace SharpLayout
                                         throw new ArgumentOutOfRangeException();
                                 }
                                 Draw(tableInfo,
-                                    Range(0, table.RowFuncs.Count), y + dy + paragraphY, xGraphics,
+                                    Range(0, table.RowFuncs.Count), y0: y + dy + paragraphY, xGraphics,
                                     document, tableInfos, x + table.LeftMargin().ToOption().ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode,
-	                                rowCaches, section, drawCaches);
+                                    rowCaches, section, drawCaches);
+                                return new { };
+                            },
+                            image => {
+                                ImageRenderer.Draw(image, x0: x, y0: y + dy + paragraphY, drawer, Alignment(image, info.Table), width);
                                 return new { };
                             });
-                        paragraphY += element.Match(
-                            paragraph => paragraph.GetParagraphHeight(row, column, info.Table, xGraphics, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
-                            table => table.GetTableHeight(xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches));
+                        paragraphY += element.Height;
                     }
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
                     if (rightBorder.HasValue)
@@ -555,6 +563,13 @@ namespace SharpLayout
 	    private static HorizontalAlign Alignment(Paragraph paragraph, Table table)
 	    {
 		    if (paragraph.Alignment().HasValue) return paragraph.Alignment().Value;
+		    if (table.ContentAlign().HasValue) return table.ContentAlign().Value;
+			return HorizontalAlign.Left;
+	    }
+
+	    private static HorizontalAlign Alignment(Image image, Table table)
+	    {
+		    if (image.Alignment().HasValue) return image.Alignment().Value;
 		    if (table.ContentAlign().HasValue) return table.ContentAlign().Value;
 			return HorizontalAlign.Left;
 	    }
@@ -681,7 +696,8 @@ namespace SharpLayout
 						var cell = rowCaches.GetRowCache(table).Row(cellInfo.RowIndex).Cells[cellInfo.ColumnIndex];
                         var paragraphHeight = cell.Elements.Sum(_ => _.Match(
                             p => p.GetParagraphHeight(cell.RowIndex, column, table, graphics, rightBorderFunc, mode, document, rowCaches, drawCaches),
-                            t => t.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
+                            t => t.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches),
+                            image => image.GetImageHeight()));
                         rowHeightByContent = cell.Rowspan().ToOption().Match(
                             _ => Max(paragraphHeight - Range(1, _ - 1).Sum(i => result[rowIndex - i]), 0),
                             () => paragraphHeight);
@@ -711,6 +727,22 @@ namespace SharpLayout
 	        Dictionary<Table, RowCache> rowCaches, Section section, DrawCache drawCaches)
         {
             return Lazy.Create(tableInfos, table => GetTableInfo(graphics, table, tableInfos, mode, document, rowCaches, section, drawCaches));
+        }
+
+        private static double GetImageHeight(this Image image)
+        {
+            double height;
+            if (image.Height().HasValue)
+                height = image.Height().Value;
+            else
+            {
+                var content = image.Content();
+                if (content.HasValue)
+                    height = content.Value.Process(xImage => xImage.PointHeight);
+                else
+                    height = 0;
+            }
+            return height + image.TopMargin().ToOption().ValueOr(0) + image.BottomMargin().ToOption().ValueOr(0);
         }
 
         private static double GetParagraphHeight(this Paragraph paragraph, int row, Column column, Table table, XGraphics graphics,
@@ -961,7 +993,9 @@ namespace SharpLayout
                         table1 => {
                             var tableInfo = GetTableInfo(tableInfos, xGraphics, mode, document, rowCaches, section, drawCaches).GetValue(table1);
                             return table1.RowFuncs.SelectMany((func, i) => tableInfo.Footnotes[i]);
-                        }))).ToList();
+                        },
+                        image => new Table[] { }
+                    ))).ToList();
             }
             var rightBorderFunc = table.RightBorder(rightMergedCells, rightBorderDictionary);
             var bottomBorderFunc = table.BottomBorder(bottomMergedCells, bottomBorderDictionary);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
 namespace SharpLayout
@@ -106,7 +105,7 @@ namespace SharpLayout
 	    public Paragraph Add<T>(Func<T> expression, Func<T, string> converter, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(Span.Create(expression, converter, font), line, filePath);
 
-        public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => paragraph(this);
+        public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table, Func<Image, T> image) => paragraph(this);
 
         public List<CallerInfo> callerInfos;
         public List<CallerInfo> CallerInfos

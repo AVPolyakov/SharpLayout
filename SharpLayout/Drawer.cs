@@ -25,6 +25,23 @@ namespace SharpLayout
             Add(DrawType.Foreground, () => graphics.DrawLine(pen, x1, y1, x2, y2));
         }
 
+        public void DrawImage(Image image, double x, double y)
+        {
+            Add(DrawType.Background, () => {
+                var content = image.Content();
+                if (content.HasValue)
+                    content.Value.Process(xImage => {
+                        if (!image.Height().HasValue && !image.Width().HasValue)
+                            graphics.DrawImage(xImage, x, y);
+                        else
+                            graphics.DrawImage(xImage, x, y,
+                                image.Width().GetValueOrDefault(xImage.PointWidth),
+                                image.Height().GetValueOrDefault(xImage.PointHeight));
+                        return new { };
+                    });
+            });
+        }
+
         public void DrawRectangle(XBrush brush, double x, double y, double width, double height,
             DrawType drawType = DrawType.Foreground)
         {

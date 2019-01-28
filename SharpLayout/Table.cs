@@ -85,7 +85,7 @@ namespace SharpLayout
 	        return rowCaches.GetRowCache(this).Row(cell.RowIndex).Cells[cell.ColumnIndex];
         }
 
-	    public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table) => table(this);
+	    public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table, Func<Image, T> image) => table(this);
 
         private HorizontalAlign? alignment;
         public HorizontalAlign? Alignment() => alignment;

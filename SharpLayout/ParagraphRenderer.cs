@@ -5,11 +5,6 @@ using PdfSharp.Drawing;
 
 namespace SharpLayout
 {
-    public class ParagraphCache
-    {
-        public readonly Dictionary<LineKey, List<LineInfo>> Lines = new Dictionary<LineKey, List<LineInfo>>();
-    }
-
     public struct CharInfo
     {
         public int PartIndex { get; }

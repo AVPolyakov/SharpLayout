@@ -84,8 +84,8 @@ namespace SharpLayout
         public readonly List<IElement> Elements = new List<IElement>();
 
         public IEnumerable<Paragraph> Paragraphs => Elements
-            .Where(_ => _.Match(p => true, t => false))
-            .Select(_ => _.Match(p => p, t => throw new ApplicationException()));
+            .Where(_ => _.Match(p => true, t => false, image => false))
+            .Select(_ => _.Match(p => p, t => throw new Exception(), image => throw new Exception()));
 
         public Cell Add(IElement value)
         {

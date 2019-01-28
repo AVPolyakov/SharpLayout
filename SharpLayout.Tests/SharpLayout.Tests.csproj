@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Images\ResourceImage1.cs" />
     <Compile Include="ImageUtil.cs" />
     <Compile Include="LoanAgreementDealPassport.cs" />
     <Compile Include="PaymentOrder.cs" />
@@ -80,6 +81,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Images\Image1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="Images\ResourceImage1.png" />
     <Content Include="TestData\PaymentOrderTest\Page1.png" />
     <Content Include="TestData\Test1\Page1.png" />
     <Content Include="TestData\Test1\Page2.png" />
@@ -97,6 +102,7 @@
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.4.0" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

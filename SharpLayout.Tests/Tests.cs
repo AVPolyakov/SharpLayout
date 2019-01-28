@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
+using SharpLayout.Tests.Images;
 using Xunit;
 using static SharpLayout.Direction;
 using static SharpLayout.InlineVerticalAlign;
@@ -14,6 +16,60 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void Image()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            var table = section.AddTable().Border(BorderWidth);
+            var c1 = table.AddColumn(Px(800));
+            var r1 = table.AddRow();
+            r1[c1].Add(new Image()
+	            .Content(new ImageContent()));
+            Assert(nameof(Image), document.CreatePng().Item1);
+        }
+
+        public class ImageContent : IImageContent
+        {
+            public T Process<T>(Func<XImage, T> func)
+            {
+                using (var image = XImage.FromFile(@"Images\Image1.png"))
+                    return func(image);
+            }
+        }
+
+        [Fact]
+        public void Image_Alignments()
+        {
+	        var document = new Document();
+	        var section = document.Add(new Section(new PageSettings()));
+	        var table = section.AddTable().Border(BorderWidth);
+	        var c1 = table.AddColumn(Px(500));
+	        var c2 = table.AddColumn(Px(500));
+	        var c3 = table.AddColumn(Px(500));
+	        var r1 = table.AddRow();
+	        r1[c1].Add(new Image()
+		        .Content(new ImageContent()));
+	        var r2 = table.AddRow();
+	        r2[c2].Add(new Image().Alignment(HorizontalAlign.Center)
+		        .Content(new ImageContent()));
+	        var r3 = table.AddRow();
+	        r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
+		        .Content(new ResourceImageContent()));
+	        Assert(nameof(Image_Alignments), document.CreatePng().Item1);
+        }
+
+        public class ResourceImageContent : IImageContent
+        {
+	        public T Process<T>(Func<XImage, T> func)
+	        {
+		        var anchorType = typeof(ResourceImage1);
+		        using (var stream = anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png"))
+		        using (var image = XImage.FromStream(stream))
+			        return func(image);
+	        }
+        }
+
         [Fact]
         public void Footnotes()
         {
