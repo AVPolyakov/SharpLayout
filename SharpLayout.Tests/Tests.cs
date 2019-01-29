@@ -33,10 +33,9 @@ namespace SharpLayout.Tests
             r1[c1].Add(new Paragraph().Add("Test", new Font("Times New Roman", 10, XFontStyle.Underline, PdfOptions)));
             for (var i = 0; i < 10; i++)
             {
-                var r2 = table.AddRow().Height(Cm(10));
+                var r2 = table.AddRow();
                 r2[c1].Add(new Image()
-                    .LeftMargin(Cm(1))
-                    .TopMargin(Cm(1)).BottomMargin(Cm(2))
+                    .Margin(All, Cm(1))
                     .Content(new ImageContent()));
             }
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);

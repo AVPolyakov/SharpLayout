@@ -1,5 +1,6 @@
 ﻿using System;
 using PdfSharp.Drawing;
+using static SharpLayout.Direction;
 
 namespace SharpLayout
 {
@@ -31,6 +32,22 @@ namespace SharpLayout
             return this;
         }
 
+        private double? leftMargin;
+        public double? LeftMargin() => leftMargin;
+        public Image LeftMargin(double? value)
+        {
+            leftMargin = value;
+            return this;
+        }
+
+        private double? rightMargin;
+        public double? RightMargin() => rightMargin;
+        public Image RightMargin(double? value)
+        {
+            rightMargin = value;
+            return this;
+        }
+
         private double? bottomMargin;
         public double? BottomMargin() => bottomMargin;
         public Image BottomMargin(double? value)
@@ -39,11 +56,12 @@ namespace SharpLayout
             return this;
         }
 
-        private double? leftMargin;
-        public double? LeftMargin() => leftMargin;
-        public Image LeftMargin(double? value)
+        public Image Margin(Direction direction, double value)
         {
-            leftMargin = value;
+            if (direction.HasFlag(Left)) LeftMargin(value);
+            if (direction.HasFlag(Right)) RightMargin(value);
+            if (direction.HasFlag(Top)) TopMargin(value);
+            if (direction.HasFlag(Bottom)) BottomMargin(value);
             return this;
         }
 
