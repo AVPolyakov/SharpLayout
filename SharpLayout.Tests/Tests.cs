@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -967,6 +966,20 @@ qwe3
             r3[c2].Border(Top, BorderWidth)
                 .Add(TimesNewRoman10("2"));
             Assert(nameof(BackgroundColor), document.CreatePng().Item1);
+        }
+
+        [Fact]
+        public void Intersection_of_border_lines_in_left_column()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            var table = section.AddTable();
+            var c1 = table.AddColumn(Cm(1));
+            var r1 = table.AddRow().Height(Cm(1));
+            var r2 = table.AddRow().Height(Cm(1));
+            r1[c1].Border(Bottom, Cm(0.1));
+            r2[c1].Border(Left, Cm(0.1));
+            Assert(nameof(Intersection_of_border_lines_in_left_column), document.CreatePng().Item1);
         }
 
         public static Table Table(PageSettings pageSettings)

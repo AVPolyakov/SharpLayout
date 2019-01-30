@@ -531,12 +531,21 @@ namespace SharpLayout
                     }
                     if (bottomBorder.HasValue)
                     {
-                        var leftCell = new CellInfo(row, column.Index - 1);
-                        var leftBorder = !info.RightBorderFunc(leftCell).HasValue &&
-                            !info.BottomBorderFunc(leftCell).HasValue
+                        double leftBorder;
+                        if (column.Index == 0)
+                            leftBorder = !info.LeftBorderFunc(new CellInfo(row, column.Index)).HasValue
+                                ? info.LeftBorderFunc(new CellInfo(row + 1, column.Index))
+                                    .Select(_ => _.Width).ValueOr(0)
+                                : 0d;
+                        else
+                        {
+                            var leftCell = new CellInfo(row, column.Index - 1);
+                            leftBorder = !info.RightBorderFunc(leftCell).HasValue &&
+                                         !info.BottomBorderFunc(leftCell).HasValue
                                 ? info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1))
                                     .Select(_ => _.Width).ValueOr(0)
                                 : 0d;
+                        }
                         double rightBorderWidth;
                         if (!info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
                             rightBorderWidth = info.RightBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
