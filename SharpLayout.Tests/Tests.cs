@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
+using PdfSharp.Pdf;
 using SharpLayout.Tests.Images;
 using Xunit;
 using static SharpLayout.Direction;
@@ -15,6 +16,50 @@ namespace SharpLayout.Tests
 {
     public class Tests
     {
+        [Fact]
+        public void SecuritySettings()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            section.Add(new Paragraph().Add("Test", Styles.TimesNewRoman10));
+
+            //byte[] bytes;
+            using (var pdfDocument = new PdfDocument())
+            {
+				//http://www.pdfsharp.com/PDFsharp/index.php%3Foption%3Dcom_content%26task%3Dview%26id%3D36%26Itemid%3D47
+	            var securitySettings = pdfDocument.SecuritySettings;
+ 
+	            // Setting one of the passwords automatically sets the security level to
+	            // // PdfDocumentSecurityLevel.Encrypted128Bit.
+	            //securitySettings.UserPassword  = "user";
+	            //securitySettings.OwnerPassword = "owner";
+ 
+	            // DonÂ´t use 40 bit encryption unless needed for compatibility reasons
+	            // //securitySettings.DocumentSecurityLevel = PdfDocumentSecurityLevel.Encrypted40Bit;
+ 
+	            // Restrict some rights.
+	            securitySettings.PermitAccessibilityExtractContent = false;
+	            securitySettings.PermitAnnotations = false;
+	            securitySettings.PermitAssembleDocument = false;
+	            securitySettings.PermitExtractContent = false;
+	            securitySettings.PermitFormsFill = false;
+	            securitySettings.PermitFullQualityPrint = false;
+	            securitySettings.PermitModifyDocument = false;
+	            //securitySettings.PermitPrint = false;
+
+	            document.Render(pdfDocument);
+	            using (var stream = new MemoryStream())
+	            {
+		            pdfDocument.Save(stream);
+		            //bytes = stream.ToArray();
+	            }
+            }
+
+            //var path = $"Temp_{Guid.NewGuid():N}.pdf";
+			//File.WriteAllBytes(path, bytes);
+			//Process.Start(path);
+        }
+
         [Fact]
         public void Image()
         {
