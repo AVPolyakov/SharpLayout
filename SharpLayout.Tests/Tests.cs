@@ -100,7 +100,10 @@ namespace SharpLayout.Tests
 	        var r3 = table.AddRow();
 	        r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
 		        .Content(new ResourceImageContent()));
-	        Assert(nameof(Image_Alignments), document.CreatePng().Item1);
+            var r4 = table.AddRow();
+            r4[c3].Add(new Image().Height(Cm(1)).Width(Cm(3)).Alignment(HorizontalAlign.Right)
+                .Content(new ResourceImageContent()));
+            Assert(nameof(Image_Alignments), document.CreatePng().Item1);
         }
 
         public class ResourceImageContent : IImageContent

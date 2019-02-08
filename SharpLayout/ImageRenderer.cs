@@ -31,8 +31,8 @@ namespace SharpLayout
 
         private static double ContentWidth(this Image image)
         { 
-	        if (image.Height().HasValue)
-		        return image.Height().Value;
+	        if (image.Width().HasValue)
+		        return image.Width().Value;
 	        else
 	        {
 		        var content = image.Content();
