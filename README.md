@@ -7,6 +7,7 @@
   - [Справка о валютных операциях](#%D0%A1%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D0%BE-%D0%B2%D0%B0%D0%BB%D1%8E%D1%82%D0%BD%D1%8B%D1%85-%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D1%8F%D1%85)  
   - [Паспорт сделки по контракту](#%D0%9F%D0%B0%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D1%81%D0%B4%D0%B5%D0%BB%D0%BA%D0%B8-%D0%BF%D0%BE-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82%D1%83)  
   - [Паспорт сделки по кредитному договору](#%D0%9F%D0%B0%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D1%81%D0%B4%D0%B5%D0%BB%D0%BA%D0%B8-%D0%BF%D0%BE-%D0%BA%D1%80%D0%B5%D0%B4%D0%B8%D1%82%D0%BD%D0%BE%D0%BC%D1%83-%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%D1%83)  
+  - [Вставка векторной картинки](#%D0%B2%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0-%D0%B2%D0%B5%D0%BA%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D0%B9-%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D0%B8)
 - [Live Viewer](#live-viewer)  
 - [Developer Tools](#developer-tools)
 - [Привязка данных](#%D0%9F%D1%80%D0%B8%D0%B2%D1%8F%D0%B7%D0%BA%D0%B0-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)
@@ -88,6 +89,9 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 [Ссылка](http://www.consultant.ru/document/Cons_doc_LAW_133766/775e60bb32004e2c078a5dca88b5bed4a0fa277e/)
 для скачивания формы паспорта сделки по контракту (ОКУД 0406005 Форма 2).
 [Копия](Files/LAW172722_0_20180026_141723.RTF).  
+
+### Вставка векторной картинки
+См. метод `VectorImage` в файле [Tests.cs](SharpLayout.Tests/Tests.cs). Результат [Rabbits.pdf](Files/Rabbits.pdf?raw=true).  
 
 ## Live Viewer
 
