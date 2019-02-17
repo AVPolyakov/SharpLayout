@@ -9,12 +9,52 @@ namespace SharpLayout
 {
     public class Span
     {
-	    private readonly IText text;
+        private readonly IValue textValue;
+        private string GetTextOrEmpty(Document document, TextMode mode) => textValue.GetText(document, mode) ?? "";
 
-	    public IText Text(Option<Table> table)
+        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table, TextMode mode)
+        {
+            var lines = GetTextOrEmpty(document, mode).SplitToLines();
+            if (lines.Length == 0)
+                return new ISoftLinePart[] {
+                    new SoftLinePart(span, GetTextOrEmpty(document, mode),
+                        drawCache.GetCharSizeCache(span.Font(table)))
+                };
+            else
+            {
+                var result = new ISoftLinePart[lines.Length];
+                for (var index = 0; index < lines.Length; index++)
+                    result[index] = new SoftLinePart(span, lines[index], drawCache.GetCharSizeCache(span.Font(table)));
+                return result;
+            }
+        }
+
+        private class SoftLinePart : ISoftLinePart
+        {
+            private readonly string stringText;
+            public Span Span { get; }
+            public CharSizeCache CharSizeCache { get; }
+
+            public string Text(TextMode mode) => stringText;
+
+            public IValue SubText(int startIndex, int length)
+            {
+                return new TextValue(stringText.Substring(startIndex, length));
+            }
+
+            public SoftLinePart(Span span, string stringText, CharSizeCache charSizeCache)
+            {
+                Span = span;
+                CharSizeCache = charSizeCache;
+                this.stringText = stringText;
+            }
+        }
+
+
+        public IValue Text(Option<Table> table)
 	    {
-		    if (!FontOrNone(table).HasValue) return new Text(new TextValue("Font not set"));
-		    return text;
+		    if (!FontOrNone(table).HasValue) return new TextValue("Font not set");
+		    return textValue;
 	    }
 
 	    private Option<Font> font;
@@ -75,39 +115,47 @@ namespace SharpLayout
             return this;
         }
 
-	    public Span(IText text)
+	    public Span(IValue value)
 	    {
-		    this.text = text;
+		    textValue = value;
 	    }
 
-	    public Span(string text): this(new Text(new TextValue(text)))
+	    public Span(string text): this(new TextValue(text))
+	    {
+	    }
+
+	    public Span(Func<RenderContext, string> func) : this(new RenderContextValue(func))
 	    {
 	    }
 
 	    public Span(Func<string> expression): 
-		    this(new Text(ExpressionValue.Get(expression)))
+		    this(ExpressionValue.Get(expression))
 	    {
 	    }
 
 	    public static Span Create<T>(Func<T> expression, Func<T, string> converter) => 
-		    new Span(new Text(ExpressionValue.Get(expression, converter)));
+		    new Span(ExpressionValue.Get(expression, converter));
 
-	    public Span(IText text, Font font) : this(text)
+	    public Span(IValue value, Font font) : this(value)
         {
             this.font = font;
         }
 
-        public Span(string text, Font font): this(new Text(new TextValue(text)), font)
+        public Span(string text, Font font): this(new TextValue(text), font)
+        {
+        }
+
+        public Span(Func<RenderContext, string> func, Font font) : this(new RenderContextValue(func), font)
         {
         }
 
 	    public Span(Func<string> expression, Font font): 
-			this(new Text(ExpressionValue.Get(expression)), font)
+			this(ExpressionValue.Get(expression), font)
 	    {
 	    }
 
 	    public static Span Create<T>(Func<T> expression, Func<T, string> converter, Font font) => 
-		    new Span(new Text(ExpressionValue.Get(expression, converter)), font);
+		    new Span(ExpressionValue.Get(expression, converter), font);
 
         internal List<Func<Section, Table>> Footnotes { get; } = new List<Func<Section, Table>>();
 
@@ -132,7 +180,7 @@ namespace SharpLayout
 
     public interface IValue
 	{
-		string GetText(Document document);
+		string GetText(Document document, TextMode mode);
 		bool IsExpression { get; }
 	}
 
@@ -140,7 +188,7 @@ namespace SharpLayout
 	{
 		private readonly string text;
 
-		public string GetText(Document document) => text;
+		public string GetText(Document document, TextMode mode) => text;
 
 		public bool IsExpression => false;
 
@@ -150,7 +198,63 @@ namespace SharpLayout
 		}
 	}
 
-	public class ExpressionValue<T> : IValue
+    public class RenderContextValue : IValue
+    {
+        private readonly Func<RenderContext, string> func;
+
+        public string GetText(Document document, TextMode mode) => func(new RenderContext(mode));
+
+        public bool IsExpression => false;
+
+        public RenderContextValue(Func<RenderContext, string> func)
+        {
+            this.func = func;
+        }
+    }
+
+    public class RenderContext
+    {
+        private readonly TextMode mode;
+
+        public RenderContext(TextMode mode)
+        {
+            this.mode = mode;
+        }
+
+        public string PageNumber
+        {
+            get
+            {
+                switch (mode)
+                {
+                    case TextMode.Measure _:
+                        return "8";
+                    case TextMode.Draw draw:
+                        return $"{draw.PageIndex + 1}";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(mode));
+                }
+            }
+        }
+
+        public string PageCount
+        {
+            get
+            {
+                switch (mode)
+                {
+                    case TextMode.Measure _:
+                        return "8";
+                    case TextMode.Draw draw:
+                        return $"{draw.PagesCount}";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(mode));
+                }
+            }
+        }
+    }
+
+    public class ExpressionValue<T> : IValue
 	{
 		private readonly Func<T> expression;
 		private readonly Func<T, string> converter;
@@ -161,7 +265,7 @@ namespace SharpLayout
 			this.converter = converter;
 		}
 
-		public string GetText(Document document) => 
+		public string GetText(Document document, TextMode mode) => 
 			document.ExpressionVisible ? ReflectionUtil.GetMemberInfo(expression).Name : converter(expression());
 
 		public bool IsExpression => true;
@@ -178,149 +282,12 @@ namespace SharpLayout
 		public static Func<string, string> StringConverter => _ => _;
 	}
 
-    public interface IText
-    {
-        ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table);
-	    bool IsExpression { get; }
-    }
-
-    public class Text : IText
-    {
-	    private readonly IValue value;
-	    private string GetTextOrEmpty(Document document) => value.GetText(document) ?? "";
-
-	    public Text(IValue value)
-        {
-	        this.value = value;
-        }
-
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
-        {
-            var lines = GetTextOrEmpty(document).SplitToLines();
-            if (lines.Length == 0)
-                return new ISoftLinePart[] {
-                    new SoftLinePart(span, GetTextOrEmpty(document),
-                        drawCache.GetCharSizeCache(span.Font(table)))
-                };
-            else
-            {
-                var result = new ISoftLinePart[lines.Length];
-                for (var index = 0; index < lines.Length; index++)
-                    result[index] = new SoftLinePart(span, lines[index], drawCache.GetCharSizeCache(span.Font(table)));
-                return result;
-            }
-        }
-
-        private class SoftLinePart: ISoftLinePart
-        {
-            private readonly string stringText;
-	        public Span Span { get; }
-            public CharSizeCache CharSizeCache { get; }
-
-            public string Text(TextMode mode) => stringText;
-
-            public IText SubText(int startIndex, int length)
-            {
-                return new Text(new TextValue(stringText.Substring(startIndex, length)));
-            }
-
-            public SoftLinePart(Span span, string stringText, CharSizeCache charSizeCache)
-            {
-                Span = span;
-                CharSizeCache = charSizeCache;
-                this.stringText = stringText;
-            }
-        }
-
-	    public bool IsExpression => value.IsExpression;
-    }
-
-    public class PageNumber : IText
-    {
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
-        {
-            return new ISoftLinePart[] {new SoftLinePart(span, drawCache.GetCharSizeCache(span.Font(table)))};
-        }
-
-        private class SoftLinePart : ISoftLinePart
-        {
-            public SoftLinePart(Span span, CharSizeCache charSizeCache)
-            {
-                Span = span;
-                CharSizeCache = charSizeCache;
-            }
-
-            public Span Span { get; }
-            public CharSizeCache CharSizeCache { get; }
-
-            public string Text(TextMode mode)
-            {
-                switch (mode)
-                {
-                    case TextMode.Measure _:
-                        return "8";
-                    case TextMode.Draw draw:
-                        return $"{draw.PageIndex + 1}";
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(mode));
-                }
-            }
-
-            public IText SubText(int startIndex, int length)
-            {
-                return new PageNumber();
-            }
-        }
-
-	    public bool IsExpression => false;
-    }
-
-    public class PageCount : IText
-    {
-        public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table)
-        {
-            return new ISoftLinePart[] {new SoftLinePart(span, drawCache.GetCharSizeCache(span.Font(table)))};
-        }
-
-        private class SoftLinePart : ISoftLinePart
-        {
-            public SoftLinePart(Span span, CharSizeCache charSizeCache)
-            {
-                Span = span;
-                CharSizeCache = charSizeCache;
-            }
-
-            public Span Span { get; }
-            public CharSizeCache CharSizeCache { get; }
-
-            public string Text(TextMode mode)
-            {
-                switch (mode)
-                {
-                    case TextMode.Measure _:
-                        return "8";
-                    case TextMode.Draw draw:
-                        return $"{draw.PagesCount}";
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(mode));
-                }
-            }
-
-            public IText SubText(int startIndex, int length)
-            {
-                return new PageCount();
-            }
-        }
-
-	    public bool IsExpression => false;
-    }
-
     public interface ISoftLinePart
     {
         Span Span { get; }
         CharSizeCache CharSizeCache { get; }
         string Text(TextMode mode);
-        IText SubText(int startIndex, int length);
+        IValue SubText(int startIndex, int length);
     }
 
     public class TextMode

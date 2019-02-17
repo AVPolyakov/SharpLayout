@@ -69,7 +69,7 @@ namespace SharpLayout
         public string Text(List<ISoftLinePart> softLineParts, TextMode mode)
             => GetSoftLinePart(softLineParts).Text(mode).Substring(StartIndex, Length);
 
-        public IText SubText(List<ISoftLinePart> softLineParts)
+        public IValue SubText(List<ISoftLinePart> softLineParts)
             => GetSoftLinePart(softLineParts).SubText(StartIndex, Length);
     }
 
@@ -83,7 +83,7 @@ namespace SharpLayout
             var lineCount = Lazy.Create(() => GetLineCount(graphics, paragraph, width, mode, document, table, drawCache));
             var lineIndex = 0;
             double TextIndent() => lineIndex == 0 ? paragraph.TextIndent().ToOption().ValueOr(0) : 0;
-            var softLines = paragraph.GetSoftLines(document, table, drawCache);
+            var softLines = paragraph.GetSoftLines(document, table, drawCache, mode);
             var leftIndent = x0 + paragraph.LeftMargin().ToOption().ValueOr(0);
             for (var softLineIndex = 0; softLineIndex < softLines.Count; softLineIndex++)
             {
@@ -288,14 +288,14 @@ namespace SharpLayout
         public static double GetInnerWidth(this Paragraph paragraph, double width) 
             => width - paragraph.LeftMargin().ToOption().ValueOr(0) - paragraph.RightMargin().ToOption().ValueOr(0);
 
-        internal static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document, Option<Table> table, DrawCache drawCache)
+        internal static List<List<ISoftLinePart>> GetSoftLines(this Paragraph paragraph, Document document, Option<Table> table, DrawCache drawCache, TextMode mode)
         {
             var result = new List<List<ISoftLinePart>>();
             foreach (var span in paragraph.Spans)
             {
                 if (result.Count == 0)
                     result.Add(new List<ISoftLinePart>(4));
-                var parts = span.Text(table).GetSoftLineParts(span, document, drawCache, table);
+                var parts = span.GetSoftLineParts(span, document, drawCache, table, mode);
                 result[result.Count - 1].Add(parts[0]);
                 for (var i = 1; i < parts.Length; i++)
                     result.Add(new List<ISoftLinePart> {parts[i]});
@@ -311,14 +311,14 @@ namespace SharpLayout
 
         public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
-            return paragraph.GetSoftLines(document, table, drawCache).Select((softLineParts, i) => (softLineParts, i)).Select(
+            return paragraph.GetSoftLines(document, table, drawCache, mode).Select((softLineParts, i) => (softLineParts, i)).Select(
                 _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table).Count
             ).Sum();
         }
 
         public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
-            var softLines = paragraph.GetSoftLines(document, table, drawCache);
+            var softLines = paragraph.GetSoftLines(document, table, drawCache, mode);
             double sum = 0;
             for (var index = 0; index < softLines.Count; index++)
             {
@@ -449,7 +449,7 @@ namespace SharpLayout
             return width;
         }
 
-        private static bool ExpressionVisible(this IText text, Document document) => document.ExpressionVisible && text.IsExpression;
+        private static bool ExpressionVisible(this IValue value, Document document) => document.ExpressionVisible && value.IsExpression;
 
 	    private static int TrimEnd(int endIndex, CharInfo[] chars, List<ISoftLinePart> softLineParts, int startIndex, TextMode mode)
         {

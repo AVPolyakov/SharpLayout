@@ -664,9 +664,7 @@ qwe3
                 var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = footers.AddRow().Height(Px(700));
                 r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)
-                    .Add(new Span(new PageNumber(), Styles.TimesNewRoman10))
-                    .Add(" из ", Styles.TimesNewRoman10)
-                    .Add(new Span(new PageCount(), Styles.TimesNewRoman10)));
+                    .Add(c => $"{c.PageNumber} из {c.PageCount}", Styles.TimesNewRoman10));
             }
             section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).TextIndent(Cm(1))
                 .Add("Choose composition first when creating new classes from existing classes. Only if " +

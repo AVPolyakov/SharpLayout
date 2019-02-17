@@ -93,11 +93,12 @@ namespace SharpLayout
                 var drawCache = new DrawCache();
                 LastTableFuncs.Add((document, graphics) => {
 	                var index = 0;
-                    var lines = paragraph.GetSoftLines(document, new Option<Table>(), drawCache)
+                    var mode = new TextMode.Measure();
+                    var lines = paragraph.GetSoftLines(document, new Option<Table>(), drawCache, mode)
 		                .SelectMany(softLineParts => {
-			                var charInfos = GetCharInfos(softLineParts, new TextMode.Measure());
+			                var charInfos = GetCharInfos(softLineParts, mode);
 			                return GetLines(graphics, softLineParts, paragraph.GetInnerWidth(width),
-					                charInfos, paragraph, new TextMode.Measure(), document, new Option<Table>())
+					                charInfos, paragraph, mode, document, new Option<Table>())
 				                .Select(lineInfo => {
 					                var lineParts = lineInfo.GetLineParts(charInfos);
 					                return lineParts.Count > 0
@@ -108,7 +109,7 @@ namespace SharpLayout
 						                )
 						                : softLineParts.Select(softLinePart => new {
 								                softLinePart.Span,
-								                Text = (IText) new Text(new TextValue(""))
+								                Text = (IValue) new TextValue("")
 							                }
 						                );
 				                });
@@ -144,7 +145,7 @@ namespace SharpLayout
             return this;
         }
 
-	    private static Span Clone(Span span, IText subText, bool isLast)
+	    private static Span Clone(Span span, IValue subText, bool isLast)
 	    {
 		    var clone = new Span(subText)
 			    .Font(span.Font())

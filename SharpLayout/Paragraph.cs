@@ -90,6 +90,9 @@ namespace SharpLayout
 	    public Paragraph Add(string text, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(new Span(text), line, filePath);
 
+	    public Paragraph Add(Func<RenderContext, string> func, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+		    => Add(new Span(func), line, filePath);
+
 	    public Paragraph Add(Func<string> expression, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(new Span(expression), line, filePath);
 
@@ -98,6 +101,9 @@ namespace SharpLayout
 
         public Paragraph Add(string text, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
             => Add(new Span(text, font), line, filePath);
+
+        public Paragraph Add(Func<RenderContext, string> func, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
+            => Add(new Span(func, font), line, filePath);
 
 	    public Paragraph Add(Func<string> expression, Font font, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "") 
 		    => Add(new Span(expression, font), line, filePath);
