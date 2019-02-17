@@ -55,24 +55,27 @@ namespace SharpLayout
 	    {
 		    pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
 		    pdfDocument.Info.Creator = "SharpLayout";
-		    foreach (var sectionFunc in Sections)
-		    {
-			    var page = pdfDocument.AddPage();
-			    page.Size = PageSize.A4;
-			    var section = sectionFunc();
-			    page.Orientation = section.PageSettings.Orientation;
-			    using (var xGraphics = XGraphics.FromPdfPage(page))
-				    TableRenderer.Draw(xGraphics, section, (pageIndex, action) => {
-					    var addPage = pdfDocument.AddPage();
-					    addPage.Size = PageSize.A4;
-					    addPage.Orientation = section.PageSettings.Orientation;
-					    using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
-						    action(xGraphics2);
-				    }, section.GetTables(this, xGraphics), this, GraphicsType.Pdf);
-		    }
+            if (Sections.Count == 0) return;
+            foreach (var sectionFunc in Sections)
+            {
+                var section = sectionFunc();
+                var page = pdfDocument.AddPage();
+                page.Size = PageSize.A4;
+                page.Orientation = section.PageSettings.Orientation;
+                using (var xGraphics = XGraphics.FromPdfPage(page))
+                {
+                    TableRenderer.Draw(xGraphics, (pageIndex, action) => {
+                        var addPage = pdfDocument.AddPage();
+                        addPage.Size = PageSize.A4;
+                        addPage.Orientation = section.PageSettings.Orientation;
+                        using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
+                            action(xGraphics2);
+                    }, this, GraphicsType.Pdf, section);
+                }
+            }
 	    }
 
-	    public string SavePdf(string path)
+        public string SavePdf(string path)
         {
             File.WriteAllBytes(path, CreatePdf());
             return path;
@@ -91,7 +94,7 @@ namespace SharpLayout
             {
                 var section = sectionFunc();
                 var pages = new List<byte[]> {null};
-                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics, section,
+                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics,
                         (pageIndex, action) => {
                             FillBitmap(graphics => {
                                     action(graphics);
@@ -99,7 +102,7 @@ namespace SharpLayout
                                 },
                                 bitmap => pages.Add(ToBytes(bitmap, imageFormat)),
                                 section.PageSettings, resolution);
-                        }, section.GetTables(this, xGraphics), this, GraphicsType.Image),
+                        }, this, GraphicsType.Image, section),
                     bitmap => pages[0] = ToBytes(bitmap, imageFormat),
                     section.PageSettings, resolution);
                 syncBitmapInfos.AddRange(syncPageInfos.Select(pageInfo => new SyncBitmapInfo {

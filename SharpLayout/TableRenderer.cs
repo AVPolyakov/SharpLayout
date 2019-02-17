@@ -88,7 +88,8 @@ namespace SharpLayout
 				    list = new List<Table>();
 			    }
 		    }
-		    yield return new TableGroup(list);
+            if (list.Count > 0)
+                yield return new TableGroup(list);
 	    }
 
         private class Page
@@ -103,49 +104,53 @@ namespace SharpLayout
             }
         }
 
-        public static List<SyncPageInfo> Draw(XGraphics xGraphics, Section section, Action<int, Action<XGraphics>> pageAction, IEnumerable<Table> tables,
-            Document document, GraphicsType graphicsType)
+        private static IEnumerable<Table> GetTables(List<Func<Document, XGraphics, Table[]>> tableFuncList, XGraphics xGraphics,
+            Document document)
+        {
+            return tableFuncList.Select(func => func(document, xGraphics)).SelectMany(_ => _);
+        }
+
+        public static List<SyncPageInfo> Draw(XGraphics xGraphics, Action<int, Action<XGraphics>> pageAction,
+            Document document, GraphicsType graphicsType, Section section)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
             var rowCaches = new Dictionary<Table, RowCache>();
             var paragraphCaches = new DrawCache();
-            var firstOnPage = true;
-            var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches, paragraphCaches);
-            var footnotes = ImmutableQueue.Create<Table>();
-            var tableParts = tables.GetTableGroups().Select(tableGroup => {
-                var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches,
-                    footnotes, out var endFootnotes, paragraphCaches);
-	            var parts = slices.SelectMany(slice => slice.Rows.Select(
-	                (rows, index) => new TablePart(rows, index, slice.TableInfo, slice.TableY))).ToList();
-	            if (parts.Count > 0)
-                    firstOnPage = false;
-                y = endY;
-                footnotes = endFootnotes;
-                return parts;
-            }).ToList();
-            if (tableParts.Count == 0) return new List<SyncPageInfo>();
-            var pages = new List<Page>();
-            foreach (var part in tableParts.SelectMany(_ => _))
-            {
-                if (pages.Count > 0)
-                    if (part.IsFirst)
+
+            var pages = section.tableFuncs.Select(tableFuncList => {
+                    var firstOnPage = true;
+                    var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches, paragraphCaches);
+                    var footnotes = ImmutableQueue.Create<Table>();
+                    var tables = GetTables(tableFuncList, xGraphics, document);
+                    var tableParts = tables.GetTableGroups().Select(tableGroup => {
+                        var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches,
+                            footnotes, out var endFootnotes, paragraphCaches);
+                        var parts = slices.SelectMany(slice => slice.Rows.Select(
+                            (rows, index) => new TablePart(rows, index, slice.TableInfo, slice.TableY))).ToList();
+                        if (parts.Count > 0)
+                            firstOnPage = false;
+                        y = endY;
+                        footnotes = endFootnotes;
+                        return parts;
+                    }).ToList();
+                    var result = new List<Page> {new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>())};
+                    foreach (var part in tableParts.SelectMany(_ => _))
                     {
-                        //no-op
+                        if (!part.IsFirst)
+                            result.Add(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()));
+                        var page = result[result.Count - 1];
+                        page.TableParts.Add(part);
+                        var partFootnotes = part.Rows.SelectMany(row => part.TableInfo.Footnotes[row]).ToList();
+                        if (partFootnotes.Count > 0)
+                        {
+                            if (page.Footnotes.Count == 0)
+                                page.Footnotes.AddRange(section.FootnoteSeparators);
+                            page.Footnotes.AddRange(partFootnotes);
+                        }
                     }
-                    else
-                        pages.Add(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()));
-                else
-                    pages.Add(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()));
-                var page = pages[pages.Count - 1];
-                page.TableParts.Add(part);
-                var partFootnotes = part.Rows.SelectMany(row => part.TableInfo.Footnotes[row]).ToList();
-                if (partFootnotes.Count > 0)
-                {
-                    if (page.Footnotes.Count == 0)
-                        page.Footnotes.AddRange(section.FootnoteSeparators);
-                    page.Footnotes.AddRange(partFootnotes);
-                }
-            }
+                    return result;
+                })
+                .SelectMany(_ => _).ToList();
             var syncPageInfos = new List<SyncPageInfo>();
             for (var index = 0; index < pages.Count; index++)
             {

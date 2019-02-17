@@ -18,6 +18,27 @@ namespace SharpLayout.Tests
     public class Tests
     {
         [Fact]
+        public void AddPageBreak()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            {
+                var footers = section.AddFooter().Font(Styles.TimesNewRoman10);
+                var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = footers.AddRow().Height(Px(200));
+                r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)
+                    .Add(c => $"{c.PageNumber} из {c.PageCount}"));
+            }
+            section.Add(new Paragraph().Add("Test1", Styles.TimesNewRoman10));
+            section.AddPageBreak();
+            section.Add(new Paragraph().Add("Test2", Styles.TimesNewRoman10));
+            section.AddPageBreak();
+            section.AddPageBreak();
+            section.Add(new Paragraph().Add("Test3", Styles.TimesNewRoman10));
+            Assert(nameof(AddPageBreak), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void SecuritySettings()
         {
             var document = new Document();

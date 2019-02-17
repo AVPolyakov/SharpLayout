@@ -10,7 +10,8 @@ namespace SharpLayout
     public class Section
     {
         public PageSettings PageSettings { get; }
-        private readonly List<Func<Document, XGraphics, Table[]>> tableFuncs = new List<Func<Document, XGraphics, Table[]>>();
+        internal readonly List<List<Func<Document, XGraphics, Table[]>>> tableFuncs = 
+            new List<List<Func<Document, XGraphics, Table[]>>>{new List<Func<Document, XGraphics, Table[]>>()};
         public List<Table> Headers { get; } = new List<Table>();
         public List<Table> Footers { get; } = new List<Table>();
         public List<Table> FootnoteSeparators { get; } = new List<Table>();
@@ -29,9 +30,11 @@ namespace SharpLayout
 
         public Section Add(Table table)
         {
-            tableFuncs.Add((d, g) => new[] {table});
+            LastTableFuncs.Add((d, g) => new[] {table});
             return this;
         }
+
+        private List<Func<Document, XGraphics, Table[]>> LastTableFuncs => tableFuncs[tableFuncs.Count - 1];
 
         public Table AddHeader([CallerLineNumber] int line = 0)
         {
@@ -51,6 +54,12 @@ namespace SharpLayout
             var table = new Table(line);
             AddFooter(table);
             return table;
+        }
+
+        public Section AddPageBreak()
+        {
+            tableFuncs.Add(new List<Func<Document, XGraphics, Table[]>>());
+            return this;
         }
 
         public Section AddFooter(Table table)
@@ -73,7 +82,7 @@ namespace SharpLayout
             if (paragraph.KeepWithNext().GetValueOrDefault(false))
             {
                 var table = new Table(line).KeepWithNext(paragraph.KeepWithNext());
-                tableFuncs.Add((document, graphics) => new []{table});
+                LastTableFuncs.Add((document, graphics) => new []{table});
                 var c1 = table.AddColumn(PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 r1[c1, line, filePath].Add(paragraph);
@@ -82,7 +91,7 @@ namespace SharpLayout
             {
                 var width = PageSettings.PageWidthWithoutMargins;
                 var drawCache = new DrawCache();
-                tableFuncs.Add((document, graphics) => {
+                LastTableFuncs.Add((document, graphics) => {
 	                var index = 0;
                     var lines = paragraph.GetSoftLines(document, new Option<Table>(), drawCache)
 		                .SelectMany(softLineParts => {
@@ -147,10 +156,5 @@ namespace SharpLayout
 				    clone.Footnotes.Add(footnote);
 		    return clone;
 	    }
-
-	    public List<Table> GetTables(Document document, XGraphics xGraphics)
-        {
-            return tableFuncs.Select(func => func(document, xGraphics)).SelectMany(_ => _).ToList();
-        }
     }
 }
