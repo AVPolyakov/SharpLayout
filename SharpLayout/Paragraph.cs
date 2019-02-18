@@ -131,5 +131,13 @@ namespace SharpLayout
             keepWithNext = value;
             return this;
         }
+
+        private bool? keepLinesTogether;
+        public bool? KeepLinesTogether() => keepLinesTogether;
+        public Paragraph KeepLinesTogether(bool? value)
+        {
+            keepLinesTogether = value;
+            return this;
+        }
     }
 }

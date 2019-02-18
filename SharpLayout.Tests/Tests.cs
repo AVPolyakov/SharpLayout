@@ -18,6 +18,27 @@ namespace SharpLayout.Tests
     public class Tests
     {
         [Fact]
+        public void KeepLinesTogether()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            for (var i = 0; i < 15; i++)
+                section.Add(new Paragraph().KeepLinesTogether(true)
+                    .Alignment(HorizontalAlign.Justify).TextIndent(Cm(1))                    
+                    .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated. " +
+                         "Choose composition first when creating new classes from existing classes. Only if " +
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated. " +
+                         "Choose composition first when creating new classes from existing classes. Only if " +
+                         "inheritance is required by your design should it be used. If you use inheritance where " +
+                         "composition will work, your designs will become needlessly complicated.",
+                        Styles.TimesNewRoman10));
+            Assert(nameof(KeepLinesTogether), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void AddPageBreak()
         {
             var document = new Document();
@@ -660,11 +681,11 @@ qwe3
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
             {
-                var footers = section.AddFooter();
+                var footers = section.AddFooter().Font(Styles.TimesNewRoman10);
                 var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = footers.AddRow().Height(Px(700));
                 r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)
-                    .Add(c => $"{c.PageNumber} из {c.PageCount}", Styles.TimesNewRoman10));
+                    .Add(c => $"{c.PageNumber} из {c.PageCount}"));
             }
             section.Add(new Paragraph().Alignment(HorizontalAlign.Justify).TextIndent(Cm(1))
                 .Add("Choose composition first when creating new classes from existing classes. Only if " +

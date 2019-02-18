@@ -10,14 +10,15 @@ namespace SharpLayout
     public class Span
     {
         private readonly IValue textValue;
-        private string GetTextOrEmpty(Document document, TextMode mode) => textValue.GetText(document, mode) ?? "";
+        private string GetTextOrEmpty(Document document, TextMode mode, Option<Table> table) => 
+            Text(table).GetText(document, mode) ?? "";
 
         public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table, TextMode mode)
         {
-            var lines = GetTextOrEmpty(document, mode).SplitToLines();
+            var lines = GetTextOrEmpty(document, mode, table).SplitToLines();
             if (lines.Length == 0)
                 return new ISoftLinePart[] {
-                    new SoftLinePart(span, GetTextOrEmpty(document, mode),
+                    new SoftLinePart(span, GetTextOrEmpty(document, mode, table),
                         drawCache.GetCharSizeCache(span.Font(table)))
                 };
             else

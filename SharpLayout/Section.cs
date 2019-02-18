@@ -79,7 +79,8 @@ namespace SharpLayout
 
         public Section Add(Paragraph paragraph, [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
         {
-            if (paragraph.KeepWithNext().GetValueOrDefault(false))
+            if (paragraph.KeepWithNext().GetValueOrDefault(false) || 
+                paragraph.KeepLinesTogether().GetValueOrDefault(false))
             {
                 var table = new Table(line).KeepWithNext(paragraph.KeepWithNext());
                 LastTableFuncs.Add((document, graphics) => new []{table});
