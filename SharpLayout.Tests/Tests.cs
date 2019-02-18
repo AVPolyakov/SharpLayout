@@ -18,6 +18,33 @@ namespace SharpLayout.Tests
     public class Tests
     {
         [Fact]
+        public void SectionGroup()
+        {
+            var document = new Document();
+            var sectionGroup = document.Add(new SectionGroup());
+            {
+                var section = sectionGroup.Add(new Section(new PageSettings()));
+                section.Add(new Paragraph().Add("Test", Styles.TimesNewRoman10));
+                var footers = section.AddFooter().Font(Styles.TimesNewRoman10);
+                var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = footers.AddRow().Height(Px(200));
+                r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)
+                    .Add(c => $"{c.PageNumber} из {c.PageCount}"));
+            }
+            {
+                var section = sectionGroup.Add(new Section(new PageSettings()));
+                section.Add(new Paragraph().Add("Test2", Styles.TimesNewRoman10));
+                var footers = section.AddFooter().Font(Styles.TimesNewRoman10);
+                var c1 = footers.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = footers.AddRow().Height(Px(200));
+                r1[c1].Add(new Paragraph().Alignment(HorizontalAlign.Right)
+                    .Add(c => $"{c.PageNumber} of {c.PageCount}"));
+                section.AddPageBreak();
+            }
+            Assert(nameof(SectionGroup), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void KeepLinesTogether()
         {
             var document = new Document();

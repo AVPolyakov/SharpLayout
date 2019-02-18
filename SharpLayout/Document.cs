@@ -15,17 +15,22 @@ namespace SharpLayout
     {
         public static bool CollectCallerInfo;
 
-        public List<Func<Section>> Sections { get; } = new List<Func<Section>>();
+        public List<Func<SectionGroup>> SectionGroups { get; } = new List<Func<SectionGroup>>();
 
         public Section Add(Section section)
         {
-            Add(() => section);
-            return section;
+            return Add(new SectionGroup()).Add(section);
         }
 
-        public void Add(Func<Section> section)
+        public SectionGroup Add(SectionGroup sectionGroup)
         {
-            Sections.Add(section);
+            Add(() => sectionGroup);
+            return sectionGroup;
+        }
+
+        public void Add(Func<SectionGroup> sectionGroup)
+        {
+            SectionGroups.Add(sectionGroup);
         }
 
         public bool CellsAreHighlighted { get; set; }
@@ -55,22 +60,22 @@ namespace SharpLayout
 	    {
 		    pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
 		    pdfDocument.Info.Creator = "SharpLayout";
-            if (Sections.Count == 0) return;
-            foreach (var sectionFunc in Sections)
+            foreach (var sectionGroupFunc in SectionGroups)
             {
-                var section = sectionFunc();
+                var sectionGroup = sectionGroupFunc();
+                if (sectionGroup.Sections.Count == 0) continue;
                 var page = pdfDocument.AddPage();
                 page.Size = PageSize.A4;
-                page.Orientation = section.PageSettings.Orientation;
+                page.Orientation = sectionGroup.Sections[0].PageSettings.Orientation;
                 using (var xGraphics = XGraphics.FromPdfPage(page))
                 {
-                    TableRenderer.Draw(xGraphics, (pageIndex, action) => {
+                    TableRenderer.Draw(xGraphics, (pageIndex, action, section) => {
                         var addPage = pdfDocument.AddPage();
                         addPage.Size = PageSize.A4;
                         addPage.Orientation = section.PageSettings.Orientation;
                         using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
                             action(xGraphics2);
-                    }, this, GraphicsType.Pdf, section);
+                    }, this, GraphicsType.Pdf, sectionGroup);
                 }
             }
 	    }
@@ -90,26 +95,27 @@ namespace SharpLayout
         {
             var list = new List<byte[]>();
             var syncBitmapInfos = new List<SyncBitmapInfo>();
-            foreach (var sectionFunc in Sections)
+            foreach (var sectionGroupFunc in SectionGroups)
             {
-                var section = sectionFunc();
+                var sectionGroup = sectionGroupFunc();
+                if (sectionGroup.Sections.Count == 0) continue;
                 var pages = new List<byte[]> {null};
-                var syncPageInfos = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics,
-                        (pageIndex, action) => {
+                var pageTuples = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics,
+                        (pageIndex, action, section) => {
                             FillBitmap(graphics => {
                                     action(graphics);
                                     return new { };
                                 },
                                 bitmap => pages.Add(ToBytes(bitmap, imageFormat)),
                                 section.PageSettings, resolution);
-                        }, this, GraphicsType.Image, section),
+                        }, this, GraphicsType.Image, sectionGroup),
                     bitmap => pages[0] = ToBytes(bitmap, imageFormat),
-                    section.PageSettings, resolution);
-                syncBitmapInfos.AddRange(syncPageInfos.Select(pageInfo => new SyncBitmapInfo {
-                    PageInfo = pageInfo,
+                    sectionGroup.Sections[0].PageSettings, resolution);
+                syncBitmapInfos.AddRange(pageTuples.Select(pageTuple => new SyncBitmapInfo {
+                    PageInfo = pageTuple.SyncPageInfo,
                     Resolution = resolution,
-                    HorizontalPixelCount = HorizontalPixelCount(section.PageSettings, resolution),
-                    VerticalPixelCount = VerticalPixelCount(section.PageSettings, resolution),
+                    HorizontalPixelCount = HorizontalPixelCount(pageTuple.Section.PageSettings, resolution),
+                    VerticalPixelCount = VerticalPixelCount(pageTuple.Section.PageSettings, resolution),
                 }));
                 list.AddRange(pages);
             }
