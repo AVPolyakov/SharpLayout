@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
 using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -86,88 +82,9 @@ namespace SharpLayout
             return path;
         }
 
-        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution = defaultResolution)
+        public Tuple<List<byte[]>> CreatePng()
         {
-            return CreateImage(ImageFormat.Png, resolution);
-        }
-
-        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, int resolution = defaultResolution)
-        {
-            var list = new List<byte[]>();
-            var syncBitmapInfos = new List<SyncBitmapInfo>();
-            foreach (var sectionGroupFunc in SectionGroups)
-            {
-                var sectionGroup = sectionGroupFunc();
-                if (sectionGroup.Sections.Count == 0) continue;
-                var pages = new List<byte[]> {null};
-                var pageTuples = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics,
-                        (pageIndex, action, section) => {
-                            FillBitmap(graphics => {
-                                    action(graphics);
-                                    return new { };
-                                },
-                                bitmap => pages.Add(ToBytes(bitmap, imageFormat)),
-                                section.PageSettings, resolution);
-                        }, this, GraphicsType.Image, sectionGroup),
-                    bitmap => pages[0] = ToBytes(bitmap, imageFormat),
-                    sectionGroup.Sections[0].PageSettings, resolution);
-                syncBitmapInfos.AddRange(pageTuples.Select(pageTuple => new SyncBitmapInfo {
-                    PageInfo = pageTuple.SyncPageInfo,
-                    Resolution = resolution,
-                    HorizontalPixelCount = HorizontalPixelCount(pageTuple.Section.PageSettings, resolution),
-                    VerticalPixelCount = VerticalPixelCount(pageTuple.Section.PageSettings, resolution),
-                }));
-                list.AddRange(pages);
-            }
-            return Tuple.Create(list, syncBitmapInfos);
-        }
-
-        public string SavePng(int pageNumber, string path, int resolution = defaultResolution)
-        {
-            var tuple = CreatePng(resolution);
-            File.WriteAllBytes(path, tuple.Item1[pageNumber]);
-            File.WriteAllText(Path.ChangeExtension(path, ".json"),
-                JsonConvert.SerializeObject(tuple.Item2[pageNumber], Formatting.Indented));
-            return path;
-        }
-
-        private const int defaultResolution = 254;
-
-        public static T FillBitmap<T>(Func<XGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
-        {
-            var horizontalPixelCount = HorizontalPixelCount(pageSettings, resolution);
-            var verticalPixelCount = VerticalPixelCount(pageSettings, resolution);
-            using (var bitmap = new Bitmap(horizontalPixelCount, verticalPixelCount))
-            {
-                T result;
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
-                    using (var xGraphics = XGraphics.FromGraphics(graphics, new XSize(horizontalPixelCount, verticalPixelCount)))
-                    {
-                        xGraphics.ScaleTransform(resolution / 72d);
-                        result = func(xGraphics);
-                    }
-                }
-                bitmap.SetResolution(resolution, resolution);
-                action2(bitmap);
-                return result;
-            }
-        }
-
-        private static int VerticalPixelCount(PageSettings pageSettings, int resolution) 
-            => (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
-
-        private static int HorizontalPixelCount(PageSettings pageSettings, int resolution) 
-            => (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
-
-        public static byte[] ToBytes(Bitmap bitmap, ImageFormat imageFormat)
-        {
-            using (var stream = new MemoryStream())
-            {
-                bitmap.Save(stream, imageFormat);
-                return stream.ToArray();
-            }
+            throw new NotImplementedException();
         }
     }
 }

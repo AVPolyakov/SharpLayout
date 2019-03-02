@@ -88,6 +88,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="Images\ResourceImage1.png" />
+    <Content Include="Images\Image2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestData\PaymentOrderTest\Page1.png" />
     <Content Include="TestData\Test1\Page1.png" />
     <Content Include="TestData\Test1\Page2.png" />
@@ -103,6 +106,9 @@
     <Content Include="TestData\Test4\Page1.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp">
+      <Version>1.0.0-beta0006</Version>
+    </PackageReference>
     <PackageReference Include="xunit" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup />

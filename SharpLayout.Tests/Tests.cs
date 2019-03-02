@@ -133,6 +133,8 @@ namespace SharpLayout.Tests
         [Fact]
         public void Image()
         {
+            ImageSettings.ImageFactory = new ImageFactory();
+
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
             var table = section.AddTable().Border(BorderWidth);
@@ -140,7 +142,11 @@ namespace SharpLayout.Tests
             var r1 = table.AddRow();
             r1[c1].Add(new Image()
 	            .Content(new ImageContent()));
-            Assert(nameof(Image), document.CreatePng().Item1);
+            var r2 = table.AddRow();
+            r2[c1].Add(new Image()
+	            .Content(new Image2Content()));
+
+            Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
         }
 
         public class ImageContent : IImageContent
@@ -148,6 +154,15 @@ namespace SharpLayout.Tests
             public T Process<T>(Func<XImage, T> func)
             {
                 using (var image = XImage.FromFile(@"Images\Image1.png"))
+                    return func(image);
+            }
+        }
+
+        public class Image2Content : IImageContent
+        {
+            public T Process<T>(Func<XImage, T> func)
+            {
+                using (var image = XImage.FromFile(@"Images\Image2.jpg"))
                     return func(image);
             }
         }
