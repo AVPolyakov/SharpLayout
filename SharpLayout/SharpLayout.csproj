@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-gdi.csproj" />
+    <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj" />
   </ItemGroup>
 
 </Project>

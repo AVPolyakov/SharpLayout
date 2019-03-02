@@ -68,9 +68,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-gdi.csproj">
-      <Project>{b8b883bb-35e9-4634-84d4-10940229d35e}</Project>
-      <Name>PdfSharp-gdi</Name>
+    <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj">
+      <Project>{44487d24-3fb3-4eb4-98fe-3d16f5eebc0a}</Project>
+      <Name>PdfSharp-netstandard</Name>
     </ProjectReference>
     <ProjectReference Include="..\SharpLayout\SharpLayout.csproj">
       <Project>{05e890de-939f-4e72-a971-2ea897e9b503}</Project>
