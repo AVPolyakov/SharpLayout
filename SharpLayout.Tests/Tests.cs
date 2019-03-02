@@ -145,11 +145,7 @@ namespace SharpLayout.Tests
 
         public class ImageContent : IImageContent
         {
-            public T Process<T>(Func<XImage, T> func)
-            {
-                using (var image = XImage.FromFile(@"Images\Image1.png"))
-                    return func(image);
-            }
+            public Stream CreateStream() => File.OpenRead(@"Images\Image1.png");
         }
 
         [Fact]
@@ -178,13 +174,11 @@ namespace SharpLayout.Tests
 
         public class ResourceImageContent : IImageContent
         {
-	        public T Process<T>(Func<XImage, T> func)
-	        {
-		        var anchorType = typeof(ResourceImage1);
-		        using (var stream = anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png"))
-		        using (var image = XImage.FromStream(stream))
-			        return func(image);
-	        }
+            public Stream CreateStream()
+            {
+                var anchorType = typeof(ResourceImage1);
+                return anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png");
+            }
         }
 
         [Fact]
@@ -231,18 +225,12 @@ namespace SharpLayout.Tests
         {
             public static readonly Lazy<ImageInfo> ImageInfo = new Lazy<ImageInfo>(() => {
                 var bytes = File.ReadAllBytes(@"Images\blue-rabbit.pdf");
-                return Process(bytes,
-                    xImage => new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight));
-            });
-
-            public T Process<T>(Func<XImage, T> func) => Process(ImageInfo.Value.Bytes, func);
-
-            private static T Process<T>(byte[] bytes, Func<XImage, T> func)
-            {
                 using (var stream = new MemoryStream(bytes))
                 using (var xImage = XImage.FromStream(stream))
-                    return func(xImage);
-            }
+                    return new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight);
+            });
+
+            public Stream CreateStream() => new MemoryStream(ImageInfo.Value.Bytes);
         }
 
         [Fact]

@@ -75,7 +75,7 @@ namespace SharpLayout
 
     internal static class ParagraphRenderer
     {
-	    public static void Draw(XGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment, Drawer drawer,
+	    public static void Draw(IGraphics graphics, Paragraph paragraph, XUnit x0, XUnit y0, double width, HorizontalAlign alignment, Drawer drawer,
 		    GraphicsType graphicsType, TextMode mode, Document document, Table table,
 	        DrawCache drawCache)
         {
@@ -303,20 +303,20 @@ namespace SharpLayout
             return result;
         }
 
-        private static double ContentWidth(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts, XGraphics graphics, TextMode mode, Table table)
+        private static double ContentWidth(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts, IGraphics graphics, TextMode mode, Table table)
         { 
             return lineParts.Sum(part => graphics.MeasureString(part.Text(softLineParts, mode),
                 part.GetSoftLinePart(softLineParts).Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width);
         }
 
-        public static double GetLineCount(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
+        public static double GetLineCount(IGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
             return paragraph.GetSoftLines(document, table, drawCache, mode).Select((softLineParts, i) => (softLineParts, i)).Select(
                 _ => GetLines(graphics, _.softLineParts, paragraph.GetInnerWidth(width), GetCharInfos(_.softLineParts, mode), paragraph, mode, document, table).Count
             ).Sum();
         }
 
-        public static double GetHeight(XGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
+        public static double GetHeight(IGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
         {
             var softLines = paragraph.GetSoftLines(document, table, drawCache, mode);
             double sum = 0;
@@ -385,7 +385,7 @@ namespace SharpLayout
             return baseLine;
         }
 
-        internal static List<LineInfo> GetLines(XGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
+        internal static List<LineInfo> GetLines(IGraphics graphics, List<ISoftLinePart> softLineParts, double width, CharInfo[] charInfos,
 		    Paragraph paragraph, TextMode mode, Document document, Option<Table> table)
         {
             var result = new List<LineInfo>(4);
@@ -420,7 +420,7 @@ namespace SharpLayout
             }
         }
 
-        private static int GetEndIndex(double width, CharInfo[] charInfos, List<ISoftLinePart> softLineParts, TextMode mode, int startIndex, XGraphics graphics, Option<Table> table)
+        private static int GetEndIndex(double width, CharInfo[] charInfos, List<ISoftLinePart> softLineParts, TextMode mode, int startIndex, IGraphics graphics, Option<Table> table)
         {
             var i = startIndex;
             double currentWidth = 0;
@@ -439,7 +439,7 @@ namespace SharpLayout
             }
         }
 
-        private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part, XGraphics graphics, Option<Table> table)
+        private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part, IGraphics graphics, Option<Table> table)
         {
             int key = text[charIndex];
             if (part.CharSizeCache.Dictionary.TryGetValue(key, out var value)) 

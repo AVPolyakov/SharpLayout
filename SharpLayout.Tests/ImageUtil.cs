@@ -73,7 +73,7 @@ namespace SharpLayout.Tests
                     }
                     using (var bitmap3 = new Bitmap(width, height))
                     {
-                        using (var graphics = Graphics.FromImage(bitmap3))
+                        using (var graphics = System.Drawing.Graphics.FromImage(bitmap3))
                         {
                             graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, width, height);
                             graphics.DrawImage(bitmap, new Point(0, 0));

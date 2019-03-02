@@ -7,17 +7,17 @@ namespace SharpLayout
 {
     public class Drawer
     {
-        private readonly XGraphics graphics;
+        private readonly IGraphics graphics;
         private readonly List<Item> items = new List<Item>();
 
-        public Drawer(XGraphics graphics)
+        public Drawer(IGraphics graphics)
         {
             this.graphics = graphics;            
         }
 
         public void DrawString(string s, Font font, XBrush brush, double x, double y)
         {
-            Add(DrawType.Foreground, () => graphics.DrawString(s, font.XFont, brush, x, y));
+            Add(DrawType.Foreground, () => graphics.DrawString(s, font, brush, x, y));
         }
 
         public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
@@ -30,15 +30,12 @@ namespace SharpLayout
             Add(DrawType.Background, () => {
                 var content = image.Content();
                 if (content.HasValue)
-                    content.Value.Process(xImage => {
-                        if (!image.Height().HasValue && !image.Width().HasValue)
-                            graphics.DrawImage(xImage, x, y);
-                        else
-                            graphics.DrawImage(xImage, x, y,
-                                image.Width().GetValueOrDefault(xImage.PointWidth),
-                                image.Height().GetValueOrDefault(xImage.PointHeight));
-                        return new { };
-                    });
+                    if (!image.Height().HasValue && !image.Width().HasValue)
+                        graphics.DrawImage(content.Value, x, y);
+                    else
+                        graphics.DrawImage(content.Value, x, y,
+                            width => image.Width().GetValueOrDefault(width),
+                            height => image.Height().GetValueOrDefault(height));
             });
         }
 

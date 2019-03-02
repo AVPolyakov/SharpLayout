@@ -120,13 +120,13 @@ namespace SharpLayout
             }
         }
 
-        private static IEnumerable<Table> GetTables(List<Func<Document, XGraphics, Table[]>> tableFuncList, XGraphics xGraphics,
+        private static IEnumerable<Table> GetTables(List<Func<Document, IGraphics, Table[]>> tableFuncList, IGraphics xGraphics,
             Document document)
         {
             return tableFuncList.Select(func => func(document, xGraphics)).SelectMany(_ => _);
         }
 
-        internal static List<PageTuple> Draw(XGraphics xGraphics, Action<int, Action<XGraphics>, Section> pageAction,
+        internal static List<PageTuple> Draw(IGraphics xGraphics, Action<int, Action<IGraphics>, Section> pageAction,
             Document document, GraphicsType graphicsType, SectionGroup sectionGroup)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
@@ -263,7 +263,7 @@ namespace SharpLayout
 	    }
 
         private static List<TableSlice> SplitByPages(TableGroup tableGroup, bool firstOnPage, out double endY, Section section, double tableY,
-            XGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
+            IGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
             ImmutableQueue<Table> tableFootnotes, out ImmutableQueue<Table> endFootnotes, DrawCache drawCaches)
         {
 	        var slices = new List<TableSlice>();
@@ -388,7 +388,7 @@ namespace SharpLayout
             return result;
         }
 
-        private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, XGraphics xGraphics, Document document,
+        private static void Draw(TableInfo info, IEnumerable<int> rows, double y0, IGraphics xGraphics, Document document,
             Dictionary<Table, TableInfo> tableInfos, double x0, SyncPageInfo syncPageInfo, int tableLevel, Drawer drawer, GraphicsType graphicsType,
             TextMode mode, Dictionary<Table, RowCache> rowCaches, Section section,
             DrawCache drawCaches)
@@ -608,14 +608,14 @@ namespace SharpLayout
 			return HorizontalAlign.Left;
 	    }
 
-	    private static double TopMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
+	    private static double TopMargin(this Section section, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
 		    Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
             return Max(section.PageSettings.TopMargin,
                 section.Headers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
         }
 
-        private static double BottomMargin(this Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
+        private static double BottomMargin(this Section section, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
 	        Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
             return Max(section.PageSettings.BottomMargin,
@@ -692,7 +692,7 @@ namespace SharpLayout
                     .Max(i => rightBorderFunc(new CellInfo(i, rightColumn)).Select(_ => _.Width).ValueOr(0)),
                 () => rightBorderFunc(new CellInfo(row, rightColumn)).Select(_ => _.Width).ValueOr(0));
 
-        private static Dictionary<int, double> MaxHeights(this Table table, XGraphics graphics, Func<CellInfo, Option<XPen>> rightBorderFunc,
+        private static Dictionary<int, double> MaxHeights(this Table table, IGraphics graphics, Func<CellInfo, Option<XPen>> rightBorderFunc,
             Func<CellInfo, Option<XPen>> bottomBorderFunc, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
             Section section, DrawCache drawCaches)
         {
@@ -749,7 +749,7 @@ namespace SharpLayout
             return result;
         }
 
-        private static double GetTableHeight(this Table table, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
+        private static double GetTableHeight(this Table table, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
 	        Dictionary<Table, RowCache> rowCaches, Section section, DrawCache drawCaches)
         {
             var tableInfo = GetTableInfo(tableInfos, graphics, mode, document, rowCaches, section, drawCaches).GetValue(table);
@@ -757,7 +757,7 @@ namespace SharpLayout
                 table.BottomMargin().ToOption().ValueOr(0);
         }
 
-        private static Lazy<Table, TableInfo> GetTableInfo(Dictionary<Table, TableInfo> tableInfos, XGraphics graphics, TextMode mode, Document document,
+        private static Lazy<Table, TableInfo> GetTableInfo(Dictionary<Table, TableInfo> tableInfos, IGraphics graphics, TextMode mode, Document document,
 	        Dictionary<Table, RowCache> rowCaches, Section section, DrawCache drawCaches)
         {
             return Lazy.Create(tableInfos, table => GetTableInfo(graphics, table, tableInfos, mode, document, rowCaches, section, drawCaches));
@@ -772,21 +772,23 @@ namespace SharpLayout
             {
                 var content = image.Content();
                 if (content.HasValue)
-                    height = content.Value.Process(xImage => xImage.PointHeight);
+                    using (var stream = content.Value.CreateStream())
+                    using (var xImage = XImage.FromStream(stream))
+                        height = xImage.PointHeight;
                 else
                     height = 0;
             }
             return height + image.TopMargin().ToOption().ValueOr(0) + image.BottomMargin().ToOption().ValueOr(0);
         }
 
-        private static double GetParagraphHeight(this Paragraph paragraph, int row, Column column, Table table, XGraphics graphics,
+        private static double GetParagraphHeight(this Paragraph paragraph, int row, Column column, Table table, IGraphics graphics,
             Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
             return paragraph.GetInnerHeight(graphics, table, row, column, rightBorderFunc, mode, document, rowCaches, drawCaches) +
                 paragraph.TopMargin().ToOption().ValueOr(0) + paragraph.BottomMargin().ToOption().ValueOr(0);
         }
 
-        private static double GetInnerHeight(this Paragraph paragraph, XGraphics graphics, Table table, int row, Column column,
+        private static double GetInnerHeight(this Paragraph paragraph, IGraphics graphics, Table table, int row, Column column,
             Func<CellInfo, Option<XPen>> rightBorderFunc, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
             return ParagraphRenderer.GetHeight(graphics, paragraph, table.ContentWidth(row, column, rightBorderFunc, rowCaches), mode, document, table, drawCaches);
@@ -994,7 +996,7 @@ namespace SharpLayout
         private static string CellsToSttring(this IEnumerable<CellInfo> cells, Table table) 
             => string.Join(", ", cells.Select(_ => $"L{table.Line} r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
 
-        private static TableInfo GetTableInfo(XGraphics xGraphics, Table table, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
+        private static TableInfo GetTableInfo(IGraphics xGraphics, Table table, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
 	        Dictionary<Table, RowCache> rowCaches, Section section, DrawCache drawCaches)
         {
             var rightMergedCells = new HashSet<CellInfo>();
@@ -1053,7 +1055,7 @@ namespace SharpLayout
             private int Index { get; }
             public TableInfo TableInfo { get; }
             public bool IsFirst => Index == 0;
-            public double Y(Section section, XGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
+            public double Y(Section section, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
 	            Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches) => 
                 IsFirst ? TableY : section.TopMargin(graphics, tableInfos, mode, document, rowCaches, drawCaches);
 
@@ -1119,7 +1121,7 @@ namespace SharpLayout
             }
         }
 
-        private static void HighlightParagraph(Paragraph paragraph, Column column, int row, double x, double y, double width, TableInfo info, XGraphics xGraphics, Drawer drawer,
+        private static void HighlightParagraph(Paragraph paragraph, Column column, int row, double x, double y, double width, TableInfo info, IGraphics xGraphics, Drawer drawer,
             TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
         {
             var innerHeight = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches, drawCaches);
@@ -1131,7 +1133,7 @@ namespace SharpLayout
                     innerWidth, innerHeight);
         }
 
-        private static void HighlightCells(XGraphics xGraphics, TableInfo info, Option<XPen> bottomBorder, int row, Column column, double x, double y,
+        private static void HighlightCells(IGraphics xGraphics, TableInfo info, Option<XPen> bottomBorder, int row, Column column, double x, double y,
             double tableY, Drawer drawer, Document document)
         {
             if (document.CellsAreHighlighted)
@@ -1153,7 +1155,7 @@ namespace SharpLayout
                     var text = $"r{row + 1}";
                     var lineSpace = font.GetHeight();
                     var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
-                    var rnX = x - xGraphics.MeasureString(text, font.XFont).Width;
+                    var rnX = x - xGraphics.MeasureString(text, font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width;
                     drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
                     if (row == 0)
                     {
@@ -1170,7 +1172,7 @@ namespace SharpLayout
             }
         }
 
-        private static void HighlightCellLine(XGraphics xGraphics, TableInfo info, Option<XPen> bottomBorder, int row, Column column, double x, double y, Document document,
+        private static void HighlightCellLine(IGraphics xGraphics, TableInfo info, Option<XPen> bottomBorder, int row, Column column, double x, double y, Document document,
             Drawer drawer, Dictionary<Table, RowCache> rowCaches)
         {
             if (!document.CellLineNumbersAreVisible) return;
@@ -1184,7 +1186,7 @@ namespace SharpLayout
             drawer.DrawString(text,
                 font,
                 new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
-                x + width - xGraphics.MeasureString(text, font.XFont).Width,
+                x + width - xGraphics.MeasureString(text, font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
                 y + height);
         }
 

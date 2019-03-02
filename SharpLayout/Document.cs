@@ -69,12 +69,12 @@ namespace SharpLayout
                 page.Orientation = sectionGroup.Sections[0].PageSettings.Orientation;
                 using (var xGraphics = XGraphics.FromPdfPage(page))
                 {
-                    TableRenderer.Draw(xGraphics, (pageIndex, action, section) => {
+                    TableRenderer.Draw(new Graphics(xGraphics), (pageIndex, action, section) => {
                         var addPage = pdfDocument.AddPage();
                         addPage.Size = PageSize.A4;
                         addPage.Orientation = section.PageSettings.Orientation;
                         using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
-                            action(xGraphics2);
+                            action(new Graphics(xGraphics2));
                     }, this, GraphicsType.Pdf, sectionGroup);
                 }
             }
@@ -133,21 +133,19 @@ namespace SharpLayout
 
         private const int defaultResolution = 254;
 
-        public static T FillBitmap<T>(Func<XGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
+        public static T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
         {
             var horizontalPixelCount = HorizontalPixelCount(pageSettings, resolution);
             var verticalPixelCount = VerticalPixelCount(pageSettings, resolution);
             using (var bitmap = new Bitmap(horizontalPixelCount, verticalPixelCount))
             {
                 T result;
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
                 {
                     graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
-                    using (var xGraphics = XGraphics.FromGraphics(graphics, new XSize(horizontalPixelCount, verticalPixelCount)))
-                    {
-                        xGraphics.ScaleTransform(resolution / 72d);
-                        result = func(xGraphics);
-                    }
+                    var s = (float) (resolution / 72d);
+                    graphics.ScaleTransform(s, s);
+                    result = func(new ImageGraphics(graphics));
                 }
                 bitmap.SetResolution(resolution, resolution);
                 action2(bitmap);

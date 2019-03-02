@@ -36,9 +36,13 @@ namespace SharpLayout
 	        else
 	        {
 		        var content = image.Content();
-		        if (content.HasValue)
-			        return content.Value.Process(xImage => xImage.PointWidth);
-		        else
+                if (content.HasValue)
+                {
+                    using (var stream = content.Value.CreateStream())
+                    using (var xImage = XImage.FromStream(stream))
+                        return xImage.PointWidth;
+                }
+                else
 			        return 0;
 	        }
         }

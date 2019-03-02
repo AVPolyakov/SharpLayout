@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout.Tests", "SharpL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveViewer", "LiveViewer\LiveViewer.csproj", "{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharp-gdi", "PDFsharp\src\PdfSharp\PdfSharp-gdi.csproj", "{B8B883BB-35E9-4634-84D4-10940229D35E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharp-netstandard", "PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj", "{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +32,10 @@ Global
 		{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D441DD3-FF8A-4F28-B2BB-CFD67E9ECC0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8B883BB-35E9-4634-84D4-10940229D35E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8B883BB-35E9-4634-84D4-10940229D35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8B883BB-35E9-4634-84D4-10940229D35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8B883BB-35E9-4634-84D4-10940229D35E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

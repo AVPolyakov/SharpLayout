@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
@@ -84,6 +85,6 @@ namespace SharpLayout
 
     public interface IImageContent
     {
-        T Process<T>(Func<XImage, T> func);
+        Stream CreateStream();
     }
 }

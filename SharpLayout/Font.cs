@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Drawing;
 using PdfSharp.Drawing;
 
 namespace SharpLayout
@@ -20,6 +22,8 @@ namespace SharpLayout
 
         public Font(string familyName, double emSize, XFontStyle style, XPdfFontOptions pdfOptions)
         {
+            gdiFont = Lazy.Create(() => new System.Drawing.Font(
+                Name, (float)Size, (FontStyle)Style, GraphicsUnit.World));
             XFont = GetXFont(familyName, emSize, style, pdfOptions);
         }
 
@@ -40,5 +44,9 @@ namespace SharpLayout
         public bool Bold => XFont.Bold;
 
         public string Name => XFont.Name;
+
+        private readonly Lazy<System.Drawing.Font> gdiFont;
+
+        public System.Drawing.Font GdiFont => gdiFont.Value;
     }
 }

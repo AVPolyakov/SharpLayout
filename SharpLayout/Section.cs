@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using PdfSharp.Drawing;
 using static SharpLayout.ParagraphRenderer;
 
 namespace SharpLayout
@@ -10,8 +9,8 @@ namespace SharpLayout
     public class Section
     {
         public PageSettings PageSettings { get; }
-        internal readonly List<List<Func<Document, XGraphics, Table[]>>> tableFuncs = 
-            new List<List<Func<Document, XGraphics, Table[]>>>{new List<Func<Document, XGraphics, Table[]>>()};
+        internal readonly List<List<Func<Document, IGraphics, Table[]>>> tableFuncs = 
+            new List<List<Func<Document, IGraphics, Table[]>>>{new List<Func<Document, IGraphics, Table[]>>()};
         public List<Table> Headers { get; } = new List<Table>();
         public List<Table> Footers { get; } = new List<Table>();
         public List<Table> FootnoteSeparators { get; } = new List<Table>();
@@ -34,7 +33,7 @@ namespace SharpLayout
             return this;
         }
 
-        private List<Func<Document, XGraphics, Table[]>> LastTableFuncs => tableFuncs[tableFuncs.Count - 1];
+        private List<Func<Document, IGraphics, Table[]>> LastTableFuncs => tableFuncs[tableFuncs.Count - 1];
 
         public Table AddHeader([CallerLineNumber] int line = 0)
         {
@@ -58,7 +57,7 @@ namespace SharpLayout
 
         public Section AddPageBreak()
         {
-            tableFuncs.Add(new List<Func<Document, XGraphics, Table[]>>());
+            tableFuncs.Add(new List<Func<Document, IGraphics, Table[]>>());
             return this;
         }
 
