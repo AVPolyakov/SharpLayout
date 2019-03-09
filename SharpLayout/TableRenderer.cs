@@ -409,19 +409,26 @@ namespace SharpLayout
                     if (topBorder.HasValue)
                     {
                         var borderY = tableY + maxTopBorder - topBorder.Value.Width/2;
-                        var leftBorder = column.Index == 0
-                            ? info.LeftBorderFunc(new CellInfo(firstRow.Value, 0)).Select(_ => _.Width).ValueOr(0)
-                            : info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index - 1)).Select(_ => _.Width).ValueOr(0);
                         drawer.DrawLine(topBorder.Value,
-                            x - leftBorder, borderY,
-                            x + column.Width, borderY);
+                            x - 
+                            Shift(
+                                new Option<XPen>(),
+                                column.Index == 0
+                                    ? info.LeftBorderFunc(new CellInfo(firstRow.Value, 0))
+                                    : info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index - 1)),
+                                true), 
+                            borderY,
+                            x + column.Width - 
+                            Shift(
+                                new Option<XPen>(), 
+                                info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index)),
+                                false),
+                            borderY);
                     }
                     x += column.Width;
                 }
             }
             var y = tableY + maxTopBorder;
-            var count = rows.Count();
-            var index = 0;
             foreach (var row in rows)
             {
                 {
@@ -430,7 +437,21 @@ namespace SharpLayout
                     {
                         var borderX = x0 + info.MaxLeftBorder - leftBorder.Value.Width / 2;
                         drawer.DrawLine(leftBorder.Value,
-                            borderX, y, borderX, y + info.MaxHeights[row]);
+                            borderX,
+                            y -
+                            Shift(
+                                new Option<XPen>(),
+                                row == 0
+                                    ? info.TopBorderFunc(new CellInfo(0, 0))
+                                    : info.BottomBorderFunc(new CellInfo(row - 1, 0)),
+                                true),
+                            borderX,
+                            y + info.MaxHeights[row] -
+                            Shift(
+                                new Option<XPen>(),
+                                info.BottomBorderFunc(new CellInfo(row, 0)),
+                                false)
+                        );
                     }
                 }
                 var x = x0 + info.MaxLeftBorder;
@@ -543,51 +564,81 @@ namespace SharpLayout
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
                     if (rightBorder.HasValue)
                     {
-                        double bottomBorderWidth;
-                        if ((index == count - 1 ||
-                             !info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue) &&
-                            info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
-                            bottomBorderWidth = info.BottomBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
-                        else
-                            bottomBorderWidth = 0d;
                         var borderX = x + column.Width - rightBorder.Value.Width/2;
                         drawer.DrawLine(rightBorder.Value,
-                            borderX, y, borderX, y + info.MaxHeights[row] - bottomBorderWidth);
+                            borderX,
+                            y -
+                            Shift(
+                                row == 0
+                                    ? info.TopBorderFunc(new CellInfo(0, column.Index))
+                                    : info.BottomBorderFunc(new CellInfo(row - 1, column.Index)),
+                                row == 0
+                                    ? info.TopBorderFunc(new CellInfo(0, column.Index + 1))
+                                    : info.BottomBorderFunc(new CellInfo(row - 1, column.Index + 1)),
+                                true),
+                            borderX,
+                            y + info.MaxHeights[row] -
+                            Shift(
+                                bottomBorder,
+                                info.BottomBorderFunc(new CellInfo(row, column.Index + 1)),
+                                false)
+                        );
                     }
                     if (bottomBorder.HasValue)
                     {
-                        double leftBorder;
-                        if (column.Index == 0)
-                            leftBorder = !info.LeftBorderFunc(new CellInfo(row, column.Index)).HasValue
-                                ? info.LeftBorderFunc(new CellInfo(row + 1, column.Index))
-                                    .Select(_ => _.Width).ValueOr(0)
-                                : 0d;
-                        else
-                        {
-                            var leftCell = new CellInfo(row, column.Index - 1);
-                            leftBorder = !info.RightBorderFunc(leftCell).HasValue &&
-                                         !info.BottomBorderFunc(leftCell).HasValue
-                                ? info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1))
-                                    .Select(_ => _.Width).ValueOr(0)
-                                : 0d;
-                        }
-                        double rightBorderWidth;
-                        if (!info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
-                            rightBorderWidth = info.RightBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
-                        else
-                            rightBorderWidth = 0d;
-                        var borderY = y + info.MaxHeights[row] - bottomBorder.Value.Width/2;
+                        var borderY = y + info.MaxHeights[row] - bottomBorder.Value.Width / 2;
                         drawer.DrawLine(bottomBorder.Value,
-                            x - leftBorder, borderY, x + column.Width - rightBorderWidth, borderY);
+                            x -
+                            Shift(
+                                column.Index == 0
+                                    ? info.LeftBorderFunc(new CellInfo(row, 0))
+                                    : info.RightBorderFunc(new CellInfo(row, column.Index - 1)),
+                                column.Index == 0
+                                    ? info.LeftBorderFunc(new CellInfo(row + 1, 0))
+                                    : info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1)),
+                                    true),
+                            borderY,
+                            x + column.Width -
+                            Shift(
+                                rightBorder,
+                                info.RightBorderFunc(new CellInfo(row + 1, column.Index)),
+                                false),
+                            borderY
+                        );
                     }
                     x += column.Width;
                 }
                 y += info.MaxHeights[row];
-                index++;
             }
         }
 
-	    private static VerticalAlign GetVerticalAlign(Cell cell, Table table)
+        private static double Shift(Option<XPen> x, Option<XPen> y, bool beginning)
+        {
+            return Shift(x.Select(_ => _.Width), y.Select(_ => _.Width), beginning);
+        }
+
+        private static double Shift(Option<double> x, Option<double> y, bool beginning)
+        {
+            double value;
+            if (x.HasValue)
+            {
+                if (y.HasValue)
+                    value = Min(x.Value, y.Value);
+                else
+                    value = x.Value;
+            }
+            else
+            {
+                if (y.HasValue)
+                    value = y.Value;
+                else
+                    return 0;
+            }
+            var min = Min(value / 2, 0.25);
+            return beginning ? value - min : min;
+        }
+
+        private static VerticalAlign GetVerticalAlign(Cell cell, Table table)
 	    {
 		    if (cell.VerticalAlign().HasValue) return cell.VerticalAlign().Value;
 		    if (table.ContentVerticalAlign().HasValue) return table.ContentVerticalAlign().Value;
