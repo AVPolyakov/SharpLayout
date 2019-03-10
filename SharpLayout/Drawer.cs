@@ -25,6 +25,11 @@ namespace SharpLayout
             Add(DrawType.Foreground, () => graphics.DrawLine(pen, x1, y1, x2, y2));
         }
 
+        public void DrawLines(XPen pen, XPoint[] points)
+        {
+            Add(DrawType.Foreground, () => graphics.DrawLines(pen, points));
+        }
+
         public void DrawImage(Image image, double x, double y)
         {
             Add(DrawType.Background, () => {

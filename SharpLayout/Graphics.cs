@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
@@ -16,6 +17,7 @@ namespace SharpLayout
         void DrawLine(XPen pen, double x1, double y1, double x2, double y2);
         void DrawRectangle(XBrush brush, double x, double y, double width, double height);
         XSize MeasureString(string text, XFont font, XStringFormat stringFormat);
+        void DrawLines(XPen pen, XPoint[] points);
     }
 
     public class ImageGraphics : IGraphics
@@ -142,6 +144,11 @@ namespace SharpLayout
             graphics.FillRectangle(GetBrush(brush), (float) x, (float) y, (float) width, (float) height);
         }
 
+        public void DrawLines(XPen pen, XPoint[] points)
+        {
+            graphics.DrawLines(GetPen(pen), points.Select(_ => new PointF((float)_.X, (float)_.Y)).ToArray());
+        }
+
         public XSize MeasureString(string text, XFont font, XStringFormat stringFormat)
         {
             return pdfGraphics.MeasureString(text, font, stringFormat);
@@ -229,6 +236,11 @@ namespace SharpLayout
         public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
         {
             xGraphics.DrawLine(pen, x1, y1, x2, y2);
+        }
+
+        public void DrawLines(XPen pen, XPoint[] points)
+        {
+            xGraphics.DrawLines(pen, points);
         }
 
         public void DrawRectangle(XBrush brush, double x, double y, double width, double height)

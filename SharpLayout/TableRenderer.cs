@@ -60,10 +60,6 @@ namespace SharpLayout
         public SyncPageInfo SyncPageInfo { get; }
         public Section Section { get; }
 
-        public PageTuple()
-        {
-        }
-
         public PageTuple(SyncPageInfo syncPageInfo, Section section)
         {
             SyncPageInfo = syncPageInfo;
@@ -410,11 +406,16 @@ namespace SharpLayout
                     {
                         var borderY = tableY + maxTopBorder - topBorder.Value.Width/2;
                         var leftBorder = column.Index == 0
-                            ? info.LeftBorderFunc(new CellInfo(firstRow.Value, 0)).Select(_ => _.Width).ValueOr(0)
-                            : info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index - 1)).Select(_ => _.Width).ValueOr(0);
-                        drawer.DrawLine(topBorder.Value,
-                            x - leftBorder, borderY,
-                            x + column.Width, borderY);
+                            ? info.LeftBorderFunc(new CellInfo(firstRow.Value, 0)).Select(_ => _.Width)
+                            : info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index - 1)).Select(_ => _.Width);
+                        drawer.DrawHorizontalLine(
+                            topBorder.Value,
+                            x,
+                            borderY,
+                            x + column.Width,
+                            leftBorder,
+                            bendRight: info.RightBorderFunc(new CellInfo(firstRow.Value, column.Index)).HasValue &&
+                            !info.TopBorderFunc(new CellInfo(firstRow.Value, column.Index + 1)).HasValue);
                     }
                     x += column.Width;
                 }
@@ -429,8 +430,14 @@ namespace SharpLayout
                     if (leftBorder.HasValue)
                     {
                         var borderX = x0 + info.MaxLeftBorder - leftBorder.Value.Width / 2;
-                        drawer.DrawLine(leftBorder.Value,
-                            borderX, y, borderX, y + info.MaxHeights[row]);
+                        if ((index == count - 1 ||
+                                !info.LeftBorderFunc(new CellInfo(row + 1, 0)).HasValue) &&
+                            info.BottomBorderFunc(new CellInfo(row, 0)).HasValue)
+                            drawer.DrawVerticalLine(leftBorder.Value, borderX, y,
+                                y + info.MaxHeights[row], true);
+                        else
+                            drawer.DrawLine(leftBorder.Value,
+                                borderX, y, borderX, y + info.MaxHeights[row]);
                     }
                 }
                 var x = x0 + info.MaxLeftBorder;
@@ -543,33 +550,54 @@ namespace SharpLayout
                     var rightBorder = info.RightBorderFunc(new CellInfo(row, column.Index));
                     if (rightBorder.HasValue)
                     {
-                        double bottomBorderWidth;
-                        if ((index == count - 1 ||
-                             !info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue) &&
-                            info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
-                            bottomBorderWidth = info.BottomBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
-                        else
-                            bottomBorderWidth = 0d;
+                        var notExistsRightBorderOnNextRow = index == count - 1 ||
+                            !info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue;
                         var borderX = x + column.Width - rightBorder.Value.Width/2;
-                        drawer.DrawLine(rightBorder.Value,
-                            borderX, y, borderX, y + info.MaxHeights[row] - bottomBorderWidth);
+                        bool? toRight;
+                        if (notExistsRightBorderOnNextRow)
+                        {
+                            if (!info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue &&
+                                info.BottomBorderFunc(new CellInfo(row, column.Index)).HasValue)
+                                toRight = false;
+                            else if (!info.BottomBorderFunc(new CellInfo(row, column.Index)).HasValue &&
+                                info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
+                                toRight = true;
+                            else
+                                toRight = null;
+                        }
+                        else
+                            toRight = null;
+                        if (toRight.HasValue)
+                            drawer.DrawVerticalLine(rightBorder.Value, borderX, y,
+                                y + info.MaxHeights[row], toRight.Value);
+                        else
+                        {
+                            double bottomBorderWidth;
+                            if (notExistsRightBorderOnNextRow &&
+                                info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
+                                bottomBorderWidth = info.BottomBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
+                            else
+                                bottomBorderWidth = 0d;
+                            drawer.DrawLine(rightBorder.Value,
+                                borderX, y, borderX, y + info.MaxHeights[row] - bottomBorderWidth);
+                        }
                     }
                     if (bottomBorder.HasValue)
                     {
-                        double leftBorder;
+                        Option<double> leftBorder;
                         if (column.Index == 0)
                             leftBorder = !info.LeftBorderFunc(new CellInfo(row, column.Index)).HasValue
                                 ? info.LeftBorderFunc(new CellInfo(row + 1, column.Index))
-                                    .Select(_ => _.Width).ValueOr(0)
-                                : 0d;
+                                    .Select(_ => _.Width)
+                                : new Option<double>();
                         else
                         {
                             var leftCell = new CellInfo(row, column.Index - 1);
                             leftBorder = !info.RightBorderFunc(leftCell).HasValue &&
                                          !info.BottomBorderFunc(leftCell).HasValue
                                 ? info.RightBorderFunc(new CellInfo(row + 1, column.Index - 1))
-                                    .Select(_ => _.Width).ValueOr(0)
-                                : 0d;
+                                    .Select(_ => _.Width)
+                                : new Option<double>();
                         }
                         double rightBorderWidth;
                         if (!info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue)
@@ -577,8 +605,16 @@ namespace SharpLayout
                         else
                             rightBorderWidth = 0d;
                         var borderY = y + info.MaxHeights[row] - bottomBorder.Value.Width/2;
-                        drawer.DrawLine(bottomBorder.Value,
-                            x - leftBorder, borderY, x + column.Width - rightBorderWidth, borderY);
+                        drawer.DrawHorizontalLine(
+                            bottomBorder.Value,
+                            x,
+                            borderY,
+                            x + column.Width - rightBorderWidth,
+                            leftBorder,
+                            bendRight: index != count - 1 &&
+                            info.RightBorderFunc(new CellInfo(row + 1, column.Index)).HasValue &&
+                            !info.RightBorderFunc(new CellInfo(row, column.Index)).HasValue &&
+                            !info.BottomBorderFunc(new CellInfo(row, column.Index + 1)).HasValue);
                     }
                     x += column.Width;
                 }
@@ -587,7 +623,74 @@ namespace SharpLayout
             }
         }
 
-	    private static VerticalAlign GetVerticalAlign(Cell cell, Table table)
+        private static void DrawHorizontalLine(this Drawer drawer, XPen pen,
+            double x1, double y1, double x2, Option<double> leftBorder, bool bendRight)
+        {
+            if (leftBorder.HasValue)
+            {
+                if (bendRight)
+                {
+                    var newX1 = x1 - leftBorder.Value;
+                    var d = pen.Width / 2;
+                    drawer.DrawLines(pen, new[] {
+                        new XPoint(x2 - d, y1),
+                        new XPoint(newX1 + d, y1),
+                        new XPoint(newX1 + d, y1 + d),
+                    });
+                    drawer.DrawLines(pen, new[] {
+                        new XPoint(newX1 + d, y1),
+                        new XPoint(x2 - d, y1),
+                        new XPoint(x2 - d, y1 + d),
+                    });
+                }
+                else
+                {
+                    var newX1 = x1 - leftBorder.Value;
+                    var d = pen.Width / 2;
+                    drawer.DrawLines(pen, new[] {
+                        new XPoint(x2, y1),
+                        new XPoint(newX1 + d, y1),
+                        new XPoint(newX1 + d, y1 + d),
+                    });
+                }
+            }
+            else
+            {
+                if (bendRight)
+                {
+                    var d = pen.Width / 2;
+                    drawer.DrawLines(pen, new[] {
+                        new XPoint(x1, y1),
+                        new XPoint(x2 - d, y1),
+                        new XPoint(x2 - d, y1 + d),
+                    });
+                }
+                else
+                {
+                    drawer.DrawLine(pen,
+                        x1, y1, x2, y1);
+                }
+            }
+        }
+
+        private static void DrawVerticalLine(this Drawer drawer, XPen pen, double x1, double y1, double y2, bool toRight)
+        {
+            var d = pen.Width / 2;
+            if (toRight)
+                drawer.DrawLines(pen, new[] {
+                    new XPoint(x1, y1),
+                    new XPoint(x1, y2 - d),
+                    new XPoint(x1 + d, y2 - d),
+                });
+            else
+                drawer.DrawLines(pen, new[] {
+                    new XPoint(x1, y1),
+                    new XPoint(x1, y2 - d),
+                    new XPoint(x1 - d, y2 - d),
+                });
+        }
+
+        private static VerticalAlign GetVerticalAlign(Cell cell, Table table)
 	    {
 		    if (cell.VerticalAlign().HasValue) return cell.VerticalAlign().Value;
 		    if (table.ContentVerticalAlign().HasValue) return table.ContentVerticalAlign().Value;
@@ -916,7 +1019,11 @@ namespace SharpLayout
                     throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            }).Match(_ => _, table.Border);
+            }).Match(_ => _, () => {
+                if (cell.ColumnIndex < 0 || cell.ColumnIndex >= table.Columns.Count) return new Option<XPen>();
+                if (cell.RowIndex < 0 || cell.RowIndex >= table.RowFuncs.Count) return new Option<XPen>();
+                return table.Border();
+            });
         }
 
         private static void LeftBorderDictionary(Row row, Dictionary<CellInfo, List<BorderTuple>> leftBorderDictionary)
@@ -958,7 +1065,11 @@ namespace SharpLayout
                     throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
                 else
                     return list[0].Value;
-            }).Match(_ => _, table.Border);
+            }).Match(_ => _, () => {
+                if (cell.ColumnIndex < 0 || cell.ColumnIndex >= table.Columns.Count) return new Option<XPen>();
+                if (cell.RowIndex < 0 || cell.RowIndex >= table.RowFuncs.Count) return new Option<XPen>();
+                return table.Border();
+            });
         }
 
         private static Func<CellInfo, Option<XColor>> BackgroundColor(this Table table, Dictionary<CellInfo, List<BackgroundTuple>> backgroundColorDictionary)
