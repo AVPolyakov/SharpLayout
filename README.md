@@ -105,7 +105,7 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 
 Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
 
-Если запущено несколько экземпляров Visual Studio, то можно укзать PID процесса. Например,  
+Если запущено несколько экземпляров Visual Studio, то можно указать PID процесса. Например,  
 `LiveViewer.exe Temp.png vs 15780`  
 
 [![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
