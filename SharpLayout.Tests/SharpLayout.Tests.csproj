@@ -7,6 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fonts\TimesNewRoman\times.ttf" />
+    <None Remove="Fonts\TimesNewRoman\timesbd.ttf" />
+    <None Remove="Fonts\TimesNewRoman\timesbi.ttf" />
+    <None Remove="Fonts\TimesNewRoman\timesi.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts\TimesNewRoman\times.ttf" />
+    <EmbeddedResource Include="Fonts\TimesNewRoman\timesbd.ttf" />
+    <EmbeddedResource Include="Fonts\TimesNewRoman\timesbi.ttf" />
+    <EmbeddedResource Include="Fonts\TimesNewRoman\timesi.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 
