@@ -22,7 +22,7 @@ namespace SharpLayout.Tests
             {
                 var anchorType = typeof(Images.Images);
                 return anchorType.Assembly
-                    .GetManifestResourceStream($"{anchorType.Namespace}.blue-rabbit.pdf");
+                    .GetManifestResourceStream($"{anchorType.Namespace}.PngImage.png");
             }
         }
     }
