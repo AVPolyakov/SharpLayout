@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
 using PdfSharp.Drawing;
-using SharpLayout.Tests.Images;
-using static SharpLayout.Direction;
-using static SharpLayout.Tests.Styles;
-using static SharpLayout.Util;
 
 namespace SharpLayout.Tests
 {
@@ -13,36 +9,11 @@ namespace SharpLayout.Tests
         public static void AddSection(Document document)
         {
             var section = document.Add(new Section(new PageSettings()));
-            var info = VectorImageContent.ImageInfo.Value;
             {
                 var table = section.AddTable();
-                var scale = 0.7;
-                var c1 = table.AddColumn(info.PointWidth * scale);
-                table.AddColumn(Px(500));
-                table.AddColumn(Px(500));
+                var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 r1[c1].Add(new Image()
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
-            }
-            {
-                var table = section.AddTable().Margin(Top, Cm(0.5));
-                var scale = 0.3;
-                var c1 = table.AddColumn();
-                var c2 = table.AddColumn();
-                var c3 = table.AddColumn();
-                table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins - BorderWidth);
-                var r1 = table.AddRow();
-                r1[c1].Add(new Image()
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
-                var r2 = table.AddRow();
-                r2[c2].Add(new Image().Alignment(HorizontalAlign.Center)
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
-                var r3 = table.AddRow();
-                r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
                     .Content(new VectorImageContent()));
             }
         }
