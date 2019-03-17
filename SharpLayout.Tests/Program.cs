@@ -9,8 +9,8 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             GlobalFontSettings.FontResolver = new FontResolver();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             var document = new Document();
             PaymentOrder.AddSection(document, new PaymentData {
