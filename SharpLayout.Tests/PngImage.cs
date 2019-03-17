@@ -12,7 +12,7 @@ namespace SharpLayout.Tests
                 var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
                 var r1 = table.AddRow();
                 r1[c1].Add(new Image()
-                    .Content(new VectorImage.VectorImageContent()));
+                    .Content(new ResourceImageContent()));
             }
         }
 
