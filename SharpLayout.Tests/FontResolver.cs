@@ -66,7 +66,7 @@ namespace SharpLayout.Tests
                     throw new Exception("Font file not found");
             }
             var anchorType = typeof(TimesNewRoman);
-            using (var stream = anchorType.Assembly.GetManifestResourceStream($"{anchorType.Namespace}{fileName}"))
+            using (var stream = anchorType.Assembly.GetManifestResourceStream($"{anchorType.Namespace}.{fileName}"))
             using (var memoryStream = new MemoryStream())
             {
                 stream.CopyTo(memoryStream);
