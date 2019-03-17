@@ -61,6 +61,9 @@ namespace SharpLayout.Tests
                 case FaceNames.TimesNewRomanBoldItalic:
                     fileName = @"timesbi.ttf";
                     break;
+                case FaceNames.TimesNewRomanBold:
+                    fileName = @"timesbd.ttf";
+                    break;
                 default:
                     throw new Exception("Font file not found");
             }
