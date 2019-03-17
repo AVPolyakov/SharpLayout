@@ -12,6 +12,7 @@
     <None Remove="Fonts\TimesNewRoman\timesbi.ttf" />
     <None Remove="Fonts\TimesNewRoman\timesi.ttf" />
     <None Remove="Images\blue-rabbit.pdf" />
+    <None Remove="Images\PngImage.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
     <EmbeddedResource Include="Fonts\TimesNewRoman\timesbi.ttf" />
     <EmbeddedResource Include="Fonts\TimesNewRoman\timesi.ttf" />
     <EmbeddedResource Include="Images\blue-rabbit.pdf" />
+    <EmbeddedResource Include="Images\PngImage.png" />
   </ItemGroup>
 
   <ItemGroup>
