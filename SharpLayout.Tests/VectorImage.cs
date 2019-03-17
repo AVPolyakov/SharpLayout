@@ -16,6 +16,13 @@ namespace SharpLayout.Tests
                 r1[c1].Add(new Image()
                     .Content(new VectorImageContent()));
             }
+            {
+                var table = section.AddTable();
+                var c1 = table.AddColumn(section.PageSettings.PageWidthWithoutMargins);
+                var r1 = table.AddRow();
+                r1[c1].Add(new Image()
+                    .Content(new ResourceImageContent()));
+            }
         }
 
         public class VectorImageContent : IImageContent
@@ -38,6 +45,15 @@ namespace SharpLayout.Tests
             public Stream CreateStream() => new MemoryStream(ImageInfo.Value.Bytes);
         }
 
+        public class ResourceImageContent : IImageContent
+        {
+            public Stream CreateStream()
+            {
+                var anchorType = typeof(Images.Images);
+                return anchorType.Assembly
+                    .GetManifestResourceStream($"{anchorType.Namespace}.PngImage.png");
+            }
+        }
     }
 
     public class ImageInfo
