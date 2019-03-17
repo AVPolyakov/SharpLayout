@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using PdfSharp.Fonts;
@@ -46,6 +47,11 @@ namespace SharpLayout.Tests
 
         public byte[] GetFont(string faceName)
         {
+            switch (faceName)
+            {
+                case FaceNames.TimesNewRoman:
+                    return File.ReadAllBytes(@"Fonts\times.ttf");
+            }
             throw new Exception("Font file not found");
         }
     }
