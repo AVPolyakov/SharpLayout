@@ -46,7 +46,7 @@ namespace SharpLayout.Tests
 
         public byte[] GetFont(string faceName)
         {
-            throw new NotImplementedException();
+            throw new Exception("Font file not found");
         }
     }
 }
