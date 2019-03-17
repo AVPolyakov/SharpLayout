@@ -24,9 +24,24 @@ namespace SharpLayout.Tests
 
     public class FontResolver : IFontResolver
     {
+        private static class FamilyNames
+        {
+            public const string TimesNewRoman = "Times New Roman";
+        }
+
+        private static class FaceNames
+        {            
+            public const string TimesNewRoman = "TimesNewRoman";
+        }
+
         public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
         {
-            throw new NotImplementedException();
+            switch (familyName)
+            {
+                case FamilyNames.TimesNewRoman:
+                    return new FontResolverInfo(FaceNames.TimesNewRoman);
+            }
+            throw new Exception("Font not found");
         }
 
         public byte[] GetFont(string faceName)
