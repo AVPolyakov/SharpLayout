@@ -22,6 +22,7 @@ namespace SharpLayout.Tests
             ContractDealPassport.AddSection(document);
             LoanAgreementDealPassport.AddSection(document);
             VectorImage.AddSection(document);
+            PngImage.AddSection(document);
             document.SavePdf("Temp.pdf");
         }
     }
