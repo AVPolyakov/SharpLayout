@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveViewer", "LiveViewer\Li
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdfSharp-netstandard", "PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj", "{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestProject1", "XUnitTestProject1\XUnitTestProject1.csproj", "{D48BCA04-4183-4F26-8053-9B891C402207}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout.Tests", "SharpLayout.Tests\SharpLayout.Tests.csproj", "{E9579476-8944-4A93-86CF-A2F7D2909165}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44487D24-3FB3-4EB4-98FE-3D16F5EEBC0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D48BCA04-4183-4F26-8053-9B891C402207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D48BCA04-4183-4F26-8053-9B891C402207}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D48BCA04-4183-4F26-8053-9B891C402207}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D48BCA04-4183-4F26-8053-9B891C402207}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9579476-8944-4A93-86CF-A2F7D2909165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9579476-8944-4A93-86CF-A2F7D2909165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9579476-8944-4A93-86CF-A2F7D2909165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9579476-8944-4A93-86CF-A2F7D2909165}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

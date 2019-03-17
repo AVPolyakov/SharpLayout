@@ -1,5 +1,4 @@
 ﻿using System;
-using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
