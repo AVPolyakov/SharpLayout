@@ -51,7 +51,7 @@ namespace SharpLayout.Tests
         {
             public static readonly Lazy<ImageInfo> ImageInfo = new Lazy<ImageInfo>(() => {
                 byte[] bytes;
-                var anchorType = typeof(BlueRabbit);
+                var anchorType = typeof(Images.Images);
                 using (var stream = anchorType.Assembly
                     .GetManifestResourceStream($"{anchorType.Namespace}.blue-rabbit.pdf"))
                 using (var memoryStream = new MemoryStream())

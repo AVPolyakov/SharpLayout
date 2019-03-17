@@ -1,6 +1,6 @@
 ﻿namespace SharpLayout.Tests.Images
 {
-    class BlueRabbit
+    class Images
     {
     }
 }
