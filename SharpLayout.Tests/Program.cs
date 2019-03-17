@@ -34,6 +34,9 @@ namespace SharpLayout.Tests
         {            
             public const string TimesNewRomanBoldItalic = "TimesNewRomanBoldItalic";
             public const string TimesNewRomanBold = "TimesNewRomanBold";
+            public const string TimesNewRomanItalic = "TimesNewRomanItalic";
+            public const string TimesNewRoman = "TimesNewRoman";
+
         }
 
         public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
@@ -48,9 +51,16 @@ namespace SharpLayout.Tests
                         else
                             return new FontResolverInfo(FaceNames.TimesNewRomanBold);
                     }
-                    
-            }
-            throw new Exception("Font not found");
+                    else
+                    {
+                        if (isItalic)
+                            return new FontResolverInfo(FaceNames.TimesNewRomanItalic);
+                        else
+                            return new FontResolverInfo(FaceNames.TimesNewRoman);
+                    }
+                default:
+                    throw new Exception("Font not found");
+            }            
         }
 
         public byte[] GetFont(string faceName)
