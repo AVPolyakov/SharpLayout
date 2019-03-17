@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using PdfSharp.Drawing;
+using SharpLayout.Tests.Images;
 using static SharpLayout.Direction;
 using static SharpLayout.Tests.Styles;
 using static SharpLayout.Util;
@@ -49,7 +50,15 @@ namespace SharpLayout.Tests
         public class VectorImageContent : IImageContent
         {
             public static readonly Lazy<ImageInfo> ImageInfo = new Lazy<ImageInfo>(() => {
-                var bytes = File.ReadAllBytes(@"Images\blue-rabbit.pdf");
+                byte[] bytes;
+                var anchorType = typeof(BlueRabbit);
+                using (var stream = anchorType.Assembly
+                    .GetManifestResourceStream($"{anchorType.Namespace}.blue-rabbit.pdf"))
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    bytes = memoryStream.ToArray();
+                }
                 using (var stream = new MemoryStream(bytes))
                 using (var xImage = XImage.FromStream(stream))
                     return new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight);
