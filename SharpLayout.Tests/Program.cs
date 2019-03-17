@@ -18,6 +18,9 @@ namespace SharpLayout.Tests
                 OutcomingDate = DateTime.Now,
                 PaymentPurpose = RuntimeInformation.OSDescription
             });
+            Svo.AddSection(document);
+            ContractDealPassport.AddSection(document);
+            LoanAgreementDealPassport.AddSection(document);
             document.SavePdf("Temp.pdf");
         }
     }
