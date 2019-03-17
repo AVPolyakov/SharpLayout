@@ -83,6 +83,8 @@ namespace SharpLayout.Tests
                 default:
                     throw new Exception("Font file not found");
             }
+            var anchorType = typeof(ResourceImage1);
+            anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png");
             return File.ReadAllBytes($@"Fonts\{fileName}");
         }
     }
