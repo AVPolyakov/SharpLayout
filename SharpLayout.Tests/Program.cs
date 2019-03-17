@@ -33,6 +33,7 @@ namespace SharpLayout.Tests
         private static class FaceNames
         {            
             public const string TimesNewRoman = "TimesNewRoman";
+            public const string TimesNewRomanBoldItalic = "TimesNewRomanBoldItalic";
         }
 
         public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
@@ -40,7 +41,14 @@ namespace SharpLayout.Tests
             switch (familyName)
             {
                 case FamilyNames.TimesNewRoman:
-                    return new FontResolverInfo(FaceNames.TimesNewRoman);
+                    if (isBold)
+                    {
+                        if (isItalic)
+                        {
+                            return new FontResolverInfo(FaceNames.TimesNewRomanBoldItalic);
+                        }
+                    }
+                    
             }
             throw new Exception("Font not found");
         }
@@ -49,8 +57,8 @@ namespace SharpLayout.Tests
         {
             switch (faceName)
             {
-                case FaceNames.TimesNewRoman:
-                    return File.ReadAllBytes(@"Fonts\times.ttf");
+                case FaceNames.TimesNewRomanBoldItalic:
+                    return File.ReadAllBytes(@"Fonts\timesbi.ttf");
             }
             throw new Exception("Font file not found");
         }
