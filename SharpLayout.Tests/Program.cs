@@ -6,6 +6,8 @@ namespace SharpLayout.Tests
     {
         static void Main()
         {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
             var document = new Document();
             PaymentOrder.AddSection(document, new PaymentData {
                 IncomingDate = DateTime.Now,
