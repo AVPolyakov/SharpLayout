@@ -16,7 +16,8 @@ namespace SharpLayout.Tests
             PaymentOrder.AddSection(document, new PaymentData {
                 IncomingDate = DateTime.Now,
                 OutcomingDate = DateTime.Now,
-                PaymentPurpose = RuntimeInformation.OSDescription
+                PaymentPurpose = $@"RuntimeInformation.OSDescription:
+{RuntimeInformation.OSDescription}"
             });
             Svo.AddSection(document);
             ContractDealPassport.AddSection(document);
