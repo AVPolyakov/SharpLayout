@@ -11,9 +11,11 @@ namespace SharpLayout.Tests
             var document = new Document();
             PaymentOrder.AddSection(document, new PaymentData {
                 IncomingDate = DateTime.Now,
-                OutcomingDate = DateTime.Now
+                OutcomingDate = DateTime.Now,
+                PaymentPurpose = @"Тест
+В том числе НДС 270,00"
             });
-            document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf");
+            document.SavePdf("Temp.pdf");
         }
     }
 }

@@ -202,8 +202,7 @@ namespace SharpLayout.Tests
                 var table = section.AddTable().Font(font);
                 var c1 = table.AddColumn(pageSettings.PageWidthWithoutMargins - table.ColumnsWidth);
                 var r1 = table.AddRow().Height(Px(246));
-                r1[c1].Add(Paragraph.Add(@"Тест
-В том числе НДС 270,00"));
+                r1[c1].Add(Paragraph.Add(data.PaymentPurpose));//
                 var r2 = table.AddRow().Height(Px(46));
                 r2[c1].Border(Bottom).VerticalAlign(VerticalAlign.Bottom)
                     .Add(Paragraph.Add("Назначение платежа"));
@@ -262,5 +261,6 @@ xxx xxxxx Xxxxxx xxxxxxxxx
     {
         public DateTime IncomingDate { get; set; }
         public DateTime OutcomingDate { get; set; }
+        public string PaymentPurpose { get; set; }
     }
 }
