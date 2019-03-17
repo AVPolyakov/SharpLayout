@@ -18,7 +18,6 @@ namespace SharpLayout.Tests
             public const string TimesNewRomanBold = "TimesNewRomanBold";
             public const string TimesNewRomanItalic = "TimesNewRomanItalic";
             public const string TimesNewRoman = "TimesNewRoman";
-
         }
 
         public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
