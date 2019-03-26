@@ -225,6 +225,7 @@ namespace SharpLayout.Tests
                     .Content(new VectorImageContent()));
             }
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            Assert(nameof(VectorImage), document.CreatePng().Item1);
         }
 
         public class VectorImageContent : IImageContent
