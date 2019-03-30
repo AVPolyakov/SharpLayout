@@ -16,9 +16,6 @@ namespace LiveViewer
 {
     public partial class MainForm : Form
     {
-        private const string vs = "vs";
-        private const string rider = "rider";
-
         public MainForm()
         {
             InitializeComponent();
@@ -27,17 +24,27 @@ namespace LiveViewer
             ApplySettings();
             var lineArgs = Environment.GetCommandLineArgs();
             LoadFile(lineArgs);
-            if (lineArgs.Length >= 3)
-                switch (lineArgs[2])
-                {
-                    case vs:
-                        dte2 = GetDTE();
-                        MessageFilter.Register();
-                        break;
-                    case rider:
-                        Text = $"{Text} (Rider)";
-                        break;
-                }
+            switch (Ide)
+            {
+                case Ide.VisualStudio:
+                    dte2 = GetDTE();
+                    MessageFilter.Register();
+                    break;
+                case Ide.Rider:
+                    Text = $"{Text} (Rider)";
+                    break;
+            }
+        }
+
+        private static Ide Ide
+        {
+            get
+            {
+                var lineArgs = Environment.GetCommandLineArgs();
+                if (lineArgs.Length >= 3 && lineArgs[2] == "rider") 
+                    return Ide.Rider;
+                return Ide.VisualStudio;
+            }
         }
 
         private DTE2 GetDTE()
@@ -192,23 +199,21 @@ namespace LiveViewer
 
         private void GotoLine(int line, string filePath)
         {
-            var lineArgs = Environment.GetCommandLineArgs();
-            if (lineArgs.Length >= 3)
-                switch (lineArgs[2])
-                {
-                    case vs:
-                        dte2.ItemOperations.OpenFile(filePath, Constants.vsViewKindTextView);
-                        var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
-                        textSelection.GotoLine(line);
-                        textSelection.WordRight();
-                        SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
-                        break;
-                    case rider:
-                        var process = Process.GetProcessesByName("rider64")[0];
-                        SetForegroundWindow(process.MainWindowHandle);
-                        Process.Start(process.MainModule.FileName, $"--line {line} {filePath}");
-                        break;
-                }
+            switch (Ide)
+            {
+                case Ide.VisualStudio:
+                    dte2.ItemOperations.OpenFile(filePath, Constants.vsViewKindTextView);
+                    var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
+                    textSelection.GotoLine(line);
+                    textSelection.WordRight();
+                    SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+                    break;
+                case Ide.Rider:
+                    var process = Process.GetProcessesByName("rider64")[0];
+                    SetForegroundWindow(process.MainWindowHandle);
+                    Process.Start(process.MainModule.FileName, $"--line {line} {filePath}");
+                    break;
+            }
         }
 
         private SyncBitmapInfo GetSyncBitmapInfo()
@@ -278,5 +283,11 @@ namespace LiveViewer
                     selectionHeight);
             }
         }
+    }
+
+    internal enum Ide
+    {
+        VisualStudio,
+        Rider
     }
 }

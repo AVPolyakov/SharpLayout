@@ -1,66 +1,35 @@
 ### Table of Contents  
 - [Nuget package](#nuget-package)  
-- [Базовые элементы для создания отчета](#%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5-%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-%D0%B4%D0%BB%D1%8F-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
-- [Процесс создания отчета](#%D0%9F%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
-- [Примеры](#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B)  
-  - [Платежное поручение](#%D0%9F%D0%BB%D0%B0%D1%82%D0%B5%D0%B6%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D1%80%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)  
-  - [Справка о валютных операциях](#%D0%A1%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D0%BE-%D0%B2%D0%B0%D0%BB%D1%8E%D1%82%D0%BD%D1%8B%D1%85-%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D1%8F%D1%85)  
-  - [Паспорт сделки по контракту](#%D0%9F%D0%B0%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D1%81%D0%B4%D0%B5%D0%BB%D0%BA%D0%B8-%D0%BF%D0%BE-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82%D1%83)  
-  - [Паспорт сделки по кредитному договору](#%D0%9F%D0%B0%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D1%81%D0%B4%D0%B5%D0%BB%D0%BA%D0%B8-%D0%BF%D0%BE-%D0%BA%D1%80%D0%B5%D0%B4%D0%B8%D1%82%D0%BD%D0%BE%D0%BC%D1%83-%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%D1%83)  
-  - [Вставка векторной картинки](#%D0%B2%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0-%D0%B2%D0%B5%D0%BA%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D0%B9-%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D0%B8)
+- [Base elements to create pdf document](#Base-elements-to-create-pdf-document)  
+- [Examples](#Examples)  
+  - [Payment Order](#Payment-Order)  
+  - [Справка о валютных операциях](#Справка-о-валютных-операциях)  
+  - [Паспорт сделки по контракту](#Паспорт-сделки-по-контракту)  
+  - [Паспорт сделки по кредитному договору](#Паспорт-сделки-по-кредитному-договору)  
+  - [Вставка векторной картинки](#Вставка-векторной-картинки)
 - [Live Viewer](#live-viewer)  
 - [Developer Tools](#developer-tools)
-- [Привязка данных](#%D0%9F%D1%80%D0%B8%D0%B2%D1%8F%D0%B7%D0%BA%D0%B0-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)
-- [Конвертация pdf файла в png для измерения расстояний](#%D0%9A%D0%BE%D0%BD%D0%B2%D0%B5%D1%80%D1%82%D0%B0%D1%86%D0%B8%D1%8F-pdf-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-png-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)  
-- [Плагин к Paint.NET для измерения расстояний](#%D0%9F%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD-%D0%BA-paintnet-%D0%B4%D0%BB%D1%8F-%D0%B8%D0%B7%D0%BC%D0%B5%D1%80%D0%B5%D0%BD%D0%B8%D1%8F-%D1%80%D0%B0%D1%81%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B9)
-- [Сравнение производительности MigraDoc vs SharpLayout](#%D0%A1%D1%80%D0%B0%D0%B2%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D0%B8-migradoc-vs-sharplayout)
+- [Data binding](#Data-binding)
+- [Конвертация pdf файла в png для измерения расстояний](#Конвертация-pdf-файла-в-png-для-измерения-расстояний)  
+- [Плагин к Paint.NET для измерения расстояний](#Плагин-к-paintnet-для-измерения-расстояний)
+- [Сравнение производительности MigraDoc vs SharpLayout](#Сравнение-производительности-MigraDoc-vs-SharpLayout)
+- [Процесс создания отчета](#Процесс-создания-отчета)  
 
 ## Nuget package
 [Nuget package](https://www.nuget.org/packages/SharpLayout/)   
 
-## Базовые элементы для создания отчета
-**Таблица** представляет собой матрицу `N` на `M`:  
+## Base elements to create pdf document
+The table is a N × M matrix:  
 ![Table.png](Files/Table.png?raw=true)  
-В ячейку можно вставлять **параграф**, таблицу, **картинку**. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать текст и параметры шрифта. Пример параграфа:  
+Paragraph, table and image can be inserted into cell of table.
+Paragraph is a collection of `Span` elements.
+Text and font parameters can be specified for `Span` element.
+Paragraph exemple:  
 ![Paragraph.png](Files/Paragraph.png?raw=true)  
 
-## Процесс создания отчета
-[Скачиваем](http://www.consultant.ru/document/cons_doc_LAW_32449/6f63e20bf8ca001d7abacf60b7b29c8dfd44d261/)
-из КонсультантПлюс форму платежного поручения (Форма 0401060) в формате MS-Word:  
-![PaymentOrderBlank.png](Files/PaymentOrderBlank.png?raw=true)  
-Создаем столбец `c1` и строку `r1`. Ширину столбца 3.5 см копируем из MS-Word:  
-![Code1.png](Files/Code1.png?raw=true)  
-На экране видим:  
-![r1.png](Files/r1.png?raw=true)  
-Добавляем в ячейку текст:  
-![Code2.png](Files/Code2.png?raw=true)  
-На экране отображается:  
-![r2.png](Files/r2.png?raw=true)  
-Выравниваем текст по центру:  
-![Code3.png](Files/Code3.png?raw=true)  
-![r3.png](Files/r3.png?raw=true)  
-Добавляем нижний бордюр ячейки:  
-![Code4.png](Files/Code4.png?raw=true)  
-![r4.png](Files/r4.png?raw=true)  
-Добавляем строку `r2` и вставляем текст в ячейку `r2[c1]`:  
-![Code5.png](Files/Code5.png?raw=true)  
-![r5.png](Files/r5.png?raw=true)  
-Добавляем столбец `c2`. Ширину столбца 1.25 см копируем из MS-Word:  
-![Code6.png](Files/Code6.png?raw=true")  
-![r6.png](Files/r6.png?raw=true")  
-Добавляем столбец `c3` и наполняем ячейки содержимым:  
-![r7.png](Files/r7.png?raw=true")  
-Ширину столбца `c5` 1.5 см копируем из MS-Word. Столбец `c4` должен занять все оставшееся на странице место. Поэтому ширину столбца `c4` зададим с помощью формулы:  
-![Code7.png](Files/Code7.png?raw=true)  
-Задание ширины с помощь формулы позволяет менять поля страницы и ширины других столбцов.  
-![r8.png](Files/r8.png?raw=true")  
-Аналогичным образом заполняем оставшиеся 63 ячейки.
-В итоге получаем вот такое 
-[платежное поручение](Files/PaymentOrder_Dev.pdf?raw=true).
+## Examples
 
-## Примеры
-
-### Платежное поручение
+### Payment Order
 See the PDF file created by
 [PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs)
 sample:
@@ -95,24 +64,35 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 
 ## Live Viewer
 
-Компилируем проект [LiveViewer](LiveViewer/LiveViewer.csproj). В переменную окружения PATH добавляем директорию, в которой находится `LiveViewer.exe`.
+To use LiveViewer tool, you need to compile [LiveViewer](LiveViewer/LiveViewer.csproj) project. After compilation you need to add to PATH environment variable the directory path where `LiveViewer.exe` file is located.
 
-С помощью метода [SavePng](SharpLayout.Tests/Program.cs#L17) сохраняем картинку на диск. Запускаем [StartLiveViewer](SharpLayout.Tests/Program.cs#L17). LiveViewer отслеживает изменения файла и автоматически обновляет изображение. Если метод `StartLiveViewer` вызывается с параметром `false`, то фокус остается в окне Visual Studio.
+SharpLayout can save a document as png image by method `SavePng`.
 
-`Ctrl + Сlick` – навигация из отчета к строке исходного кода.
+To open image file `Temp.png` by LiveViewer tool, you need run the following command:
+```
+LiveViewer Temp.png
+```
+LiveViewer tool tracks file changes and automatically updates a image on the screen. 
 
-Изменение размеров мышкой  – см. второе видео.
+You can hold Ctrl and mouse left click on the image `Ctrl + Сlick`, LiveViewer will jump to the corresponding line of source code in Visual Studio or JetBrains Rider.
 
-Для увеличения/уменьшения размера изображения следует изменить `resolution` в вызове метода `SavePng`.
+You can resize a elements by mouse. Select the size in Visual Studio editor. Hold left button and draw a rectangle by mouse in LiveViewer. Press `w` (width) or `h` (height) button. See second video below.
 
-Если запущено несколько экземпляров Visual Studio, то можно указать PID процесса. Например,  
-`LiveViewer.exe Temp.png vs 15780`  
+To change scale of image, change `resolution` parameter in `SavePng` method.
+
+If you are running multiple instances of Visual Studio, you can specify a process PID. For example:  
+```
+LiveViewer Temp.png vs 15780
+```
 
 [![Demo Video](Files/video.png?raw=true)](https://youtu.be/GOKvKWak8Kg)
 
 [![Изменение размеров мышкой](Files/video2.png?raw=true)](https://youtu.be/Zy6BkPnZxyY)
 
-Навигация в JetBrains Rider:  
+Navigation in JetBrains Rider:  
+```
+LiveViewer Temp.png rider
+```
 ![SharpLayout_Rider.gif](Files/SharpLayout_Rider.gif?raw=true")
 
 ## Developer Tools
@@ -124,7 +104,7 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 Отображение номеров строк исходного кода в ячейке – `document.CellLineNumbersAreVisible = true`  
 ![r10.png](Files/r10.png?raw=true")  
 
-## Привязка данных
+## Data binding
 Для того чтобы быстро проверить привязку данных можно вывести выражения в отчете `ExpressionVisible = true`:  
 ![r8.png](Files/r12.png?raw=true")  
 Выражения отображаются в отчете, если привязка данных выполнена с помощью _expression tree lambda_:  
@@ -140,3 +120,37 @@ C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPass
 
  ## Сравнение производительности MigraDoc vs SharpLayout
  [Ссылка](Files/MigraDocVsSharpLayout.md).
+
+ ## Процесс создания отчета
+[Скачиваем](http://www.consultant.ru/document/cons_doc_LAW_32449/6f63e20bf8ca001d7abacf60b7b29c8dfd44d261/)
+из КонсультантПлюс форму платежного поручения (Форма 0401060) в формате MS-Word:  
+![PaymentOrderBlank.png](Files/PaymentOrderBlank.png?raw=true)  
+Создаем столбец `c1` и строку `r1`. Ширину столбца 3.5 см копируем из MS-Word:  
+![Code1.png](Files/Code1.png?raw=true)  
+На экране видим:  
+![r1.png](Files/r1.png?raw=true)  
+Добавляем в ячейку текст:  
+![Code2.png](Files/Code2.png?raw=true)  
+На экране отображается:  
+![r2.png](Files/r2.png?raw=true)  
+Выравниваем текст по центру:  
+![Code3.png](Files/Code3.png?raw=true)  
+![r3.png](Files/r3.png?raw=true)  
+Добавляем нижний бордюр ячейки:  
+![Code4.png](Files/Code4.png?raw=true)  
+![r4.png](Files/r4.png?raw=true)  
+Добавляем строку `r2` и вставляем текст в ячейку `r2[c1]`:  
+![Code5.png](Files/Code5.png?raw=true)  
+![r5.png](Files/r5.png?raw=true)  
+Добавляем столбец `c2`. Ширину столбца 1.25 см копируем из MS-Word:  
+![Code6.png](Files/Code6.png?raw=true")  
+![r6.png](Files/r6.png?raw=true")  
+Добавляем столбец `c3` и наполняем ячейки содержимым:  
+![r7.png](Files/r7.png?raw=true")  
+Ширину столбца `c5` 1.5 см копируем из MS-Word. Столбец `c4` должен занять все оставшееся на странице место. Поэтому ширину столбца `c4` зададим с помощью формулы:  
+![Code7.png](Files/Code7.png?raw=true)  
+Задание ширины с помощь формулы позволяет менять поля страницы и ширины других столбцов.  
+![r8.png](Files/r8.png?raw=true")  
+Аналогичным образом заполняем оставшиеся 63 ячейки.
+В итоге получаем вот такое 
+[платежное поручение](Files/PaymentOrder_Dev.pdf?raw=true).

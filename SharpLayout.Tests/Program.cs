@@ -25,7 +25,7 @@ namespace SharpLayout.Tests
                 //ContractDealPassport.AddSection(document);
                 //LoanAgreementDealPassport.AddSection(document);
 
-                document.SavePng(0, "Temp.png", 120).StartLiveViewer(true);
+                document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
 
                 //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
                 //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
