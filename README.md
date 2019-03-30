@@ -1,6 +1,6 @@
 ### Table of Contents  
 - [Nuget package](#nuget-package)  
-- [Базовые элементы для создания отчета](#%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5-%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-%D0%B4%D0%BB%D1%8F-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
+- [Base elements to create pdf document](#Base-elements-to-create-pdf-document)  
 - [Процесс создания отчета](#%D0%9F%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BE%D1%82%D1%87%D0%B5%D1%82%D0%B0)  
 - [Примеры](#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B)  
   - [Платежное поручение](#%D0%9F%D0%BB%D0%B0%D1%82%D0%B5%D0%B6%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D1%80%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)  
@@ -18,10 +18,14 @@
 ## Nuget package
 [Nuget package](https://www.nuget.org/packages/SharpLayout/)   
 
-## Базовые элементы для создания отчета
-**Таблица** представляет собой матрицу `N` на `M`:  
+
+## Base elements to create pdf document
+The table is a N × M matrix:  
 ![Table.png](Files/Table.png?raw=true)  
-В ячейку можно вставлять **параграф**, таблицу, **картинку**. Параграф состоит из коллекции **`Span` элементов**. Для `Span` элемента можно задать текст и параметры шрифта. Пример параграфа:  
+Paragraph, table and picture can be inserted into cell of table.
+Paragraph is a collection of `Span` elements.
+Text and font parameters can be specified for `Span` element.
+Paragraph exemple:  
 ![Paragraph.png](Files/Paragraph.png?raw=true)  
 
 ## Процесс создания отчета
