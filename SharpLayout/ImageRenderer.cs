@@ -38,7 +38,7 @@ namespace SharpLayout
 		        var content = image.Content();
                 if (content.HasValue)
                 {
-                    using (var stream = content.Value.CreateStream())
+                    using (var stream = content.Value())
                     using (var xImage = XImage.FromStream(stream))
                         return xImage.PointWidth;
                 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using PdfSharp.Drawing;
 using static SharpLayout.Direction;
 
 namespace SharpLayout
@@ -66,9 +65,9 @@ namespace SharpLayout
             return this;
         }
 
-        private Option<IImageContent> content;
-        public Option<IImageContent> Content() => content;
-        public Image Content(IImageContent value)
+        private Option<Func<Stream>> content;
+        public Option<Func<Stream>> Content() => content;
+        public Image Content(Func<Stream> value)
         {
             content = value.ToOption();
             return this;
@@ -81,10 +80,5 @@ namespace SharpLayout
 	        alignment = value;
 	        return this;
         }
-    }
-
-    public interface IImageContent
-    {
-        Stream CreateStream();
     }
 }

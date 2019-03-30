@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -11,8 +12,8 @@ namespace SharpLayout
 {
     public interface IGraphics
     {
-        void DrawImage(IImageContent imageContent, double x, double y);
-        void DrawImage(IImageContent imageContent, double x, double y, Func<double, double> width, Func<double, double> height);
+        void DrawImage(Func<Stream> imageContent, double x, double y);
+        void DrawImage(Func<Stream> imageContent, double x, double y, Func<double, double> width, Func<double, double> height);
         void DrawString(string s, Font font, XBrush brush, double x, double y);
         void DrawLine(XPen pen, double x1, double y1, double x2, double y2);
         void DrawRectangle(XBrush brush, double x, double y, double width, double height);
@@ -29,9 +30,9 @@ namespace SharpLayout
             this.graphics = graphics;
         }
 
-        public void DrawImage(IImageContent imageContent, double x, double y)
+        public void DrawImage(Func<Stream> imageContent, double x, double y)
         {
-            using (var stream = imageContent.CreateStream())
+            using (var stream = imageContent())
                 if (PdfReader.TestPdfFile(stream) <= 0)
                     using (var image = System.Drawing.Image.FromStream(stream))
                         graphics.DrawImage(image, (float) x, (float) y,
@@ -44,10 +45,10 @@ namespace SharpLayout
                             image.PointHeight);
         }
 
-        public void DrawImage(IImageContent imageContent, double x, double y,
+        public void DrawImage(Func<Stream> imageContent, double x, double y,
             Func<double, double> width, Func<double, double> height)
         {
-            using (var stream = imageContent.CreateStream())
+            using (var stream = imageContent())
                 if (PdfReader.TestPdfFile(stream) <= 0)
                     using (var image = System.Drawing.Image.FromStream(stream))
                         graphics.DrawImage(image, (float) x, (float) y,
@@ -235,17 +236,17 @@ namespace SharpLayout
             this.xGraphics = xGraphics;
         }
 
-        public void DrawImage(IImageContent imageContent, double x, double y)
+        public void DrawImage(Func<Stream> imageContent, double x, double y)
         {
-            using (var stream = imageContent.CreateStream())
+            using (var stream = imageContent())
             using (var xImage = XImage.FromStream(stream))
                 xGraphics.DrawImage(xImage, x, y);
         }
 
-        public void DrawImage(IImageContent imageContent, double x, double y, 
+        public void DrawImage(Func<Stream> imageContent, double x, double y, 
             Func<double, double> width, Func<double, double> height)
         {
-            using (var stream = imageContent.CreateStream())
+            using (var stream = imageContent())
             using (var xImage = XImage.FromStream(stream))
                 xGraphics.DrawImage(xImage, x, y, width(xImage.PointWidth), height(xImage.PointHeight));
         }

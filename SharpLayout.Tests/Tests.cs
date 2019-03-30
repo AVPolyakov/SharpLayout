@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -139,14 +138,11 @@ namespace SharpLayout.Tests
             var c1 = table.AddColumn(Px(800));
             var r1 = table.AddRow();
             r1[c1].Add(new Image()
-	            .Content(new ImageContent()));
+	            .Content(Image1));
             Assert(nameof(Image), document.CreatePng().Item1);
         }
 
-        public class ImageContent : IImageContent
-        {
-            public Stream CreateStream() => File.OpenRead(@"Images\Image1.png");
-        }
+        private static FileStream Image1() => File.OpenRead(@"Images\Image1.png");
 
         [Fact]
         public void Image_Alignments()
@@ -159,26 +155,23 @@ namespace SharpLayout.Tests
 	        var c3 = table.AddColumn(Px(500));
 	        var r1 = table.AddRow();
 	        r1[c1].Add(new Image()
-		        .Content(new ImageContent()));
+		        .Content(Image1));
 	        var r2 = table.AddRow();
 	        r2[c2].Add(new Image().Alignment(HorizontalAlign.Center)
-		        .Content(new ImageContent()));
+		        .Content(Image1));
 	        var r3 = table.AddRow();
 	        r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
-		        .Content(new ResourceImageContent()));
+		        .Content(ResourceImage1));
             var r4 = table.AddRow();
             r4[c3].Add(new Image().Height(Cm(1)).Width(Cm(3)).Alignment(HorizontalAlign.Right)
-                .Content(new ResourceImageContent()));
+                .Content(ResourceImage1));
             Assert(nameof(Image_Alignments), document.CreatePng().Item1);
         }
 
-        public class ResourceImageContent : IImageContent
+        private static Stream ResourceImage1()
         {
-            public Stream CreateStream()
-            {
-                var anchorType = typeof(ResourceImage1);
-                return anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png");
-            }
+            var anchorType = typeof(ResourceImage1);
+            return anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png");
         }
 
         [Fact]
@@ -186,7 +179,7 @@ namespace SharpLayout.Tests
         {
             var document = new Document();
             var section = document.Add(new Section(new PageSettings()));
-            var info = VectorImageContent.ImageInfo.Value;
+            var info = blueRabbitInfo.Value;
             {
                 var table = section.AddTable();
                 var scale = 0.7;
@@ -196,7 +189,7 @@ namespace SharpLayout.Tests
                 var r1 = table.AddRow();
                 r1[c1].Add(new Image()
                     .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
+                    .Content(BlueRabbit));
             }
             {
                 var table = section.AddTable().Margin(Top, Cm(0.5));
@@ -208,31 +201,28 @@ namespace SharpLayout.Tests
                 var r1 = table.AddRow();
                 r1[c1].Add(new Image()
                     .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
+                    .Content(BlueRabbit));
                 var r2 = table.AddRow();
                 r2[c2].Add(new Image().Alignment(HorizontalAlign.Center)
                     .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
+                    .Content(BlueRabbit));
                 var r3 = table.AddRow();
                 r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
                     .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(new VectorImageContent()));
+                    .Content(BlueRabbit));
             }
             //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
             Assert(nameof(VectorImage), document.CreatePng().Item1);
         }
 
-        public class VectorImageContent : IImageContent
-        {
-            public static readonly Lazy<ImageInfo> ImageInfo = new Lazy<ImageInfo>(() => {
-                var bytes = File.ReadAllBytes(@"Images\blue-rabbit.pdf");
-                using (var stream = new MemoryStream(bytes))
-                using (var xImage = XImage.FromStream(stream))
-                    return new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight);
-            });
+        private static readonly Lazy<ImageInfo> blueRabbitInfo = new Lazy<ImageInfo>(() => {
+            var bytes = File.ReadAllBytes(@"Images\blue-rabbit.pdf");
+            using (var stream = new MemoryStream(bytes))
+            using (var xImage = XImage.FromStream(stream))
+                return new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight);
+        });
 
-            public Stream CreateStream() => new MemoryStream(ImageInfo.Value.Bytes);
-        }
+        private static MemoryStream BlueRabbit() => new MemoryStream(blueRabbitInfo.Value.Bytes);
 
         [Fact]
         public void Footnotes()
