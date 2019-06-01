@@ -902,7 +902,7 @@ namespace SharpLayout
         {
             return cell => rightBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                    throw new Exception($"The right border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToString(table)}");
                 else
                     return list[0].Value;
             }).Match(_ => _, () => {
@@ -969,7 +969,7 @@ namespace SharpLayout
         {
             return cell => bottomBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                    throw new Exception($"The bottom border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToString(table)}");
                 else
                     return list[0].Value;
             }).Match(_ => _, () => {
@@ -1016,7 +1016,7 @@ namespace SharpLayout
         {
             return cell => leftBorderDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                    throw new Exception($"The left border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToString(table)}");
                 else
                     return list[0].Value;
             }).Match(_ => _, () => {
@@ -1062,7 +1062,7 @@ namespace SharpLayout
             }
             return cell => result.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                    throw new Exception($"The top border is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToString(table)}");
                 else
                     return list[0].Value;
             }).Match(_ => _, () => {
@@ -1076,7 +1076,7 @@ namespace SharpLayout
         {
             return cell => backgroundColorDictionary.Get(cell).Select(list => {
                 if (list.Count > 1)
-                    throw new Exception($"The background color is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToSttring(table)}");
+                    throw new Exception($"The background color is ambiguous Cells={list.Select(_ => _.CellInfo).CellsToString(table)}");
                 else
                     return list[0].Color;
             });
@@ -1104,7 +1104,7 @@ namespace SharpLayout
             }
         }
 
-        private static string CellsToSttring(this IEnumerable<CellInfo> cells, Table table) 
+        private static string CellsToString(this IEnumerable<CellInfo> cells, Table table) 
             => string.Join(", ", cells.Select(_ => $"L{table.Line} r{_.RowIndex + 1}c{_.ColumnIndex + 1}"));
 
         private static TableInfo GetTableInfo(IGraphics xGraphics, Table table, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
