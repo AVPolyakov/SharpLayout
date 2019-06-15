@@ -22,8 +22,7 @@ namespace LiveViewer
             pictureBox.MouseEnter += (sender, args) => panel1.Focus();
             panel1.KeyDown += Panel1OnKeyDown;
             ApplySettings();
-            var lineArgs = Environment.GetCommandLineArgs();
-            LoadFile(lineArgs);
+            LoadFile(Environment.GetCommandLineArgs());
             switch (Ide)
             {
                 case Ide.VisualStudio:
@@ -36,12 +35,11 @@ namespace LiveViewer
             }
         }
 
-        private static Ide Ide
+        private Ide Ide
         {
             get
             {
-                var lineArgs = Environment.GetCommandLineArgs();
-                if (lineArgs.Length >= 3 && lineArgs[2] == "rider") 
+                if (_lineArgs.Length >= 3 && _lineArgs[2] == "rider") 
                     return Ide.Rider;
                 return Ide.VisualStudio;
             }
@@ -49,10 +47,9 @@ namespace LiveViewer
 
         private DTE2 GetDTE()
         {
-            var lineArgs = Environment.GetCommandLineArgs();
-            if (lineArgs.Length >= 4)
+            if (_lineArgs.Length >= 4)
             {
-                var processId = int.Parse(lineArgs[3]);
+                var processId = int.Parse(_lineArgs[3]);
                 DTE2 result;
                 try
                 {
@@ -144,11 +141,13 @@ namespace LiveViewer
 
         private static string SettingsPath => Path.ChangeExtension(typeof(Program).Assembly.Location, ".json");
 
+        private string[] _lineArgs;
         public void LoadFile(string[] lineArgs)
         {
-            if (lineArgs.Length >= 2)
+            _lineArgs = lineArgs;
+            if (_lineArgs.Length >= 2)
             {
-                var imageLocation = Path.GetFullPath(lineArgs[1]);
+                var imageLocation = Path.GetFullPath(_lineArgs[1]);
                 pictureBox.ImageLocation = imageLocation;
                 fileSystemWatcher.Path = Path.GetDirectoryName(imageLocation);
             }
