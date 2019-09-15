@@ -241,13 +241,21 @@ namespace LiveViewer
             }
             if (value.HasValue)
             {
-                var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
                 var text = ((int) Round(1.0 * value.Value * 254 / GetSyncBitmapInfo().Resolution,
                     MidpointRounding.AwayFromZero)).ToString();
-                textSelection.Insert(text);
-                textSelection.CharLeft(true, text.Length);
-                SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
-                dte2.ExecuteCommand("Debug.StartWithoutDebugging");
+                switch (Ide)
+                {
+                    case Ide.VisualStudio:
+                        var textSelection = (TextSelection) dte2.ActiveDocument.Selection;
+                        textSelection.Insert(text);
+                        textSelection.CharLeft(true, text.Length);
+                        SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
+                        dte2.ExecuteCommand("Debug.StartWithoutDebugging");
+                        break;
+                    case Ide.Rider:
+                        Clipboard.SetText(text);
+                        break;
+                }
             }
         }
 

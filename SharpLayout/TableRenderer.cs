@@ -1270,7 +1270,7 @@ namespace SharpLayout
                     drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
                     if (row == 0)
                     {
-                        var lineText = $"{info.Table.Line}";
+                        var lineText = $"t{info.Table.Line}";
                         drawer.DrawString(lineText,
                             font,
                             purpleBrush,

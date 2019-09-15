@@ -47,7 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Watcher.Contracts\WatcherSettings.cs">
+      <Link>WatcherSettings.cs</Link>
+    </Compile>
     <Compile Include="ContractDealPassport.cs" />
+    <Compile Include="DataGenerator.cs" />
     <Compile Include="Images\ResourceImage1.cs" />
     <Compile Include="ImageUtil.cs" />
     <Compile Include="LoanAgreementDealPassport.cs" />
@@ -57,6 +61,7 @@
     <Compile Include="Styles.cs" />
     <Compile Include="Svo.cs" />
     <Compile Include="Tests.cs" />
+    <Compile Include="WatcherSettingsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\blue-rabbit.pdf">
@@ -75,6 +80,14 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OtherAssembly1\OtherAssembly1.csproj">
+      <Project>{8dc8f93a-b64e-476d-9701-6cb0906fd89e}</Project>
+      <Name>OtherAssembly1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OtherAssembly2\OtherAssembly2.csproj">
+      <Project>{2c9e0bc4-7b50-478a-8e14-95a947bdba65}</Project>
+      <Name>OtherAssembly2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj">
       <Project>{44487d24-3fb3-4eb4-98fe-3d16f5eebc0a}</Project>
       <Name>PdfSharp-netstandard</Name>
