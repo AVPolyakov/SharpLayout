@@ -1083,7 +1083,7 @@ qwe3
         public void ContractDealPassportTest()
         {
             var document = new Document();
-            ContractDealPassport.AddSection(document);
+            ContractDealPassport.AddSection(document, new ContractDealPassportData());
             Assert(nameof(ContractDealPassportTest), document.CreatePng().Item1);
         }
 
@@ -1091,7 +1091,7 @@ qwe3
         public void LoanAgreementDealPassportTest()
         {
             var document = new Document();
-            LoanAgreementDealPassport.AddSection(document);
+            LoanAgreementDealPassport.AddSection(document, new LoanAgreementDealPassportData());
             Assert(nameof(LoanAgreementDealPassportTest), document.CreatePng().Item1);
         }
 

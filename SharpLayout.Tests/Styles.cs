@@ -1,6 +1,8 @@
 using System;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using static SharpLayout.Direction;
+using static SharpLayout.Util;
 
 namespace SharpLayout.Tests
 {
@@ -29,5 +31,27 @@ namespace SharpLayout.Tests
         public static XPdfFontOptions PdfOptions => new XPdfFontOptions(PdfFontEncoding.Unicode);
 
         public static string FormatDate(DateTime value) => value.ToString("dd.MM.yyyy");
+        
+        public static void Distribute(this Column[] columns, double width)
+        {
+            var d = width / columns.Length;
+            double sum = 0;
+            for (var i = 0; i < columns.Length - 1; i++)
+            {
+                columns[i].Width += d;
+                sum += d;
+            }
+            columns[columns.Length - 1].Width += width - sum;
+        }
+        
+        public static string CellSubstring(this string s, int i, int cellCount)
+        {
+            if (s == null) return "";
+            if (i >= s.Length) return "";
+            if (i == cellCount - 1) return s.Substring(i);
+            return s.Substring(i, 1);
+        }
+        
+        public static Paragraph NormalParagraph => new Paragraph().Margin(Left | Right, Cm(0.05));
     }
 }

@@ -58,7 +58,8 @@ namespace Watcher
         private static IEnumerable<string> GetSourceCodeFileFullNames(WatcherSettings settings, Context context)
         {
             var directoryName = Path.GetDirectoryName(context.SettingsPath);
-            return settings.SourceCodeFiles.Select(codeFile => Path.Combine(directoryName, codeFile));
+            return settings.SourceCodeFiles.Concat(new[] {settings.SourceCodeFile})
+                .Select(codeFile => Path.Combine(directoryName, codeFile));
         }
         
         private static string GetOutputPath(WatcherSettings settings, Context context) => 
@@ -120,7 +121,7 @@ namespace Watcher
                     bytes = stream.ToArray();
                 }
                 var assembly = Assembly.Load(bytes);
-                var typeName = Path.GetFileNameWithoutExtension(settings.SourceCodeFiles.Last());
+                var typeName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
                 var type = assembly.GetTypes().Single(_ => _.Name == typeName);
                 var method = type.GetMethod("AddSection");
                 var parameterType = method.GetParameters()[1].ParameterType;
@@ -243,7 +244,7 @@ namespace Watcher
         }
         
         private static string GetErrorText(EmitResult emitResult) => 
-            $"{emitResult.Diagnostics.FirstOrDefault()}";
+            $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
         private static void WriteError(string errorText)
         {

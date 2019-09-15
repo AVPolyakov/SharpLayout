@@ -1,13 +1,12 @@
 ﻿using static SharpLayout.Direction;
 using static SharpLayout.Util;
 using static SharpLayout.Tests.Styles;
-using static SharpLayout.Tests.ContractDealPassport;
 
 namespace SharpLayout.Tests
 {
     public static class LoanAgreementDealPassport
     {
-        public static void AddSection(Document document)
+        public static void AddSection(Document document, LoanAgreementDealPassportData data)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(1),
@@ -672,5 +671,9 @@ namespace SharpLayout.Tests
                 }
             }
         }
+    }
+
+    public class LoanAgreementDealPassportData
+    {
     }
 }
