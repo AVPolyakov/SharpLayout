@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharpLayout\SyncItemInfo.cs">
+      <Link>SyncItemInfo.cs</Link>
+    </Compile>
     <Compile Include="DTEFinder.cs" />
     <Compile Include="MessageFilter.cs" />
     <Compile Include="MainForm.cs">
@@ -100,12 +103,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharpLayout\SharpLayout.csproj">
-      <Project>{05e890de-939f-4e72-a971-2ea897e9b503}</Project>
-      <Name>SharpLayout</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

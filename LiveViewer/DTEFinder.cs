@@ -7,7 +7,7 @@ namespace LiveViewer
 {
     public static class DTEFinder
     {
-        public const string ProgId = "VisualStudio.DTE.15.0";
+        public const string ProgId = "VisualStudio.DTE.16.0";
 
         [DllImport("ole32.dll")]
         private static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);

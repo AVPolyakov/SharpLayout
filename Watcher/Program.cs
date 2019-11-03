@@ -22,7 +22,7 @@ namespace Watcher
         public static void Main(string[] args)
         {
             if (args.Length == 0)
-                args = new[] {@"E:\Projects\SharpLayout\SharpLayout\SharpLayout.Tests\WatcherSettingsProvider.cs"};
+                args = new[] { @"E:\Projects\SharpLayout\SharpLayout\Starter\WatcherSettingsProvider.cs" };
             
             SharpLayout.Document.CollectCallerInfo = true;
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);

@@ -25,4 +25,10 @@ namespace SharpLayout
         public List<CallerInfo> CallerInfos { get; set; }
         public int Level { get; set; }
     }
+
+    public class CallerInfo
+    {
+        public int Line { get; set; }
+        public string FilePath { get; set; }
+    }
 }

@@ -61,7 +61,7 @@ namespace LiveViewer
                     return null;
                 }
                 if (result == null)
-                    MessageBox.Show($"Visual Studio 2017 with process id {processId} not found.",
+                    MessageBox.Show($"Visual Studio 2019 with process id {processId} not found.",
                         "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else
                 {
@@ -84,7 +84,7 @@ namespace LiveViewer
 
         private static void ShowRunningVisualStudioIsRequired()
         {
-            MessageBox.Show("А running Visual Studio 2017 is required for fully-featured operation of Live Viewer.",
+            MessageBox.Show("А running Visual Studio 2019 is required for fully-featured operation of Live Viewer.",
                 "LiveViewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 

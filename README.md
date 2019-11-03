@@ -31,7 +31,7 @@ Paragraph exemple:
 
 ### Payment Order
 See the PDF file created by
-[PaymentOrder.cs](SharpLayout.Tests/PaymentOrder.cs)
+[PaymentOrder.cs](Examples/PaymentOrder.cs)
 sample:
 [PaymentOrder.pdf](Files/PaymentOrder.pdf?raw=true).
 Highlighting of cells **r1c1** and paragraphs for development
@@ -42,25 +42,25 @@ Highlighting of cells **r1c1** and paragraphs for development
 [Ссылка](http://www.consultant.ru/document/cons_doc_LAW_133766/8408aeb59bc953ca3bbce8a729e5a5dca3bd0705/)
 для скачивания формы справки о валютных операциях (ОКУД 0406009).
 [Копия](Files/LAW191272_0_20170628_171359.RTF).  
-C# код [Svo.cs](SharpLayout.Tests/Svo.cs) для создания справки о валютных операциях. Результат
-[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева фиолетовым указаны номера строк в исходном коде [Svo.cs](SharpLayout.Tests/Svo.cs).  
+C# код [Svo.cs](Examples/Svo.cs) для создания справки о валютных операциях. Результат
+[Svo.pdf](Files/Svo.pdf?raw=true). Подсветка в режиме разработки [Svo_Dev.pdf](Files/Svo_Dev.pdf?raw=true). Слева фиолетовым указаны номера строк в исходном коде [Svo.cs](Examples/Svo.cs).  
 
 ### Паспорт сделки по контракту
-C# код [ContractDealPassport.cs](SharpLayout.Tests/ContractDealPassport.cs) для создания паспорта сделки по контракту.
+C# код [ContractDealPassport.cs](Examples/ContractDealPassport.cs) для создания паспорта сделки по контракту.
 [ContractDealPassport.pdf](Files/ContractDealPassport.pdf?raw=true).  
 [Ссылка](http://www.consultant.ru/document/Cons_doc_LAW_133766/775e60bb32004e2c078a5dca88b5bed4a0fa277e/)
 для скачивания формы паспорта сделки по контракту (ОКУД 0406005 Форма 1).
 [Копия](Files/LAW172722_0_20180026_141723.RTF).  
 
 ### Паспорт сделки по кредитному договору
-C# код [LoanAgreementDealPassport.cs](SharpLayout.Tests/LoanAgreementDealPassport.cs) для создания паспорта сделки по контракту.
+C# код [LoanAgreementDealPassport.cs](Examples/LoanAgreementDealPassport.cs) для создания паспорта сделки по контракту.
 [LoanAgreementDealPassport.pdf](Files/LoanAgreementDealPassport.pdf?raw=true).  
 [Ссылка](http://www.consultant.ru/document/Cons_doc_LAW_133766/775e60bb32004e2c078a5dca88b5bed4a0fa277e/)
 для скачивания формы паспорта сделки по контракту (ОКУД 0406005 Форма 2).
 [Копия](Files/LAW172722_0_20180026_141723.RTF).  
 
 ### Вставка векторной картинки
-См. метод `VectorImage` в файле [Tests.cs](SharpLayout.Tests/Tests.cs). Результат [Rabbits.pdf](Files/Rabbits.pdf?raw=true).  
+См. метод `VectorImage` в файле [Tests.cs](Tests/Tests.cs). Результат [Rabbits.pdf](Files/Rabbits.pdf?raw=true).  
 
 ## Live Viewer
 

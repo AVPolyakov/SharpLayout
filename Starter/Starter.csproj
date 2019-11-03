@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Examples\Examples.csproj" />
+    <ProjectReference Include="..\OtherAssembly1\OtherAssembly1.csproj" />
+    <ProjectReference Include="..\OtherAssembly2\OtherAssembly2.csproj" />
+    <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
+    <ProjectReference Include="..\Watcher.Contracts\Watcher.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
