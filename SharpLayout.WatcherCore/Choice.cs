@@ -1,7 +1,6 @@
 using System;
-using SharpLayout;
 
-namespace Watcher
+namespace SharpLayout.WatcherCore
 {
     public abstract class Choice<T1, T2>
     {

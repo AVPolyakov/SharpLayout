@@ -1,4 +1,4 @@
-namespace Watcher.Ref
+namespace SharpLayout.WatcherCore.Ref
 {
     public class netstandard
     {

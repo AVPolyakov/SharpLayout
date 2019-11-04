@@ -1,2 +1,2 @@
 @echo off
-dotnet Watcher\bin\Debug\netcoreapp2.2\Watcher.dll "Starter\WatcherSettingsProvider.cs"
+dotnet Watcher\bin\Debug\netcoreapp2.2\Watcher.dll

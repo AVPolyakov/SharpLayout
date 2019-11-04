@@ -1,8 +1,7 @@
 using System;
 using System.Reflection;
-using SharpLayout;
 
-namespace Watcher.Contracts
+namespace SharpLayout.WatcherCore
 {
     public class WatcherSettings
     {
@@ -12,12 +11,9 @@ namespace Watcher.Contracts
         public int PageNumber { get; }
         public int Resolution { get; }
         public Func<Document> DocumentFunc { get; }
-        public Assembly[] Assemblies { get; }
-        public Func<ParameterInfo, object> ParameterFunc { get; }
 
         public WatcherSettings(string sourceCodeFile, string[] sourceCodeFiles, string outputPath, int pageNumber,
-            int resolution, Func<Document> documentFunc, Assembly[] assemblies,
-            Func<ParameterInfo, object> parameterFunc)
+            int resolution, Func<Document> documentFunc)
         {
             SourceCodeFile = sourceCodeFile;
             SourceCodeFiles = sourceCodeFiles;
@@ -25,8 +21,6 @@ namespace Watcher.Contracts
             PageNumber = pageNumber;
             Resolution = resolution;
             DocumentFunc = documentFunc;
-            Assemblies = assemblies;
-            ParameterFunc = parameterFunc;
         }
     }
 }

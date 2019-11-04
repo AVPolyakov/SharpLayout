@@ -3,24 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Ref\netstandard.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Ref\netstandard.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\OtherAssembly1\OtherAssembly1.csproj" />
+    <ProjectReference Include="..\OtherAssembly2\OtherAssembly2.csproj" />
     <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
-    <ProjectReference Include="..\Watcher.Contracts\Watcher.Contracts.csproj" />
+    <ProjectReference Include="..\SharpLayout.WatcherCore\SharpLayout.WatcherCore.csproj" />
   </ItemGroup>
   
 </Project>
