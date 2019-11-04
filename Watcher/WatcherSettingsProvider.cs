@@ -25,7 +25,6 @@ namespace Watcher
                 sourceCodeFiles: new[] {
                     @"..\Examples\Styles.cs",
                 },
-                outputPath: @"..\Starter\bin\Debug\netcoreapp3.0\Temp.png",
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
                 documentFunc: () => new Document {

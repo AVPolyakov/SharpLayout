@@ -17,7 +17,8 @@ namespace SharpLayout.WatcherCore
 {
     public static class Watcher
     {
-        public static void Start(string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc)
+        public static void Start(string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc,
+            string outputPath)
         {
             Document.CollectCallerInfo = true;
             
@@ -32,7 +33,7 @@ namespace SharpLayout.WatcherCore
             var sharpLayoutReference = AssemblyMetadata.CreateFromFile(typeof(Document).Assembly.Location).GetReference();
             var settingsReference = AssemblyMetadata.CreateFromFile(typeof(WatcherSettings).Assembly.Location).GetReference();
             var context = new Context(netstandardReference, settingsReference, pdfSharpReference, sharpLayoutReference,
-                settingsPath, assemblies, parameterFunc);
+                settingsPath, assemblies, parameterFunc, outputPath);
 
             ProcessSettings(context, createPdf: false);
             StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
@@ -54,8 +55,8 @@ namespace SharpLayout.WatcherCore
                 .Select(codeFile => Path.Combine(directoryName, codeFile));
         }
         
-        private static string GetOutputPath(WatcherSettings settings, Context context) => 
-            Path.Combine(Path.GetDirectoryName(context.SettingsPath), settings.OutputPath);
+        private static string GetOutputPath(Context context) => 
+            Path.Combine(Path.GetDirectoryName(context.SettingsPath), context.OutputPath);
         
         private static void ProcessSettings(Context context, bool createPdf)
         {
@@ -117,7 +118,7 @@ namespace SharpLayout.WatcherCore
                 var type = assembly.GetTypes().Single(_ => _.Name == typeName);
                 var method = type.GetMethod("AddSection");
                 var parameterType = method.GetParameters()[1].ParameterType;
-                var dataPath = Path.Combine(Path.GetDirectoryName(GetOutputPath(settings, context)),
+                var dataPath = Path.Combine(Path.GetDirectoryName(GetOutputPath(context)),
                     $"{parameterType.FullName}.json");
                 if (newSettings)
                     context.Watchers.Add(StartWatcher(dataPath, 
@@ -130,7 +131,7 @@ namespace SharpLayout.WatcherCore
                 if (createPdf)
                 {
                     var fileName = Path.Combine(
-                        Path.GetDirectoryName(GetOutputPath(settings, context)),
+                        Path.GetDirectoryName(GetOutputPath(context)),
                         $"Temp_{Guid.NewGuid():N}.pdf");
                     document.SavePdf(fileName);
                     Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}"));
@@ -138,13 +139,19 @@ namespace SharpLayout.WatcherCore
                 else
                     document.SavePng(
                         pageNumber: settings.PageNumber,
-                        path: GetOutputPath(settings, context),
+                        path: GetOutputPath(context),
                         resolution: settings.Resolution);
                 stopwatch.Stop();
-                Console.WriteLine($"Done. {stopwatch.ElapsedMilliseconds}ms");
+                Console.WriteLine($"Done. {DateTime.Now:HH:mm:ss} {stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception e)
             {
+                if (e is TargetInvocationException exception)
+                    if (exception.InnerException != null)
+                    {
+                        WriteError(exception.InnerException.Message);
+                        return;
+                    }
                 WriteError(e.Message);
             }
         }
@@ -269,11 +276,12 @@ namespace SharpLayout.WatcherCore
         public string SettingsPath { get; }
         public Assembly[] Assemblies { get; }
         public Func<ParameterInfo, object> ParameterFunc { get; }
+        public string OutputPath { get; }
         public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
         public Context(PortableExecutableReference netstandardReference, PortableExecutableReference settingsReference,
             PortableExecutableReference pdfSharpReference, PortableExecutableReference sharpLayoutReference,
-            string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc)
+            string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc, string outputPath)
         {
             NetstandardReference = netstandardReference;
             SettingsReference = settingsReference;
@@ -282,6 +290,7 @@ namespace SharpLayout.WatcherCore
             SettingsPath = settingsPath;
             Assemblies = assemblies;
             ParameterFunc = parameterFunc;
+            OutputPath = outputPath;
         }
     }
 }
