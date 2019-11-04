@@ -22,7 +22,8 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles: new[] {
+                sourceCodeFiles2: new string[] {},
+                sourceCodeFiles1: new[] {
                     @"..\Examples\Styles.cs",
                 },
                 pageNumber: devSettings.PageNumber - 1,

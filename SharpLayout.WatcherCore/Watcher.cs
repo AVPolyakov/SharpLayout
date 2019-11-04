@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -22,19 +23,16 @@ namespace SharpLayout.WatcherCore
             string outputPath)
         {
             Document.CollectCallerInfo = true;
-            
-            byte[] netstandardBytes;
-            using (var stream = typeof(Watcher).Assembly.GetManifestResourceStream(typeof(netstandard).FullName + ".dll"))
-            {
-                netstandardBytes = new byte[stream.Length];
-                stream.Read(netstandardBytes, 0, netstandardBytes.Length);
-            }
-            var netstandardReference = AssemblyMetadata.CreateFromImage(netstandardBytes).GetReference();
-            var pdfSharpReference = AssemblyMetadata.CreateFromFile(typeof(PdfDocument).Assembly.Location).GetReference();
-            var sharpLayoutReference = AssemblyMetadata.CreateFromFile(typeof(Document).Assembly.Location).GetReference();
-            var settingsReference = AssemblyMetadata.CreateFromFile(typeof(WatcherSettings).Assembly.Location).GetReference();
-            var context = new Context(netstandardReference, settingsReference, pdfSharpReference, sharpLayoutReference,
-                settingsPath, assemblies, parameterFunc, outputPath);
+
+            var references = new[] {
+                GetReference(typeof(netstandard).FullName + ".dll"),
+                GetReference(typeof(netstandard).Namespace + ".System.Runtime.dll"),
+                GetReference(typeof(netstandard).Namespace + ".System.Collections.dll"),
+                AssemblyMetadata.CreateFromFile(typeof(PdfDocument).Assembly.Location).GetReference(),
+                AssemblyMetadata.CreateFromFile(typeof(Document).Assembly.Location).GetReference(),
+                AssemblyMetadata.CreateFromFile(typeof(WatcherSettings).Assembly.Location).GetReference()
+            };
+            var context = new Context(references, settingsPath, parameterFunc, outputPath);
 
             ProcessSettings(context, createPdf: false);
             StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
@@ -49,11 +47,15 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static IEnumerable<string> GetSourceCodeFileFullNames(WatcherSettings settings, Context context)
+        private static PortableExecutableReference GetReference(string fullName)
         {
-            var directoryName = Path.GetDirectoryName(context.SettingsPath);
-            return settings.SourceCodeFiles.Concat(new[] {settings.SourceCodeFile})
-                .Select(codeFile => Path.Combine(directoryName, codeFile));
+            byte[] netstandardBytes;
+            using (var stream = typeof(Watcher).Assembly.GetManifestResourceStream(fullName))
+            {
+                netstandardBytes = new byte[stream.Length];
+                stream.Read(netstandardBytes, 0, netstandardBytes.Length);
+            }
+            return AssemblyMetadata.CreateFromImage(netstandardBytes).GetReference();
         }
         
         private static string GetOutputPath(Context context) => 
@@ -68,16 +70,29 @@ namespace SharpLayout.WatcherCore
             if (settingsChoice.HasValue1)
             {
                 var settings = settingsChoice.Value1;
-                var references = context.Assemblies
-                    .Select(a => AssemblyMetadata.CreateFromFile(a.Location).GetReference())
-                    .ToArray();
-                var subContext = new SubContext(references);
-                Compile(context, settings, newSettings: true, createPdf: createPdf, subContext);
-                foreach (var sourceCodeFile in GetSourceCodeFileFullNames(settings, context))
+                var reference1 = CompileAssembly(context, settings.SourceCodeFiles1);
+                var reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                Compile(context, settings, newSettings: true, createPdf: createPdf, reference1, reference2);
+                foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
-                        StartWatcher(sourceCodeFile, 
-                            () => Compile(context, settings, 
-                                newSettings: false, createPdf: false, subContext)));
+                        StartWatcher(sourceCodeFile, () => {
+                            reference1 = CompileAssembly(context, settings.SourceCodeFiles1);
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                            Compile(context, settings,
+                                newSettings: false, createPdf: false, reference1: reference1, reference2);
+                        }));
+                foreach (var sourceCodeFile in settings.SourceCodeFiles2.Select(_ => _.FullPath(context)))
+                    context.Watchers.Add(
+                        StartWatcher(sourceCodeFile, () => {
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                            Compile(context, settings,
+                                newSettings: false, createPdf: false, reference1: reference1, reference2);
+                        }));
+                context.Watchers.Add(
+                    StartWatcher(settings.SourceCodeFile.FullPath(context), () => {
+                        Compile(context, settings,
+                            newSettings: false, createPdf: false, reference1: reference1, reference2);
+                    }));
             }
             else
             {
@@ -85,23 +100,44 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static void Compile(Context context, WatcherSettings settings, bool newSettings, bool createPdf, 
-            SubContext subContext)
+        private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles)
         {
+            var compilation = CSharpCompilation.Create(
+                Guid.NewGuid().ToString("N"),
+                sourceCodeFiles.Select(_ => _.FullPath(context)).Select(
+                    codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
+                references: context.References
+            );
+            byte[] bytes;
+            using (var stream = new MemoryStream())
+            {
+                var emitResult = compilation.Emit(stream);
+                if (!emitResult.Success)
+                {
+                    WriteError(GetErrorText(emitResult), context);
+                    return new Option<PortableExecutableReference>();
+                }
+                bytes = stream.ToArray();
+            }
+            LoadAssembly(bytes);
+            return AssemblyMetadata.CreateFromImage(bytes).GetReference();
+        }
+
+        private static void Compile(Context context, WatcherSettings settings, bool newSettings, bool createPdf,
+            Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2)
+        {
+            if (!reference1.HasValue) return;
+            if (!reference2.HasValue) return;
             try
             {
                 var stopwatch = Stopwatch.StartNew();
+                var codeFile = settings.SourceCodeFile.FullPath(context);
                 var compilation = CSharpCompilation.Create(
                     Guid.NewGuid().ToString("N"),
-                    GetSourceCodeFileFullNames(settings, context).Select(
-                        codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
+                    new[] {SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)},
                     options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                    references: new[]
-                    {
-                        context.NetstandardReference,
-                        context.PdfSharpReference,
-                        context.SharpLayoutReference,
-                    }.Concat(subContext.References)
+                    references: context.References.Concat(new[] {reference1.Value, reference2.Value})
                 );
                 byte[] bytes;
                 using (var stream = new MemoryStream())
@@ -114,7 +150,7 @@ namespace SharpLayout.WatcherCore
                     }
                     bytes = stream.ToArray();
                 }
-                var assembly = Assembly.Load(bytes);
+                var assembly = LoadAssembly(bytes);
                 var typeName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
                 var type = assembly.GetTypes().Single(_ => _.Name == typeName);
                 var method = type.GetMethod("AddSection");
@@ -123,7 +159,8 @@ namespace SharpLayout.WatcherCore
                     $"{parameterType.FullName}.json");
                 if (newSettings)
                     context.Watchers.Add(StartWatcher(dataPath, 
-                        () => Compile(context, settings, newSettings: false, createPdf: false, subContext)));
+                        () => Compile(context, settings, newSettings: false, createPdf: false, reference1: reference1,
+                            reference2)));
                 var deserializeObject = JsonConvert.DeserializeObject(
                     File.ReadAllText(dataPath), parameterType);
                 var document = settings.DocumentFunc();
@@ -155,6 +192,17 @@ namespace SharpLayout.WatcherCore
                     }
                 WriteError(e.Message, context);
             }
+        }
+
+        private static string FullPath(this string sourceCodeFile, Context context)
+        {
+            return Path.Combine(Path.GetDirectoryName(context.SettingsPath), sourceCodeFile);
+        }
+
+        private static Assembly LoadAssembly(byte[] bytes)
+        {
+            using (var stream = new MemoryStream(bytes))
+                return AssemblyLoadContext.Default.LoadFromStream(stream);
         }
 
         private static FileSystemWatcher StartWatcher(string path, Action action)
@@ -221,12 +269,7 @@ namespace SharpLayout.WatcherCore
                 Guid.NewGuid().ToString("N"),
                 new[] {SyntaxFactory.ParseSyntaxTree(File.ReadAllText(settingsPath), path: settingsPath)},
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                references: new[]
-                {
-                    context.NetstandardReference,
-                    context.SharpLayoutReference,
-                    context.SettingsReference
-                }
+                references: context.References
             );
             byte[] settingsProviderBytes;
             using (var stream = new MemoryStream())
@@ -237,7 +280,7 @@ namespace SharpLayout.WatcherCore
                 else
                     settingsProviderBytes = stream.ToArray();
             }
-            var settingsProviderType = Assembly.Load(settingsProviderBytes)
+            var settingsProviderType = LoadAssembly(settingsProviderBytes)
                 .GetTypes().Single(type => type.Name == "WatcherSettingsProvider");
             return (WatcherSettings) settingsProviderType.GetMethod("GetSettings")
                 .Invoke(null, new object[]{Path.GetDirectoryName(settingsPath)});
@@ -264,39 +307,20 @@ namespace SharpLayout.WatcherCore
                 .Aggregate((filters, notifyFilters) => filters | notifyFilters);
         }
     }
-
-    internal class SubContext
-    {
-        public PortableExecutableReference[] References { get; }
-
-        public SubContext(PortableExecutableReference[] references)
-        {
-            References = references;
-        }
-    }
-
+    
     internal class Context
     {
-        public PortableExecutableReference NetstandardReference { get; }
-        public PortableExecutableReference SettingsReference { get; }
-        public PortableExecutableReference PdfSharpReference { get; }
-        public PortableExecutableReference SharpLayoutReference { get; }
+        public PortableExecutableReference[] References { get; }
         public string SettingsPath { get; }
-        public Assembly[] Assemblies { get; }
         public Func<ParameterInfo, object> ParameterFunc { get; }
         public string OutputPath { get; }
         public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
-        public Context(PortableExecutableReference netstandardReference, PortableExecutableReference settingsReference,
-            PortableExecutableReference pdfSharpReference, PortableExecutableReference sharpLayoutReference,
-            string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc, string outputPath)
+        public Context(PortableExecutableReference[] references, string settingsPath, 
+            Func<ParameterInfo, object> parameterFunc, string outputPath)
         {
-            NetstandardReference = netstandardReference;
-            SettingsReference = settingsReference;
-            PdfSharpReference = pdfSharpReference;
-            SharpLayoutReference = sharpLayoutReference;
+            References = references;
             SettingsPath = settingsPath;
-            Assemblies = assemblies;
             ParameterFunc = parameterFunc;
             OutputPath = outputPath;
         }
