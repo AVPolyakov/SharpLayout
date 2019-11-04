@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Newtonsoft.Json;
+using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using SharpLayout.WatcherCore.Ref;
 
@@ -80,7 +81,7 @@ namespace SharpLayout.WatcherCore
             }
             else
             {
-                WriteError(settingsChoice.Value2);
+                WriteError(settingsChoice.Value2, context);
             }
         }
 
@@ -108,7 +109,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult));
+                        WriteError(GetErrorText(emitResult), context);
                         return;
                     }
                     bytes = stream.ToArray();
@@ -149,10 +150,10 @@ namespace SharpLayout.WatcherCore
                 if (e is TargetInvocationException exception)
                     if (exception.InnerException != null)
                     {
-                        WriteError(exception.InnerException.Message);
+                        WriteError(exception.InnerException.Message, context);
                         return;
                     }
-                WriteError(e.Message);
+                WriteError(e.Message, context);
             }
         }
 
@@ -245,9 +246,16 @@ namespace SharpLayout.WatcherCore
         private static string GetErrorText(EmitResult emitResult) => 
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
-        private static void WriteError(string errorText)
+        private static void WriteError(string errorText, Context context)
         {
-            Console.WriteLine($"ERROR! {errorText}");
+            var text = $"ERROR! {errorText}";
+            Console.WriteLine(text);
+            var document = new Document();
+            var settings = new PageSettings();
+            settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
+            document.Add(new Section(settings).Add(new Paragraph()
+                .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
+            document.SavePng(0, GetOutputPath(context), 120);
         }
         
         private static NotifyFilters CombineAllNotifyFilters()
