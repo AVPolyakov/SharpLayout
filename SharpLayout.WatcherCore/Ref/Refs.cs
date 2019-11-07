@@ -1,6 +1,6 @@
 namespace SharpLayout.WatcherCore.Ref
 {
-    public class netstandard
+    public class Refs
     {
     }
 }

@@ -1082,7 +1082,7 @@ qwe3
         public void SvoTest()
         {
             var document = new Document();
-            Svo.AddSection(document);
+            Svo.AddSection(document,new SvoData());
             Assert(nameof(SvoTest), document.CreatePng().Item1);
         }
 

@@ -8,7 +8,7 @@ namespace Examples
 {
     public static class Svo
     {
-        public static void AddSection(Document document)
+        public static void AddSection(Document document, SvoData data)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(2),
@@ -179,5 +179,9 @@ namespace Examples
 
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
         private static readonly double cellMargin = Cm(0.05);
+    }
+
+    public class SvoData
+    {
     }
 }

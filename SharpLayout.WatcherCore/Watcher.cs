@@ -19,21 +19,168 @@ namespace SharpLayout.WatcherCore
 {
     public static class Watcher
     {
+        private static readonly string[] referenceNames = {
+            "Microsoft.CSharp.dll",
+            "Microsoft.VisualBasic.dll",
+            "Microsoft.Win32.Primitives.dll",
+            "mscorlib.dll",
+            "netstandard.dll",
+            "System.AppContext.dll",
+            "System.Buffers.dll",
+            "System.Collections.Concurrent.dll",
+            "System.Collections.dll",
+            "System.Collections.Immutable.dll",
+            "System.Collections.NonGeneric.dll",
+            "System.Collections.Specialized.dll",
+            "System.ComponentModel.Annotations.dll",
+            "System.ComponentModel.DataAnnotations.dll",
+            "System.ComponentModel.dll",
+            "System.ComponentModel.EventBasedAsync.dll",
+            "System.ComponentModel.Primitives.dll",
+            "System.ComponentModel.TypeConverter.dll",
+            "System.Configuration.dll",
+            "System.Console.dll",
+            "System.Core.dll",
+            "System.Data.Common.dll",
+            "System.Data.dll",
+            "System.Diagnostics.Contracts.dll",
+            "System.Diagnostics.Debug.dll",
+            "System.Diagnostics.DiagnosticSource.dll",
+            "System.Diagnostics.FileVersionInfo.dll",
+            "System.Diagnostics.Process.dll",
+            "System.Diagnostics.StackTrace.dll",
+            "System.Diagnostics.TextWriterTraceListener.dll",
+            "System.Diagnostics.Tools.dll",
+            "System.Diagnostics.TraceSource.dll",
+            "System.Diagnostics.Tracing.dll",
+            "System.dll",
+            "System.Drawing.dll",
+            "System.Drawing.Primitives.dll",
+            "System.Dynamic.Runtime.dll",
+            "System.Globalization.Calendars.dll",
+            "System.Globalization.dll",
+            "System.Globalization.Extensions.dll",
+            "System.IO.Compression.Brotli.dll",
+            "System.IO.Compression.dll",
+            "System.IO.Compression.FileSystem.dll",
+            "System.IO.Compression.ZipFile.dll",
+            "System.IO.dll",
+            "System.IO.FileSystem.dll",
+            "System.IO.FileSystem.DriveInfo.dll",
+            "System.IO.FileSystem.Primitives.dll",
+            "System.IO.FileSystem.Watcher.dll",
+            "System.IO.IsolatedStorage.dll",
+            "System.IO.MemoryMappedFiles.dll",
+            "System.IO.Pipes.dll",
+            "System.IO.UnmanagedMemoryStream.dll",
+            "System.Linq.dll",
+            "System.Linq.Expressions.dll",
+            "System.Linq.Parallel.dll",
+            "System.Linq.Queryable.dll",
+            "System.Memory.dll",
+            "System.Net.dll",
+            "System.Net.Http.dll",
+            "System.Net.HttpListener.dll",
+            "System.Net.Mail.dll",
+            "System.Net.NameResolution.dll",
+            "System.Net.NetworkInformation.dll",
+            "System.Net.Ping.dll",
+            "System.Net.Primitives.dll",
+            "System.Net.Requests.dll",
+            "System.Net.Security.dll",
+            "System.Net.ServicePoint.dll",
+            "System.Net.Sockets.dll",
+            "System.Net.WebClient.dll",
+            "System.Net.WebHeaderCollection.dll",
+            "System.Net.WebProxy.dll",
+            "System.Net.WebSockets.Client.dll",
+            "System.Net.WebSockets.dll",
+            "System.Numerics.dll",
+            "System.Numerics.Vectors.dll",
+            "System.ObjectModel.dll",
+            "System.Reflection.DispatchProxy.dll",
+            "System.Reflection.dll",
+            "System.Reflection.Emit.dll",
+            "System.Reflection.Emit.ILGeneration.dll",
+            "System.Reflection.Emit.Lightweight.dll",
+            "System.Reflection.Extensions.dll",
+            "System.Reflection.Metadata.dll",
+            "System.Reflection.Primitives.dll",
+            "System.Reflection.TypeExtensions.dll",
+            "System.Resources.Reader.dll",
+            "System.Resources.ResourceManager.dll",
+            "System.Resources.Writer.dll",
+            "System.Runtime.CompilerServices.VisualC.dll",
+            "System.Runtime.dll",
+            "System.Runtime.Extensions.dll",
+            "System.Runtime.Handles.dll",
+            "System.Runtime.InteropServices.dll",
+            "System.Runtime.InteropServices.RuntimeInformation.dll",
+            "System.Runtime.InteropServices.WindowsRuntime.dll",
+            "System.Runtime.Loader.dll",
+            "System.Runtime.Numerics.dll",
+            "System.Runtime.Serialization.dll",
+            "System.Runtime.Serialization.Formatters.dll",
+            "System.Runtime.Serialization.Json.dll",
+            "System.Runtime.Serialization.Primitives.dll",
+            "System.Runtime.Serialization.Xml.dll",
+            "System.Security.Claims.dll",
+            "System.Security.Cryptography.Algorithms.dll",
+            "System.Security.Cryptography.Csp.dll",
+            "System.Security.Cryptography.Encoding.dll",
+            "System.Security.Cryptography.Primitives.dll",
+            "System.Security.Cryptography.X509Certificates.dll",
+            "System.Security.dll",
+            "System.Security.Principal.dll",
+            "System.Security.SecureString.dll",
+            "System.ServiceModel.Web.dll",
+            "System.ServiceProcess.dll",
+            "System.Text.Encoding.dll",
+            "System.Text.Encoding.Extensions.dll",
+            "System.Text.RegularExpressions.dll",
+            "System.Threading.dll",
+            "System.Threading.Overlapped.dll",
+            "System.Threading.Tasks.Dataflow.dll",
+            "System.Threading.Tasks.dll",
+            "System.Threading.Tasks.Extensions.dll",
+            "System.Threading.Tasks.Parallel.dll",
+            "System.Threading.Thread.dll",
+            "System.Threading.ThreadPool.dll",
+            "System.Threading.Timer.dll",
+            "System.Transactions.dll",
+            "System.Transactions.Local.dll",
+            "System.ValueTuple.dll",
+            "System.Web.dll",
+            "System.Web.HttpUtility.dll",
+            "System.Windows.dll",
+            "System.Xml.dll",
+            "System.Xml.Linq.dll",
+            "System.Xml.ReaderWriter.dll",
+            "System.Xml.Serialization.dll",
+            "System.Xml.XDocument.dll",
+            "System.Xml.XmlDocument.dll",
+            "System.Xml.XmlSerializer.dll",
+            "System.Xml.XPath.dll",
+            "System.Xml.XPath.XDocument.dll",
+            "WindowsBase.dll",
+        };
+
         public static void Start(string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc,
             string outputPath)
         {
             Document.CollectCallerInfo = true;
 
-            var references = new[] {
-                GetReference(typeof(netstandard).FullName + ".dll"),
-                GetReference(typeof(netstandard).Namespace + ".System.Runtime.dll"),
-                GetReference(typeof(netstandard).Namespace + ".System.Collections.dll"),
-                AssemblyMetadata.CreateFromFile(typeof(PdfDocument).Assembly.Location).GetReference(),
-                AssemblyMetadata.CreateFromFile(typeof(Document).Assembly.Location).GetReference(),
-                AssemblyMetadata.CreateFromFile(typeof(WatcherSettings).Assembly.Location).GetReference()
-            };
+            var references = referenceNames
+                .Select(file => GetReference($"{typeof(Refs).Namespace}.{file}"))
+	            .Concat(new[]
+	            {
+		            AssemblyMetadata.CreateFromFile(typeof(PdfDocument).Assembly.Location).GetReference(),
+		            AssemblyMetadata.CreateFromFile(typeof(Document).Assembly.Location).GetReference(),
+		            AssemblyMetadata.CreateFromFile(typeof(WatcherSettings).Assembly.Location).GetReference()
+	            })
+	            .Concat(assemblies.Select(a => AssemblyMetadata.CreateFromFile(a.Location).GetReference()))
+	            .ToArray();
             var context = new Context(references, settingsPath, parameterFunc, outputPath);
-
             ProcessSettings(context, createPdf: false);
             StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
             Console.WriteLine("Press 'q' to quit.");
@@ -49,42 +196,42 @@ namespace SharpLayout.WatcherCore
 
         private static PortableExecutableReference GetReference(string fullName)
         {
-            byte[] netstandardBytes;
+            byte[] bytes;
             using (var stream = typeof(Watcher).Assembly.GetManifestResourceStream(fullName))
             {
-                netstandardBytes = new byte[stream.Length];
-                stream.Read(netstandardBytes, 0, netstandardBytes.Length);
+                bytes = new byte[stream.Length];
+                stream.Read(bytes, 0, bytes.Length);
             }
-            return AssemblyMetadata.CreateFromImage(netstandardBytes).GetReference();
+            return AssemblyMetadata.CreateFromImage(bytes).GetReference();
         }
         
-        private static string GetOutputPath(Context context) => 
+        private static string GetOutputPath(Context context) =>
             Path.Combine(Path.GetDirectoryName(context.SettingsPath), context.OutputPath);
-        
+
         private static void ProcessSettings(Context context, bool createPdf)
         {
-            foreach (var watcher in context.Watchers) 
+            foreach (var watcher in context.Watchers)
                 watcher.Dispose();
             context.Watchers.Clear();
             var settingsChoice = GetSettings(context);
             if (settingsChoice.HasValue1)
             {
                 var settings = settingsChoice.Value1;
-                var reference1 = CompileAssembly(context, settings.SourceCodeFiles1);
-                var reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                var reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>());
+                var reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
                 Compile(context, settings, newSettings: true, createPdf: createPdf, reference1, reference2);
                 foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference1 = CompileAssembly(context, settings.SourceCodeFiles1);
-                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                            reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>());
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
                             Compile(context, settings,
                                 newSettings: false, createPdf: false, reference1: reference1, reference2);
                         }));
                 foreach (var sourceCodeFile in settings.SourceCodeFiles2.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2);
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
                             Compile(context, settings,
                                 newSettings: false, createPdf: false, reference1: reference1, reference2);
                         }));
@@ -100,14 +247,14 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles)
+        private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles, Option<PortableExecutableReference> reference1)
         {
             var compilation = CSharpCompilation.Create(
                 Guid.NewGuid().ToString("N"),
                 sourceCodeFiles.Select(_ => _.FullPath(context)).Select(
                     codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                references: context.References
+                references: context.References.Concat(reference1.Match(_ => new []{_}, () => new PortableExecutableReference[]{}))
             );
             byte[] bytes;
             using (var stream = new MemoryStream())
@@ -156,9 +303,9 @@ namespace SharpLayout.WatcherCore
                 var method = type.GetMethod("AddSection");
                 var parameterType = method.GetParameters()[1].ParameterType;
                 var dataPath = Path.Combine(Path.GetDirectoryName(GetOutputPath(context)),
-                    $"{parameterType.FullName}.json");
+                    $"{parameterType.FullName}_DataSource.json");
                 if (newSettings)
-                    context.Watchers.Add(StartWatcher(dataPath, 
+                    context.Watchers.Add(StartWatcher(dataPath,
                         () => Compile(context, settings, newSettings: false, createPdf: false, reference1: reference1,
                             reference2)));
                 var deserializeObject = JsonConvert.DeserializeObject(
@@ -259,7 +406,7 @@ namespace SharpLayout.WatcherCore
             watcher.EnableRaisingEvents = true;
             return watcher;
         }
-        
+
         private static Choice<WatcherSettings, string> GetSettings(Context context)
         {
             var settingsPath = context.SettingsPath;
@@ -285,8 +432,8 @@ namespace SharpLayout.WatcherCore
             return (WatcherSettings) settingsProviderType.GetMethod("GetSettings")
                 .Invoke(null, new object[]{Path.GetDirectoryName(settingsPath)});
         }
-        
-        private static string GetErrorText(EmitResult emitResult) => 
+
+        private static string GetErrorText(EmitResult emitResult) =>
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
         private static void WriteError(string errorText, Context context)
@@ -300,14 +447,14 @@ namespace SharpLayout.WatcherCore
                 .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
             document.SavePng(0, GetOutputPath(context), 120);
         }
-        
+
         private static NotifyFilters CombineAllNotifyFilters()
         {
             return Enum.GetValues(typeof(NotifyFilters)).Cast<NotifyFilters>()
                 .Aggregate((filters, notifyFilters) => filters | notifyFilters);
         }
     }
-    
+
     internal class Context
     {
         public PortableExecutableReference[] References { get; }
@@ -316,7 +463,7 @@ namespace SharpLayout.WatcherCore
         public string OutputPath { get; }
         public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
-        public Context(PortableExecutableReference[] references, string settingsPath, 
+        public Context(PortableExecutableReference[] references, string settingsPath,
             Func<ParameterInfo, object> parameterFunc, string outputPath)
         {
             References = references;

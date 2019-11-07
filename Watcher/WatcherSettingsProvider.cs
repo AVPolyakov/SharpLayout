@@ -44,6 +44,7 @@ namespace Watcher
         PaymentOrder,
         ContractDealPassport,
         LoanAgreementDealPassport,
+        Svo
     }
 
     public class DevSettings

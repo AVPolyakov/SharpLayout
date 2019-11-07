@@ -26,9 +26,15 @@ namespace Tests
             WriteData(new LoanAgreementDealPassportData());
         }
 
+        [Fact]
+        public void Svo()
+        {
+            WriteData(new SvoData());
+        }
+
         private static void WriteData(object data)
         {
-            File.WriteAllText($@"..\..\..\..\Starter\bin\Debug\netcoreapp3.0\{data.GetType().FullName}.json", 
+            File.WriteAllText($@"..\..\..\..\Starter\bin\Debug\netcoreapp3.0\{data.GetType().FullName}_DataSource.json", 
                 JsonConvert.SerializeObject(data, Formatting.Indented));
         }
     }
