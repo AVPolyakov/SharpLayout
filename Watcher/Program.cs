@@ -39,7 +39,7 @@ namespace Watcher
                 parameterFunc: info => {
                     if (info.ParameterType == typeof(IA))
                         return typeof(A);
-                    throw new Exception();
+                    throw new Exception($"Factory is not specified for type {info.ParameterType}");
                 },
                 outputPath: outputPath);
         }

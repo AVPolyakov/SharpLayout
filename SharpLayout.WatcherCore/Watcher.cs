@@ -249,26 +249,34 @@ namespace SharpLayout.WatcherCore
 
         private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles, Option<PortableExecutableReference> reference1)
         {
-            var compilation = CSharpCompilation.Create(
-                Guid.NewGuid().ToString("N"),
-                sourceCodeFiles.Select(_ => _.FullPath(context)).Select(
-                    codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                references: context.References.Concat(reference1.Match(_ => new []{_}, () => new PortableExecutableReference[]{}))
-            );
-            byte[] bytes;
-            using (var stream = new MemoryStream())
+            try
             {
-                var emitResult = compilation.Emit(stream);
-                if (!emitResult.Success)
+                var compilation = CSharpCompilation.Create(
+                    Guid.NewGuid().ToString("N"),
+                    sourceCodeFiles.Select(_ => _.FullPath(context)).Select(
+                        codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
+                    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
+                    references: context.References.Concat(reference1.Match(_ => new[] {_}, () => new PortableExecutableReference[] { }))
+                );
+                byte[] bytes;
+                using (var stream = new MemoryStream())
                 {
-                    WriteError(GetErrorText(emitResult), context);
-                    return new Option<PortableExecutableReference>();
+                    var emitResult = compilation.Emit(stream);
+                    if (!emitResult.Success)
+                    {
+                        WriteError(GetErrorText(emitResult), context);
+                        return new Option<PortableExecutableReference>();
+                    }
+                    bytes = stream.ToArray();
                 }
-                bytes = stream.ToArray();
+                LoadAssembly(bytes);
+                return AssemblyMetadata.CreateFromImage(bytes).GetReference();
             }
-            LoadAssembly(bytes);
-            return AssemblyMetadata.CreateFromImage(bytes).GetReference();
+            catch (Exception e)
+            {
+                ProcessException(context, e);
+                return new Option<PortableExecutableReference>();
+            }
         }
 
         private static void Compile(Context context, WatcherSettings settings, bool newSettings, bool createPdf,
@@ -331,14 +339,19 @@ namespace SharpLayout.WatcherCore
             }
             catch (Exception e)
             {
-                if (e is TargetInvocationException exception)
-                    if (exception.InnerException != null)
-                    {
-                        WriteError(exception.InnerException.Message, context);
-                        return;
-                    }
-                WriteError(e.Message, context);
+                ProcessException(context, e);
             }
+        }
+
+        private static void ProcessException(Context context, Exception e)
+        {
+            if (e is TargetInvocationException exception)
+                if (exception.InnerException != null)
+                {
+                    WriteError(exception.InnerException.Message, context);
+                    return;
+                }
+            WriteError(e.Message, context);
         }
 
         private static string FullPath(this string sourceCodeFile, Context context)
