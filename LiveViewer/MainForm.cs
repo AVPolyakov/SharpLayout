@@ -142,21 +142,37 @@ namespace LiveViewer
         private static string SettingsPath => Path.ChangeExtension(typeof(Program).Assembly.Location, ".json");
 
         private string[] _lineArgs;
+        private string _imageLocation;
         public void LoadFile(string[] lineArgs)
         {
             _lineArgs = lineArgs;
             if (_lineArgs.Length >= 2)
             {
-                var imageLocation = Path.GetFullPath(_lineArgs[1]);
-                pictureBox.ImageLocation = imageLocation;
-                fileSystemWatcher.Path = Path.GetDirectoryName(imageLocation);
+                _imageLocation = Path.GetFullPath(_lineArgs[1]);
+                LoadImage();
+                fileSystemWatcher.Path = Path.GetDirectoryName(_imageLocation);
             }
+        }
+
+        private void LoadImage()
+        {
+            Image image;
+            try
+            {
+                using (var stream = File.OpenRead(_imageLocation)) 
+                    image = Image.FromStream(stream);
+            }
+            catch
+            {
+                return;
+            }
+            pictureBox.Image = image;
         }
 
         private void fileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            if (string.Equals(e.FullPath, pictureBox.ImageLocation, StringComparison.InvariantCultureIgnoreCase))
-                pictureBox.ImageLocation = pictureBox.ImageLocation;
+            if (string.Equals(e.FullPath, _imageLocation, StringComparison.InvariantCultureIgnoreCase)) 
+                LoadImage();
         }
 
         private readonly DTE2 dte2;
@@ -221,7 +237,7 @@ namespace LiveViewer
         private SyncBitmapInfo GetSyncBitmapInfo()
         {
             return JsonConvert.DeserializeObject<SyncBitmapInfo>(
-                File.ReadAllText(Path.ChangeExtension(pictureBox.ImageLocation, ".json")));
+                File.ReadAllText(Path.ChangeExtension(_imageLocation, ".json")));
         }
 
         [DllImport("user32.dll")]
