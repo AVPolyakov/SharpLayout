@@ -12,6 +12,7 @@ namespace Watcher
                 SourceCodeFile = SourceCodeFiles.PaymentOrder,
                 PageNumber = 1,
                 Resolution = 120,
+                //R1C1AreVisible = true,
                 //CellsAreHighlighted = true,
                 //ParagraphsAreHighlighted = true
             };
@@ -29,8 +30,8 @@ namespace Watcher
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
                 documentFunc: () => new Document {
+                    R1C1AreVisible = devSettings.R1C1AreVisible,
                     CellsAreHighlighted = devSettings.CellsAreHighlighted,
-                    R1C1AreVisible = devSettings.CellsAreHighlighted,
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
                 });
         }
@@ -53,6 +54,7 @@ namespace Watcher
         public int PageNumber { get; set; }
         public int Resolution  { get; set; } = 120;
         public bool CellsAreHighlighted  { get; set; }
+        public bool R1C1AreVisible  { get; set; }
         public bool ParagraphsAreHighlighted  { get; set; }
     }
 }
