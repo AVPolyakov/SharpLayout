@@ -123,7 +123,7 @@ namespace SharpLayout
         }
 
         internal static List<PageTuple> Draw(IGraphics xGraphics, Action<int, Action<IGraphics>, Section> pageAction,
-            Document document, GraphicsType graphicsType, SectionGroup sectionGroup)
+            Document document, GraphicsType graphicsType, SectionGroup sectionGroup, IPageFilter pageFilter)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();
             var rowCaches = new Dictionary<Table, RowCache>();
@@ -167,79 +167,86 @@ namespace SharpLayout
             var syncPageInfos = new List<PageTuple>();
             for (var index = 0; index < pages.Count; index++)
             {
-                var section = pages[index].section;
-                var syncPageInfo = new SyncPageInfo();
-                syncPageInfos.Add(new PageTuple(syncPageInfo, section));
-                void DrawHeaders(Drawer drawer, int pageIndex)
+                if (pageFilter.PageMustBeAdd)
                 {
-                    var y0 = 0d;
-                    foreach (var header in section.Headers)
-                    {
-                        Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(header),
-                            Range(0, header.RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
-                            paragraphCaches);
-                        y0 += header.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
-                    }
-                }
-                void DrawFooters(Drawer drawer, int pageIndex)
-                {
-                    var y0 = section.PageSettings.PageHeight -
-                             section.Footers.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
-                    foreach (var footer in section.Footers)
-                    {
-                        Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footer),
-                            Range(0, footer.RowFuncs.Count),
-                            y0: y0,
-                            xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
-                            paragraphCaches);
-                        y0 += footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
-                    }
-                }
-                void DrawFootnotes(Drawer drawer, int pageIndex)
-                {
-                    var y0 = section.PageSettings.PageHeight -
-                             section.BottomMargin(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, paragraphCaches) -
-                             pages[pageIndex].page.Footnotes.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
-                    foreach (var footnote in pages[pageIndex].page.Footnotes)
-                    {
-                        Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footnote),
-                            Range(0, footnote.RowFuncs.Count),
-                            y0: y0,
-                            xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
-                            paragraphCaches);
-                        y0 += footnote.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
-                    }
-                }
+                    var section = pages[index].section;
+                    var syncPageInfo = new SyncPageInfo();
+                    syncPageInfos.Add(new PageTuple(syncPageInfo, section));
 
-                if (index == 0)
-                {
-                    var drawer = new Drawer(xGraphics);
-                    DrawHeaders(drawer, index);
-                    foreach (var part in pages[index].page.TableParts)
-                        Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches, paragraphCaches), xGraphics, document, tableInfos,
-                            section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches, section,
-                            paragraphCaches);
-                    DrawFootnotes(drawer, index);
-                    DrawFooters(drawer, index);
-                    drawer.Flush();
+                    void DrawHeaders(Drawer drawer, int pageIndex)
+                    {
+                        var y0 = 0d;
+                        foreach (var header in section.Headers)
+                        {
+                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(header),
+                                Range(0, header.RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
+                                section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
+                                paragraphCaches);
+                            y0 += header.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
+                        }
+                    }
+
+                    void DrawFooters(Drawer drawer, int pageIndex)
+                    {
+                        var y0 = section.PageSettings.PageHeight -
+                            section.Footers.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
+                        foreach (var footer in section.Footers)
+                        {
+                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footer),
+                                Range(0, footer.RowFuncs.Count),
+                                y0: y0,
+                                xGraphics, document, tableInfos,
+                                section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
+                                paragraphCaches);
+                            y0 += footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
+                        }
+                    }
+
+                    void DrawFootnotes(Drawer drawer, int pageIndex)
+                    {
+                        var y0 = section.PageSettings.PageHeight -
+                            section.BottomMargin(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, paragraphCaches) -
+                            pages[pageIndex].page.Footnotes.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
+                        foreach (var footnote in pages[pageIndex].page.Footnotes)
+                        {
+                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footnote),
+                                Range(0, footnote.RowFuncs.Count),
+                                y0: y0,
+                                xGraphics, document, tableInfos,
+                                section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
+                                paragraphCaches);
+                            y0 += footnote.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
+                        }
+                    }
+
+                    if (index == 0)
+                    {
+                        var drawer = new Drawer(xGraphics);
+                        DrawHeaders(drawer, index);
+                        foreach (var part in pages[index].page.TableParts)
+                            Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches, paragraphCaches), xGraphics, document, tableInfos,
+                                section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches, section,
+                                paragraphCaches);
+                        DrawFootnotes(drawer, index);
+                        DrawFooters(drawer, index);
+                        drawer.Flush();
+                    }
+                    else
+                        pageAction(index, xGraphics2 => {
+                                var drawer = new Drawer(xGraphics2);
+                                DrawHeaders(drawer, index);
+                                foreach (var part in pages[index].page.TableParts)
+                                    Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches, paragraphCaches),
+                                        xGraphics2, document, tableInfos,
+                                        section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches, section,
+                                        paragraphCaches);
+                                DrawFootnotes(drawer, index);
+                                DrawFooters(drawer, index);
+                                drawer.Flush();
+                            },
+                            section);
                 }
-                else
-                    pageAction(index, xGraphics2 => {
-                            var drawer = new Drawer(xGraphics2);
-                            DrawHeaders(drawer, index);
-                            foreach (var part in pages[index].page.TableParts)
-                                Draw(part.TableInfo, part.Rows, y0: part.Y(section, xGraphics, tableInfos, new TextMode.Draw(index, pages.Count), document, rowCaches, paragraphCaches),
-                                    xGraphics2, document, tableInfos,
-                                    section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(index, pages.Count), rowCaches, section,
-                                    paragraphCaches);
-                            DrawFootnotes(drawer, index);
-                            DrawFooters(drawer, index);
-                            drawer.Flush();
-                        },
-                        section);
+                pageFilter.OnNewPage();
             }
             return syncPageInfos;
         }

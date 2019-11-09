@@ -207,6 +207,7 @@ namespace Examples
                 var c4 = table.AddColumn(Px(150));
                 var c5 = table.AddColumn(Px(220));
                 var c6 = table.AddColumn(Px(455));
+                new[] {c1, c5}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                 var r1 = table.AddRow();
 	            r1[c1].Rowspan(2).Add(NormalParagraph
                     .Add("№"));
@@ -223,7 +224,6 @@ namespace Examples
                     .Add("наименование"));
                 r2[c4].Add(NormalParagraph
                     .Add("код"));
-                new[] {c1, c5}.Distribute(section.PageSettings.PageWidthWithoutMargins - table.ColumnsWidth - BorderWidth);
                 var r3 = table.AddRow();
                 for (var i = 0; i < table.Columns.Count; i++)
                     r3[table.Columns[i]].Add(NormalParagraph

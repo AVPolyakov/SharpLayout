@@ -75,7 +75,7 @@ namespace SharpLayout
                         addPage.Orientation = section.PageSettings.Orientation;
                         using (var xGraphics2 = XGraphics.FromPdfPage(addPage))
                             action(new Graphics(xGraphics2));
-                    }, this, GraphicsType.Pdf, sectionGroup);
+                    }, this, GraphicsType.Pdf, sectionGroup, AllPageFilter.Instance);
                 }
             }
 	    }
@@ -88,10 +88,21 @@ namespace SharpLayout
 
         public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution = defaultResolution)
         {
-            return CreateImage(ImageFormat.Png, resolution);
+            return CreatePng(resolution, AllPageFilter.Instance);
+        }
+        
+        private Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution, IPageFilter pageFilter)
+        {
+            return CreateImage(ImageFormat.Png, pageFilter, resolution);
         }
 
         public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, int resolution = defaultResolution)
+        {
+            return CreateImage(imageFormat, AllPageFilter.Instance, resolution);
+        }
+
+        private Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, IPageFilter pageFilter,
+            int resolution)
         {
             var list = new List<byte[]>();
             var syncBitmapInfos = new List<SyncBitmapInfo>();
@@ -99,17 +110,24 @@ namespace SharpLayout
             {
                 var sectionGroup = sectionGroupFunc();
                 if (sectionGroup.Sections.Count == 0) continue;
-                var pages = new List<byte[]> {null};
+                var pages = new LinkedList<byte[]>();
+                var pageMustBeAdd = pageFilter.PageMustBeAdd;
                 var pageTuples = FillBitmap(xGraphics => TableRenderer.Draw(xGraphics,
                         (pageIndex, action, section) => {
                             FillBitmap(graphics => {
                                     action(graphics);
                                     return new { };
                                 },
-                                bitmap => pages.Add(ToBytes(bitmap, imageFormat)),
+                                bitmap => {
+                                    if (pageFilter.PageMustBeAdd)
+                                        pages.AddLast(ToBytes(bitmap, imageFormat));
+                                },
                                 section.PageSettings, resolution);
-                        }, this, GraphicsType.Image, sectionGroup),
-                    bitmap => pages[0] = ToBytes(bitmap, imageFormat),
+                        }, this, GraphicsType.Image, sectionGroup, pageFilter),
+                    bitmap => {
+                        if (pageMustBeAdd)
+                            pages.AddFirst(ToBytes(bitmap, imageFormat));
+                    },
                     sectionGroup.Sections[0].PageSettings, resolution);
                 syncBitmapInfos.AddRange(pageTuples.Select(pageTuple => new SyncBitmapInfo {
                     PageInfo = pageTuple.SyncPageInfo,
@@ -124,13 +142,13 @@ namespace SharpLayout
 
         public string SavePng(int pageNumber, string path, int resolution = defaultResolution)
         {
-            var tuple = CreatePng(resolution);
-            File.WriteAllBytes(path, tuple.Item1[pageNumber]);
+            var tuple = CreatePng(resolution, new OnePageFilter(pageNumber));
+            File.WriteAllBytes(path, tuple.Item1[0]);
             File.WriteAllText(Path.ChangeExtension(path, ".json"),
-                JsonConvert.SerializeObject(tuple.Item2[pageNumber], Formatting.Indented));
+                JsonConvert.SerializeObject(tuple.Item2[0], Formatting.Indented));
             return path;
         }
-
+        
         private const int defaultResolution = 254;
 
         public static T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
