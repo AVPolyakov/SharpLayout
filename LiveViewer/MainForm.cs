@@ -208,9 +208,12 @@ namespace LiveViewer
                     SetForegroundWindow(new IntPtr(dte2.MainWindow.HWnd));
                     break;
                 case Ide.Rider:
-                    var process = Process.GetProcessesByName("rider64")[0];
-                    SetForegroundWindow(process.MainWindowHandle);
+                    var processes = Process.GetProcessesByName("rider64");
+                    var mainProcess = processes.FirstOrDefault(_ => !string.IsNullOrEmpty(_.MainWindowTitle));
+                    var process= mainProcess ?? processes[0];
                     Process.Start(process.MainModule.FileName, $"--line {line} {filePath}");
+                    if (mainProcess != null) 
+                        SetForegroundWindow(mainProcess.MainWindowHandle);
                     break;
             }
         }
