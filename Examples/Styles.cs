@@ -31,7 +31,7 @@ namespace Examples
 
         public static XPdfFontOptions PdfOptions => new XPdfFontOptions(PdfFontEncoding.Unicode);
 
-        public static string FormatDate(DateTime value) => value.ToString("dd.MM.yyyy");
+        public static string Format(this DateTime value) => value.ToString("dd.MM.yyyy");
         
         public static void Distribute(this Column[] columns, double width)
         {

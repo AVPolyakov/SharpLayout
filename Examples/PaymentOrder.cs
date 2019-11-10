@@ -27,9 +27,9 @@ namespace Examples
                 c4.Width = pageSettings.PageWidthWithoutMargins - table.ColumnsWidth;
                 var r1 = table.AddRow();
                 r1[c1].Border(Bottom).VerticalAlign(VerticalAlign.Bottom).Add(Paragraph.Alignment(HorizontalAlign.Center)
-                    .Add(() => data.IncomingDate, FormatDate));
+                    .Add(data.IncomingDate.Format()));
                 r1[c3].Border(Bottom).VerticalAlign(VerticalAlign.Bottom).Add(Paragraph.Alignment(HorizontalAlign.Center)
-                    .Add(() => data.OutcomingDate, FormatDate));
+                    .Add(data.OutcomingDate.Format()));
                 r1[c5].Border(All).VerticalAlign(VerticalAlign.Center).Add(Paragraph.Alignment(HorizontalAlign.Center)
                     .Add("0401060"));
                 var r2 = table.AddRow();
