@@ -55,7 +55,7 @@ namespace Starter
             if (processes.Length <= 0)
             {
                 string arguments;
-                if (findId && Ide == vs)
+                if (findId && Ide == "vs")
                 {
                     const string solutionName = "SharpLayout";
                     var firstOrDefault = Process.GetProcesses().FirstOrDefault(p => p.ProcessName == "devenv" &&
@@ -78,10 +78,8 @@ namespace Starter
 
         private static string Ide => Environment.UserName switch {
             "APolyakov" => "rider",
-            _ => vs
+            _ => "vs"
         };
-
-        private const string vs = "vs";
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);

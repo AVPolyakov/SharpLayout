@@ -2,9 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using OtherAssembly1;
-using OtherAssembly2;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using SharpLayout;
@@ -32,15 +31,8 @@ namespace Watcher
             
             SharpLayout.WatcherCore.Watcher.Start(
                 settingsPath: settingsPath,
-                assemblies: new[] {
-                    typeof(IA),
-                    typeof(A),
-                }.Select(_ => _.Assembly).ToArray(),
-                parameterFunc: info => {
-                    if (info.ParameterType == typeof(IA))
-                        return typeof(A);
-                    throw new Exception($"Factory is not specified for type {info.ParameterType}");
-                },
+                assemblies: new Assembly[]{}, 
+                parameterFunc: info => throw new Exception($"Factory is not specified for type {info.ParameterType}"),
                 outputPath: outputPath);
         }
         
@@ -50,7 +42,7 @@ namespace Watcher
             if (processes.Length <= 0)
             {
                 string arguments;
-                if (findId && Ide == vs)
+                if (findId && Ide == "vs")
                 {
                     const string solutionName = "SharpLayout";
                     var firstOrDefault = Process.GetProcesses().FirstOrDefault(p => p.ProcessName == "devenv" &&
@@ -80,12 +72,10 @@ namespace Watcher
                     case "APolyakov":
                         return "rider";
                     default:
-                        return vs;
+                        return "vs";
                 }
             }
         }
-
-        private const string vs = "vs";
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
