@@ -377,37 +377,40 @@ namespace SharpLayout.WatcherCore
 
             async Task Handle(FileSystemEventArgs e)
             {
-                if (string.Compare(e.FullPath, path, StringComparison.InvariantCultureIgnoreCase) == 0)
-                {
-                    async Task<string> GetText()
-                    {
-                        while (true)
-                        {
-                            try
-                            {
-                                return File.ReadAllText(e.FullPath);
-                            }
-                            catch (IOException)
-                            {
-                                await Task.Delay(20);
-                            }
-                        }
-                    }
+                if (string.Compare(e.FullPath, path, StringComparison.InvariantCultureIgnoreCase) != 0)
+                    return;
 
-                    await semaphore.WaitAsync();
-                    try
+                if (new FileInfo(path).Length == 0)
+                    return;
+
+                async Task<string> GetText()
+                {
+                    while (true)
                     {
-                        var text = await GetText();
-                        if (oldText != text)
+                        try
                         {
-                            action();
+                            return File.ReadAllText(e.FullPath);
                         }
-                        oldText = text;
+                        catch (IOException)
+                        {
+                            await Task.Delay(20);
+                        }
                     }
-                    finally
+                }
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    var text = await GetText();
+                    if (oldText != text)
                     {
-                        semaphore.Release();
+                        action();
                     }
+                    oldText = text;
+                }
+                finally
+                {
+                    semaphore.Release();
                 }
             }
 
