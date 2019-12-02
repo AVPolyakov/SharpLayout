@@ -640,11 +640,7 @@ namespace SharpLayout
                     var newX1 = x1 - leftBorder.Value;
                     var d = pen.Width / 2;
                     drawer.DrawLines(pen, new[] {
-                        new XPoint(x2 - d, y1),
-                        new XPoint(newX1 + d, y1),
                         new XPoint(newX1 + d, y1 + d),
-                    });
-                    drawer.DrawLines(pen, new[] {
                         new XPoint(newX1 + d, y1),
                         new XPoint(x2 - d, y1),
                         new XPoint(x2 - d, y1 + d),
