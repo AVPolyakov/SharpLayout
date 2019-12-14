@@ -283,7 +283,14 @@ namespace SharpLayout.WatcherCore
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2, 
             Option<ReferenceTuple> referenceTuple3)
         {
-            return CompileAssembly(context, new []{settings.GetDataProviderPath(context)}, reference1, 
+            var dataProviderPath = settings.GetDataProviderPath(context);
+            if (!File.Exists(dataProviderPath))
+            {
+                var dataType = settings.GetDataType(referenceTuple3);
+                return JsonConvert.DeserializeObject(
+                    File.ReadAllText(context.GetDataPath(dataType)), dataType);
+            }
+            return CompileAssembly(context, new []{dataProviderPath}, reference1, 
                     reference2, referenceTuple3.Select(_ => _.Reference))
                 .Select(tuple => {
                     var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
