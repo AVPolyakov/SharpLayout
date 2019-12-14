@@ -1,5 +1,4 @@
-﻿using System;
-using SharpLayout;
+﻿using SharpLayout;
 using static SharpLayout.Direction;
 using static Examples.Styles;
 using static SharpLayout.Util;
@@ -8,7 +7,7 @@ namespace Examples
 {
     public static class PaymentOrder
     {
-        public static void AddSection(Document document, PaymentData data)
+        public static void AddSection(Document document, PaymentOrderData data)
         {
             var pageSettings = new PageSettings {
                 TopMargin = Cm(1.2),
@@ -257,11 +256,5 @@ xxx xxxxx Xxxxxx xxxxxxxxx
         private static Font font => TimesNewRoman10;
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
         private static Paragraph LeftIndentParagraph => Paragraph.Margin(Left, cellMargin + Cm(0.1));
-    }
-
-    public class PaymentData
-    {
-        public DateTime IncomingDate { get; set; }
-        public DateTime OutcomingDate { get; set; }
     }
 }
