@@ -11,7 +11,7 @@ namespace Tests
         [Fact]
         public void PaymentOrder()
         {
-            WriteData(new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+            WriteData(new PaymentOrderData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
         }
 
         [Fact]

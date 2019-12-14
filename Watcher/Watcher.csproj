@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Examples\Examples.csproj" />
     <ProjectReference Include="..\SharpLayout.WatcherCore\SharpLayout.WatcherCore.csproj" />
   </ItemGroup>
   

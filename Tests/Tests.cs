@@ -1071,7 +1071,7 @@ qwe3
         public void PaymentOrderTest()
         {
             var document = new Document();
-            PaymentOrder.AddSection(document, new PaymentData {
+            PaymentOrder.AddSection(document, new PaymentOrderData {
                 IncomingDate = new DateTime(2018, 1, 23),
                 OutcomingDate = new DateTime(2018, 1, 23),
             });
