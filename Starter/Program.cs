@@ -23,7 +23,7 @@ namespace Starter
                     //CellLineNumbersAreVisible = true,
                     //ExpressionVisible = true,
                 };
-                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                PaymentOrder.AddSection(document, new PaymentOrderData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
                 //Svo.AddSection(document);
                 //ContractDealPassport.AddSection(document);
                 //LoanAgreementDealPassport.AddSection(document);
