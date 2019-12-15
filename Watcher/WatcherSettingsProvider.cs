@@ -23,10 +23,11 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles2: new string[] {},
                 sourceCodeFiles1: new[] {
+                    @"..\Examples\DataModels\SqlServer.generated.cs",
                     @"..\Examples\Styles.cs",
                 },
+                sourceCodeFiles2: new string[] { },
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
                 documentFunc: () => new Document {
