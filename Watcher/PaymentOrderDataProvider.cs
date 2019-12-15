@@ -8,12 +8,7 @@ namespace Watcher
     {
         public object Create(Func<object> deserializeFunc)
         {
-            var data = (PaymentOrderData) deserializeFunc();
-            
-            data.IncomingDate = new DateTime(2019, 12, 14);
-            data.OutcomingDate = new DateTime(2019, 12, 17);
-            
-            return data;
+            return new PaymentOrderQuery().Get(1);
         }
     }
 }
