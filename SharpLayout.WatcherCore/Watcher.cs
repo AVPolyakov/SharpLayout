@@ -219,9 +219,8 @@ namespace SharpLayout.WatcherCore
                 var settings = settingsChoice.Value1;
                 var reference1 = CompileReference(context, settings.SourceCodeFiles1);
                 var reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                var dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, reference1, reference2);
+                var dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
                 var data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
-                settings.GetDataProviderPath(context);
                 Compile(context, settings, createPdf: createPdf, reference1, reference2, dataTypeReferenceTuple,
                     data);
                 foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
@@ -229,7 +228,7 @@ namespace SharpLayout.WatcherCore
                         StartWatcher(sourceCodeFile, () => {
                             reference1 = CompileReference(context, settings.SourceCodeFiles1);
                             reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, reference1, reference2);
+                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -238,14 +237,14 @@ namespace SharpLayout.WatcherCore
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
                             reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, reference1, reference2);
+                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
                         }));
                 context.Watchers.Add(
                     StartWatcher(settings.GetDataTypePath().FullPath(context), () => {
-                        dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, reference1, reference2);
+                        dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
                         data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -273,26 +272,26 @@ namespace SharpLayout.WatcherCore
 
         private static Option<object> GetData(Context context, WatcherSettings settings, 
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2, 
-            Option<ReferenceTuple> referenceTuple3)
+            Option<ReferenceTuple> dataTypeReferenceTuple)
         {
             var dataProviderPath = settings.GetDataProviderPath(context);
             if (!File.Exists(dataProviderPath))
             {
-                var dataType = settings.GetDataType(referenceTuple3);
+                var dataType = settings.GetDataType(dataTypeReferenceTuple);
                 return JsonConvert.DeserializeObject(
                     File.ReadAllText(context.GetDataPath(dataType)), dataType);
             }
             try
             {
                 return CompileAssembly(context, new []{dataProviderPath}, reference1, 
-                        reference2, referenceTuple3.Select(_ => _.Reference))
+                        reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
                     .Select(tuple => {
                         var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
                         var dataProviderType = tuple.Assembly
                             .GetTypes().Single(t => t.Name == $"{sourceCodeFileName}{DataProvider}");
                         var dataProvider = (IDataProvider) Activator.CreateInstance(dataProviderType);
                         return dataProvider.Create(() => {
-                            var dataType = settings.GetDataType(referenceTuple3);
+                            var dataType = settings.GetDataType(dataTypeReferenceTuple);
                             return JsonConvert.DeserializeObject(
                                 File.ReadAllText(context.GetDataPath(dataType)), dataType);
                         });
@@ -352,9 +351,11 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static Option<AssemblyTuple> CompileAssembly(Context context, string[] sourceCodeFiles,
+        private static Option<AssemblyTuple> CompileAssembly(Context context, IEnumerable<string> sourceCodeFiles,
             params Option<PortableExecutableReference>[] references)
         {
+            if (references.Any(_ => !_.HasValue)) 
+                return new Option<AssemblyTuple>();
             try
             {
                 var compilation = CSharpCompilation.Create(
@@ -362,7 +363,7 @@ namespace SharpLayout.WatcherCore
                     sourceCodeFiles.Select(_ => _.FullPath(context)).Select(
                         codeFile => SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)),
                     options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                    references: context.References.Concat(references.Where(_ => _.HasValue).Select(_ => _.Value))
+                    references: context.References.Concat(references.Select(_ => _.Value))
                 );
                 byte[] bytes;
                 using (var stream = new MemoryStream())
@@ -445,7 +446,7 @@ namespace SharpLayout.WatcherCore
                 {
                     const int numberOfRetries = 50;
                     const int delayOnRetry = 20;
-                    for (var i = 1; i <= numberOfRetries; ++i)
+                    for (var i = 1; i <= numberOfRetries; i++)
                         try
                         {
                             document.SavePng(
@@ -454,7 +455,7 @@ namespace SharpLayout.WatcherCore
                                 resolution: settings.Resolution);
                             break;
                         }
-                        catch (IOException) when (i <= numberOfRetries)
+                        catch (IOException)
                         {
                             Thread.Sleep(delayOnRetry);
                         }
@@ -504,6 +505,8 @@ namespace SharpLayout.WatcherCore
                 return AssemblyLoadContext.Default.LoadFromStream(stream);
         }
 
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        
         private static FileSystemWatcher StartWatcher(string path, Action action)
         {
             var watcher = new FileSystemWatcher
@@ -512,7 +515,6 @@ namespace SharpLayout.WatcherCore
                 NotifyFilter = CombineAllNotifyFilters()
             };
             string oldText = null;
-            var semaphore = new SemaphoreSlim(1, 1);
 
             async Task Handle(FileSystemEventArgs e)
             {
