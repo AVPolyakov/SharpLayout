@@ -256,6 +256,12 @@ namespace SharpLayout.WatcherCore
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
                     }));
                 context.Watchers.Add(
+                    StartWatcher(settings.GetQueryPath().FullPath(context), () => {
+                        data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
+                        Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
+                            dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
+                    }));
+                context.Watchers.Add(
                     StartWatcher(settings.SourceCodeFile.FullPath(context), () => {
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -283,7 +289,12 @@ namespace SharpLayout.WatcherCore
             }
             try
             {
-                return CompileAssembly(context, new []{dataProviderPath}, reference1, 
+                var sourceCodeFiles = new List<string>();
+                var queryPath = settings.GetQueryPath();
+                if (File.Exists(queryPath.FullPath(context)))
+                    sourceCodeFiles.Add(queryPath);
+                sourceCodeFiles.Add(dataProviderPath);
+                return CompileAssembly(context, sourceCodeFiles, reference1, 
                         reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
                     .Select(tuple => {
                         var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
@@ -310,6 +321,14 @@ namespace SharpLayout.WatcherCore
             var fileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
             var extension = Path.GetExtension(settings.SourceCodeFile);
             return Path.Combine(directoryName, $"{fileName}{Data}{extension}");
+        }
+
+        private static string GetQueryPath(this WatcherSettings settings)
+        {
+            var directoryName = Path.GetDirectoryName(settings.SourceCodeFile);
+            var fileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
+            var extension = Path.GetExtension(settings.SourceCodeFile);
+            return Path.Combine(directoryName, $"{fileName}Query{extension}");
         }
 
         private static string GetDataProviderPath(this WatcherSettings settings, Context context)
