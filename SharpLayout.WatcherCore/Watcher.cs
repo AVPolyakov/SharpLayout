@@ -290,19 +290,27 @@ namespace SharpLayout.WatcherCore
                 return JsonConvert.DeserializeObject(
                     File.ReadAllText(context.GetDataPath(dataType)), dataType);
             }
-            return CompileAssembly(context, new []{dataProviderPath}, reference1, 
-                    reference2, referenceTuple3.Select(_ => _.Reference))
-                .Select(tuple => {
-                    var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
-                    var dataProviderType = tuple.Assembly
-                        .GetTypes().Single(t => t.Name == $"{sourceCodeFileName}{DataProvider}");
-                    var dataProvider = (IDataProvider) Activator.CreateInstance(dataProviderType);
-                    return dataProvider.Create(() => {
-                        var dataType = settings.GetDataType(referenceTuple3);
-                        return JsonConvert.DeserializeObject(
-                            File.ReadAllText(context.GetDataPath(dataType)), dataType);
+            try
+            {
+                return CompileAssembly(context, new []{dataProviderPath}, reference1, 
+                        reference2, referenceTuple3.Select(_ => _.Reference))
+                    .Select(tuple => {
+                        var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
+                        var dataProviderType = tuple.Assembly
+                            .GetTypes().Single(t => t.Name == $"{sourceCodeFileName}{DataProvider}");
+                        var dataProvider = (IDataProvider) Activator.CreateInstance(dataProviderType);
+                        return dataProvider.Create(() => {
+                            var dataType = settings.GetDataType(referenceTuple3);
+                            return JsonConvert.DeserializeObject(
+                                File.ReadAllText(context.GetDataPath(dataType)), dataType);
+                        });
                     });
-                });
+            }
+            catch (Exception e)
+            {
+                ProcessException(context, e);
+                return new Option<object>();
+            }
         }
 
         private static string GetDataTypePath(this WatcherSettings settings)
