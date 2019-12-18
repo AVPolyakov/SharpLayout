@@ -306,27 +306,27 @@ namespace SharpLayout.WatcherCore
                     reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data));
         }
 
-        private static Option<object> GetData(Context context, WatcherSettings settings, 
-            Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2, 
+        private static Option<object> GetData(Context context, WatcherSettings settings,
+            Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2,
             Option<ReferenceTuple> dataTypeReferenceTuple)
         {
-            if (!dataTypeReferenceTuple.HasValue)
-                return new Option<object>();
-            var dataProviderPath = settings.GetDataProviderPath(context);
-            if (!File.Exists(dataProviderPath))
-            {
-                var dataType = settings.GetDataType(dataTypeReferenceTuple.Value);
-                return JsonConvert.DeserializeObject(
-                    File.ReadAllText(context.GetDataPath(dataType)), dataType);
-            }
             try
             {
+                if (!dataTypeReferenceTuple.HasValue)
+                    return new Option<object>();
+                var dataProviderPath = settings.GetDataProviderPath(context);
+                if (!File.Exists(dataProviderPath))
+                {
+                    var dataType = settings.GetDataType(dataTypeReferenceTuple.Value);
+                    return JsonConvert.DeserializeObject(
+                        File.ReadAllText(context.GetDataPath(dataType)), dataType);
+                }
                 var sourceCodeFiles = new List<string>();
                 var queryPath = settings.GetQueryPath();
                 if (File.Exists(queryPath.FullPath(context)))
                     sourceCodeFiles.Add(queryPath);
                 sourceCodeFiles.Add(dataProviderPath);
-                return CompileAssembly(context, sourceCodeFiles, reference1, 
+                return CompileAssembly(context, sourceCodeFiles, reference1,
                         reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
                     .Select(tuple => {
                         var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
