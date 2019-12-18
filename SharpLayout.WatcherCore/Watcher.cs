@@ -267,12 +267,13 @@ namespace SharpLayout.WatcherCore
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
                     }));
-                context.Watchers.Add(
-                    StartWatcher(settings.GetQueryPath().FullPath(context), () => {
-                        data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
-                        Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
-                            dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
-                    }));
+                foreach (var queryFile in settings.QueryFiles)
+                    context.Watchers.Add(
+                        StartWatcher(queryFile.FullPath(context), () => {
+                            data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
+                            Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
+                                dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
+                        }));
                 context.Watchers.Add(
                     StartWatcher(settings.SourceCodeFile.FullPath(context), () => {
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
@@ -313,11 +314,7 @@ namespace SharpLayout.WatcherCore
                     return JsonConvert.DeserializeObject(
                         File.ReadAllText(context.GetDataPath(dataType)), dataType);
                 }
-                var sourceCodeFiles = new List<string>();
-                var queryPath = settings.GetQueryPath();
-                if (File.Exists(queryPath.FullPath(context)))
-                    sourceCodeFiles.Add(queryPath);
-                sourceCodeFiles.Add(dataProviderPath);
+                var sourceCodeFiles = new List<string>(settings.QueryFiles) {dataProviderPath};
                 return CompileAssembly(context, sourceCodeFiles, reference1,
                         reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
                     .Select(tuple => {
@@ -345,14 +342,6 @@ namespace SharpLayout.WatcherCore
             var fileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
             var extension = Path.GetExtension(settings.SourceCodeFile);
             return Path.Combine(directoryName, $"{fileName}{Data}{extension}");
-        }
-
-        private static string GetQueryPath(this WatcherSettings settings)
-        {
-            var directoryName = Path.GetDirectoryName(settings.SourceCodeFile);
-            var fileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
-            var extension = Path.GetExtension(settings.SourceCodeFile);
-            return Path.Combine(directoryName, $"{fileName}Query{extension}");
         }
 
         private static string GetDataProviderPath(this WatcherSettings settings, Context context)

@@ -10,9 +10,10 @@ namespace SharpLayout.WatcherCore
         public int PageNumber { get; }
         public int Resolution { get; }
         public Func<Document> DocumentFunc { get; }
+        public string[] QueryFiles { get; }
 
         public WatcherSettings(string sourceCodeFile, string[] sourceCodeFiles2, string[] sourceCodeFiles1, int pageNumber,
-            int resolution, Func<Document> documentFunc)
+            int resolution, Func<Document> documentFunc, string[] queryFiles)
         {
             SourceCodeFile = sourceCodeFile;
             SourceCodeFiles1 = sourceCodeFiles1;
@@ -20,6 +21,7 @@ namespace SharpLayout.WatcherCore
             PageNumber = pageNumber;
             Resolution = resolution;
             DocumentFunc = documentFunc;
+            QueryFiles = queryFiles;
         }
     }
 }

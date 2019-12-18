@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using SharpLayout;
 using SharpLayout.WatcherCore;
@@ -34,7 +36,17 @@ namespace Watcher
                     R1C1AreVisible = devSettings.R1C1AreVisible,
                     CellsAreHighlighted = devSettings.CellsAreHighlighted,
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
-                });
+                },
+                queryFiles: GetQueryFiles(settingsDirectory, devSettings));
+        }
+
+        private static string[] GetQueryFiles(string settingsDirectory, DevSettings devSettings)
+        {
+            var relativePath = $@"..\Examples\{devSettings.SourceCodeFile}Query.cs";
+            var path = Path.Combine(settingsDirectory, relativePath);
+            if (File.Exists(path))
+                return new[] {relativePath};
+            return new string[] { };
         }
 
         public static string FilePath => GetFilePath();
