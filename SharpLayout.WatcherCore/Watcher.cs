@@ -453,8 +453,11 @@ namespace SharpLayout.WatcherCore
                     Guid.NewGuid().ToString("N"),
                     new[] {SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)},
                     options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                    references: context.References.Concat(new[] {reference1.Value, reference2.Value, 
-                        dataTypeReferenceTuple.Select(_ => _.Reference).Value})
+                    references: context.References.Concat(new[] {
+                        reference1.Value,
+                        reference2.Value,
+                        dataTypeReferenceTuple.Select(_ => _.Reference).Value
+                    })
                 );
                 byte[] bytes;
                 using (var stream = new MemoryStream())
@@ -515,10 +518,10 @@ namespace SharpLayout.WatcherCore
                 $"{dataType.FullName}_DataSource.json");
         }
 
-        private static Type GetDataType(this WatcherSettings settings, ReferenceTuple referenceTuple3)
+        private static Type GetDataType(this WatcherSettings settings, ReferenceTuple dataTypeReferenceTuple)
         {
             var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
-            var dataType = referenceTuple3.AssemblyTuple.Assembly
+            var dataType = dataTypeReferenceTuple.AssemblyTuple.Assembly
                 .GetTypes().Single(t => t.Name == $"{sourceCodeFileName}{Data}");
             return dataType;
         }
