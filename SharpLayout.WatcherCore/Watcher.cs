@@ -21,6 +21,7 @@ namespace SharpLayout.WatcherCore
     {
         private static readonly string[] referenceNames = {
             "Microsoft.CSharp.dll",
+            "Microsoft.VisualBasic.Core.dll",
             "Microsoft.VisualBasic.dll",
             "Microsoft.Win32.Primitives.dll",
             "mscorlib.dll",
@@ -42,6 +43,7 @@ namespace SharpLayout.WatcherCore
             "System.Console.dll",
             "System.Core.dll",
             "System.Data.Common.dll",
+            "System.Data.DataSetExtensions.dll",
             "System.Data.dll",
             "System.Diagnostics.Contracts.dll",
             "System.Diagnostics.Debug.dll",
@@ -110,6 +112,7 @@ namespace SharpLayout.WatcherCore
             "System.Resources.Reader.dll",
             "System.Resources.ResourceManager.dll",
             "System.Resources.Writer.dll",
+            "System.Runtime.CompilerServices.Unsafe.dll",
             "System.Runtime.CompilerServices.VisualC.dll",
             "System.Runtime.dll",
             "System.Runtime.Extensions.dll",
@@ -117,6 +120,7 @@ namespace SharpLayout.WatcherCore
             "System.Runtime.InteropServices.dll",
             "System.Runtime.InteropServices.RuntimeInformation.dll",
             "System.Runtime.InteropServices.WindowsRuntime.dll",
+            "System.Runtime.Intrinsics.dll",
             "System.Runtime.Loader.dll",
             "System.Runtime.Numerics.dll",
             "System.Runtime.Serialization.dll",
@@ -135,9 +139,13 @@ namespace SharpLayout.WatcherCore
             "System.Security.SecureString.dll",
             "System.ServiceModel.Web.dll",
             "System.ServiceProcess.dll",
+            "System.Text.Encoding.CodePages.dll",
             "System.Text.Encoding.dll",
             "System.Text.Encoding.Extensions.dll",
+            "System.Text.Encodings.Web.dll",
+            "System.Text.Json.dll",
             "System.Text.RegularExpressions.dll",
+            "System.Threading.Channels.dll",
             "System.Threading.dll",
             "System.Threading.Overlapped.dll",
             "System.Threading.Tasks.Dataflow.dll",
@@ -472,7 +480,7 @@ namespace SharpLayout.WatcherCore
                         Path.GetDirectoryName(GetOutputPath(context)),
                         $"Temp_{Guid.NewGuid():N}.pdf");
                     document.SavePdf(fileName);
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}"));
+                    Process.Start("cmd", $"/c start {fileName}");
                 }
                 else
                 {
