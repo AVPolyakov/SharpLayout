@@ -295,7 +295,7 @@ namespace SharpLayout.WatcherCore
             }
             else
             {
-                WriteError(settingsChoice.Value2, context);
+                WriteError(settingsChoice.Value2, context, new Option<Exception>());
             }
         }
         
@@ -403,7 +403,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, new Option<Exception>());
                         return new Option<AssemblyTuple>();
                     }
                     bytes = stream.ToArray();
@@ -454,7 +454,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, new Option<Exception>());
                         return;
                     }
                     bytes = stream.ToArray();
@@ -520,10 +520,10 @@ namespace SharpLayout.WatcherCore
             if (e is TargetInvocationException exception)
                 if (exception.InnerException != null)
                 {
-                    WriteError(exception.InnerException.Message, context);
+                    WriteError(exception.InnerException.Message, context, e);
                     return;
                 }
-            WriteError(e.Message, context);
+            WriteError(e.Message, context, e);
         }
 
         private static string FullPath(this string sourceCodeFile, Context context)
@@ -626,10 +626,15 @@ namespace SharpLayout.WatcherCore
         private static string GetErrorText(EmitResult emitResult) =>
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
-        private static void WriteError(string errorText, Context context)
+        private static void WriteError(string errorText, Context context, Option<Exception> exception)
         {
             var text = $"ERROR! {errorText}";
             Console.WriteLine(text);
+            if (exception.HasValue)
+            {
+                Console.WriteLine();
+                Console.WriteLine(exception.Value);
+            }
             var document = new Document();
             var settings = new PageSettings();
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
