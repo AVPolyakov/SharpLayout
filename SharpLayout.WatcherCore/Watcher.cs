@@ -223,7 +223,23 @@ namespace SharpLayout.WatcherCore
                 var dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()},
                     reference1, reference2);
                 var data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
-                context.DataWatcherContainer.Value = CreateDataWatcher(context, dataTypeReferenceTuple, settings, reference1, reference2, data);
+                void CreateDataWatcher()
+                {
+                    Option<FileSystemWatcher> watcher;
+                    if (!dataTypeReferenceTuple.HasValue)
+                        watcher = new Option<FileSystemWatcher>();
+                    else
+                    {
+                        watcher = StartWatcher(context.GetDataPath(settings.GetDataType(dataTypeReferenceTuple.Value)),
+                            () => {
+                                data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
+                                Compile(context, settings, createPdf: false, reference1: reference1,
+                                    reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
+                            });
+                    }
+                    context.DataWatcherContainer.Value = watcher;
+                }
+                CreateDataWatcher();
                 Compile(context, settings, createPdf: createPdf, reference1, reference2, dataTypeReferenceTuple,
                     data);
                 foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
@@ -233,8 +249,7 @@ namespace SharpLayout.WatcherCore
                             reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
                             dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()},
                                 reference1, reference2);
-                            context.DataWatcherContainer.Value = CreateDataWatcher(context, dataTypeReferenceTuple, settings,
-                                reference1, reference2, data);
+                            CreateDataWatcher();
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -245,8 +260,7 @@ namespace SharpLayout.WatcherCore
                             reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
                             dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()},
                                 reference1, reference2);
-                            context.DataWatcherContainer.Value = CreateDataWatcher(context, dataTypeReferenceTuple, settings,
-                                reference1, reference2, data);
+                            CreateDataWatcher();
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -255,8 +269,7 @@ namespace SharpLayout.WatcherCore
                     StartWatcher(settings.GetDataTypePath().FullPath(context), () => {
                         dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()},
                             reference1, reference2);
-                        context.DataWatcherContainer.Value = CreateDataWatcher(context, dataTypeReferenceTuple, settings,
-                            reference1, reference2, data);
+                        CreateDataWatcher();
                         data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -285,20 +298,7 @@ namespace SharpLayout.WatcherCore
                 WriteError(settingsChoice.Value2, context);
             }
         }
-
-        private static Option<FileSystemWatcher> CreateDataWatcher(Context context,
-            Option<ReferenceTuple> dataTypeReferenceTuple, WatcherSettings settings,
-            Option<PortableExecutableReference> reference1, 
-            Option<PortableExecutableReference> reference2,
-            Option<object> data)
-        {
-            if (!dataTypeReferenceTuple.HasValue)
-                return new Option<FileSystemWatcher>();
-            return StartWatcher(context.GetDataPath(settings.GetDataType(dataTypeReferenceTuple.Value)),
-                () => Compile(context, settings, createPdf: false, reference1: reference1,
-                    reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data));
-        }
-
+        
         private static Option<object> GetData(Context context, WatcherSettings settings,
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2,
             Option<ReferenceTuple> dataTypeReferenceTuple)
