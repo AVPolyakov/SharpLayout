@@ -180,4 +180,8 @@ namespace Examples
         private static Paragraph Paragraph => new Paragraph().Margin(Left | Right, cellMargin);
         private static readonly double cellMargin = Cm(0.05);
     }
+    
+    public class SvoData
+    {
+    }
 }
