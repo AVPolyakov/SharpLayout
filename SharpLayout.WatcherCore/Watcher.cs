@@ -365,6 +365,8 @@ namespace SharpLayout.WatcherCore
                 return AssemblyLoadContext.Default.LoadFromStream(stream);
         }
 
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        
         private static FileSystemWatcher StartWatcher(string path, Action action)
         {
             var watcher = new FileSystemWatcher
@@ -373,7 +375,6 @@ namespace SharpLayout.WatcherCore
                 NotifyFilter = CombineAllNotifyFilters()
             };
             string oldText = null;
-            var semaphore = new SemaphoreSlim(1, 1);
 
             async Task Handle(FileSystemEventArgs e)
             {
