@@ -30,13 +30,18 @@ namespace Starter
 
                 document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
 
-                //Process.Start(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+                //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
+                //StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
             }
             catch (Exception e)
             {
                 ShowException(e);
             }
+        }
+
+        public static void StartProcess(string fileName)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
         }
 
         private static void ShowException(Exception e)

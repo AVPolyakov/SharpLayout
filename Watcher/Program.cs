@@ -17,7 +17,7 @@ namespace Watcher
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             var settingsPath = WatcherSettingsProvider.FilePath;
-            var outputPath = @"..\Starter\bin\Debug\netcoreapp3.0\Temp.png";
+            var outputPath = @"..\Starter\bin\Debug\netcoreapp3.1\Temp.png";
             var fullOutputPath = Path.Combine(Path.GetDirectoryName(settingsPath), outputPath);
             
             var document = new Document();
