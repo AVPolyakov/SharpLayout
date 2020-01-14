@@ -389,7 +389,8 @@ namespace SharpLayout.WatcherCore
                 if (string.Compare(e.FullPath, path, StringComparison.InvariantCultureIgnoreCase) != 0)
                     return;
 
-                if (new FileInfo(path).Length == 0)
+                var fileInfo = new FileInfo(path);
+                if (!fileInfo.Exists || fileInfo.Length == 0)
                     return;
 
                 async Task<string> GetText()
