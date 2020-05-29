@@ -48,6 +48,12 @@ namespace SharpLayout
             using (var pdfDocument = new PdfDocument())
             {
 	            Render(pdfDocument);
+                if (pdfDocument.PageCount == 0)
+                {
+                    var page = pdfDocument.AddPage();
+                    page.Size = PageSize.A4;
+                    page.Orientation = PageOrientation.Portrait;
+                }                
 	            using (var stream = new MemoryStream())
                 {
                     pdfDocument.Save(stream);
