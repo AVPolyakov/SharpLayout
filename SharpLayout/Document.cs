@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -166,6 +167,7 @@ namespace SharpLayout
                 T result;
                 using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
                 {
+                    graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                     graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
                     var s = (float) (resolution / 72d);
                     graphics.ScaleTransform(s, s);
