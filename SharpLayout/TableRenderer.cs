@@ -401,8 +401,8 @@ namespace SharpLayout
             var maxTopBorder = firstRow.Value == 0
                 ? MaxTopBorder(info)
                 : MaxBottomBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
-            var tableY = y0 + info.Table.TopMargin().ToOption().ValueOr(0);
-            var x0withMargin = x0 + info.Table.LeftMargin().ToOption().ValueOr(0);
+            var tableY = info.Table.Location().ToOption().Match(_ => _.Y, () => y0) + info.Table.TopMargin().ToOption().ValueOr(0);
+            var x0withMargin = info.Table.Location().ToOption().Match(_ => _.X, () => x0) + info.Table.LeftMargin().ToOption().ValueOr(0);
             {
                 var x = x0withMargin + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
