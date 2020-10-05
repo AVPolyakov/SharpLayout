@@ -171,5 +171,13 @@ namespace SharpLayout
 		    font = value;
 		    return this;
 	    }
+
+        private bool highlighted = true;
+        public bool Highlighted() => highlighted;
+        public Table Highlighted(bool value)
+        {
+            highlighted = value;
+            return this;
+        }
     }
 }

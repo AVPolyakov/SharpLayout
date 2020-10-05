@@ -43,8 +43,10 @@ namespace SharpLayout
         public bool CellLineNumbersAreVisible { get; set; }
 
 	    public bool ExpressionVisible { get; set; }
+        
+        public TextRenderingHint TextRenderingHint { get; set; } = TextRenderingHint.ClearTypeGridFit;
 
-	    public byte[] CreatePdf()
+        public byte[] CreatePdf()
         {
             using (var pdfDocument = new PdfDocument())
             {
@@ -129,13 +131,13 @@ namespace SharpLayout
                                     if (pageFilter.PageMustBeAdd)
                                         pages.AddLast(ToBytes(bitmap, imageFormat));
                                 },
-                                section.PageSettings, resolution);
+                                section, resolution);
                         }, this, GraphicsType.Image, sectionGroup, pageFilter),
                     bitmap => {
                         if (pageMustBeAdd)
                             pages.AddFirst(ToBytes(bitmap, imageFormat));
                     },
-                    sectionGroup.Sections[0].PageSettings, resolution);
+                    sectionGroup.Sections[0], resolution);
                 syncBitmapInfos.AddRange(pageTuples.Select(pageTuple => new SyncBitmapInfo {
                     PageInfo = pageTuple.SyncPageInfo,
                     Resolution = resolution,
@@ -158,17 +160,24 @@ namespace SharpLayout
         
         private const int defaultResolution = 254;
 
-        public static T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, PageSettings pageSettings, int resolution)
+        private T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, Section section, int resolution)
         {
-            var horizontalPixelCount = HorizontalPixelCount(pageSettings, resolution);
-            var verticalPixelCount = VerticalPixelCount(pageSettings, resolution);
-            using (var bitmap = new Bitmap(horizontalPixelCount, verticalPixelCount))
+            var horizontalPixelCount = HorizontalPixelCount(section.PageSettings, resolution);
+            var verticalPixelCount = VerticalPixelCount(section.PageSettings, resolution);
+            Bitmap bitmap;
+            if (section.Template().HasValue)
+                using (var image = System.Drawing.Image.FromStream(section.Template().Value()))
+                    bitmap = new Bitmap(image, horizontalPixelCount, verticalPixelCount);
+            else
+                bitmap = new Bitmap(horizontalPixelCount, verticalPixelCount);
+            using (bitmap)
             {
                 T result;
                 using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
                 {
-                    graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                    graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
+                    graphics.TextRenderingHint = TextRenderingHint;
+                    if (!section.Template().HasValue)
+                        graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
                     var s = (float) (resolution / 72d);
                     graphics.ScaleTransform(s, s);
                     result = func(new ImageGraphics(graphics));
@@ -178,7 +187,7 @@ namespace SharpLayout
                 return result;
             }
         }
-
+        
         private static int VerticalPixelCount(PageSettings pageSettings, int resolution) 
             => (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
 

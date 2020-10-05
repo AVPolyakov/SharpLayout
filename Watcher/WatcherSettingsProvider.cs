@@ -9,12 +9,14 @@ namespace Watcher
         private static DevSettings GetDevSettings()
         {
             return new DevSettings {
-                SourceCodeFile = SourceCodeFiles.PaymentOrder,
+                SourceCodeFile = SourceCodeFiles.LegalEntityCreation,
                 PageNumber = 1,
                 Resolution = 120,
                 //R1C1AreVisible = true,
-                //CellsAreHighlighted = true,
+                CellsAreHighlighted = true,
                 //ParagraphsAreHighlighted = true
+                
+                //StartExternalProcess = true
             };
         }
 
@@ -23,9 +25,14 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles2: new string[] {},
+                sourceCodeFiles2: new[]
+                {
+                    $@"..\Examples\{devSettings.SourceCodeFile}Data.cs"
+                },
                 sourceCodeFiles1: new[] {
                     @"..\Examples\Styles.cs",
+                    @"..\Examples\Indexer.cs",
+                    @"..\Examples\BandHelper.cs",
                 },
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
@@ -33,7 +40,10 @@ namespace Watcher
                     R1C1AreVisible = devSettings.R1C1AreVisible,
                     CellsAreHighlighted = devSettings.CellsAreHighlighted,
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
-                });
+                })
+            {
+                StartExternalProcess = devSettings.StartExternalProcess
+            };
         }
 
         public static string FilePath => GetFilePath();
@@ -45,7 +55,8 @@ namespace Watcher
         PaymentOrder,
         ContractDealPassport,
         LoanAgreementDealPassport,
-        Svo
+        Svo,
+        LegalEntityCreation
     }
 
     public class DevSettings
@@ -56,5 +67,6 @@ namespace Watcher
         public bool CellsAreHighlighted  { get; set; }
         public bool R1C1AreVisible  { get; set; }
         public bool ParagraphsAreHighlighted  { get; set; }
+        public bool StartExternalProcess { get; set; }
     }
 }

@@ -174,7 +174,7 @@ namespace SharpLayout.WatcherCore
         };
 
         public static void Start(string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc,
-            string outputPath)
+            string outputPath, bool startExternalProcess = false)
         {
             Document.CollectCallerInfo = true;
 
@@ -188,7 +188,7 @@ namespace SharpLayout.WatcherCore
 	            })
 	            .Concat(assemblies.Select(a => AssemblyMetadata.CreateFromFile(a.Location).GetReference()))
 	            .ToArray();
-            var context = new Context(references, settingsPath, parameterFunc, outputPath);
+            var context = new Context(references, settingsPath, parameterFunc, outputPath, startExternalProcess);
             ProcessSettings(context, createPdf: false);
             StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
             Console.WriteLine("Press 'q' to quit.");
@@ -225,21 +225,21 @@ namespace SharpLayout.WatcherCore
             if (settingsChoice.HasValue1)
             {
                 var settings = settingsChoice.Value1;
-                var reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>());
-                var reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
+                var reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>(), settings);
+                var reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1, settings);
                 Compile(context, settings, newSettings: true, createPdf: createPdf, reference1, reference2);
                 foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>());
-                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
+                            reference1 = CompileAssembly(context, settings.SourceCodeFiles1, new Option<PortableExecutableReference>(), settings);
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1, settings);
                             Compile(context, settings,
                                 newSettings: false, createPdf: false, reference1: reference1, reference2);
                         }));
                 foreach (var sourceCodeFile in settings.SourceCodeFiles2.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1);
+                            reference2 = CompileAssembly(context, settings.SourceCodeFiles2, reference1, settings);
                             Compile(context, settings,
                                 newSettings: false, createPdf: false, reference1: reference1, reference2);
                         }));
@@ -251,11 +251,12 @@ namespace SharpLayout.WatcherCore
             }
             else
             {
-                WriteError(settingsChoice.Value2, context);
+                WriteError(settingsChoice.Value2, context, new Option<WatcherSettings>());
             }
         }
 
-        private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles, Option<PortableExecutableReference> reference1)
+        private static Option<PortableExecutableReference> CompileAssembly(Context context, string[] sourceCodeFiles, Option<PortableExecutableReference> reference1,
+            Option<WatcherSettings> watcherSettings)
         {
             try
             {
@@ -272,7 +273,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, watcherSettings);
                         return new Option<PortableExecutableReference>();
                     }
                     bytes = stream.ToArray();
@@ -282,7 +283,7 @@ namespace SharpLayout.WatcherCore
             }
             catch (Exception e)
             {
-                ProcessException(context, e);
+                ProcessException(context, e, watcherSettings);
                 return new Option<PortableExecutableReference>();
             }
         }
@@ -308,7 +309,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, settings);
                         return;
                     }
                     bytes = stream.ToArray();
@@ -338,28 +339,45 @@ namespace SharpLayout.WatcherCore
                     Process.Start("cmd", $"/c start {fileName}");
                 }
                 else
-                    document.SavePng(
+                    document.SavePng2(
                         pageNumber: settings.PageNumber,
                         path: GetOutputPath(context),
-                        resolution: settings.Resolution);
+                        resolution: settings.Resolution, settings, context);
                 stopwatch.Stop();
                 Console.WriteLine($"Done. {DateTime.Now:HH:mm:ss} {stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception e)
             {
-                ProcessException(context, e);
+                ProcessException(context, e, settings);
             }
         }
+        
+        private static string SavePng2(this Document document, int pageNumber, string path, int resolution,
+            Option<WatcherSettings> watcherSettings, Context context)
+        {
+            var result = document.SavePng(pageNumber, path, resolution);
+            var startExternalProcess = watcherSettings.HasValue 
+                ? watcherSettings.Value.StartExternalProcess 
+                : context.StartExternalProcess;
+            if (startExternalProcess)
+                StartProcess(result);
+            return result;
+        }
 
-        private static void ProcessException(Context context, Exception e)
+        private static void StartProcess(string fileName)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
+        }
+
+        private static void ProcessException(Context context, Exception e, Option<WatcherSettings> watcherSettings)
         {
             if (e is TargetInvocationException exception)
                 if (exception.InnerException != null)
                 {
-                    WriteError(exception.InnerException.Message, context);
+                    WriteError(exception.InnerException.Message, context, watcherSettings);
                     return;
                 }
-            WriteError(e.Message, context);
+            WriteError(e.Message, context, watcherSettings);
         }
 
         private static string FullPath(this string sourceCodeFile, Context context)
@@ -462,7 +480,7 @@ namespace SharpLayout.WatcherCore
         private static string GetErrorText(EmitResult emitResult) =>
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
-        private static void WriteError(string errorText, Context context)
+        private static void WriteError(string errorText, Context context, Option<WatcherSettings> watcherSettings)
         {
             var text = $"ERROR! {errorText}";
             Console.WriteLine(text);
@@ -471,7 +489,7 @@ namespace SharpLayout.WatcherCore
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
                 .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
-            document.SavePng(0, GetOutputPath(context), 120);
+            document.SavePng2(0, GetOutputPath(context), 120, watcherSettings, context);
         }
 
         private static NotifyFilters CombineAllNotifyFilters()
@@ -487,15 +505,17 @@ namespace SharpLayout.WatcherCore
         public string SettingsPath { get; }
         public Func<ParameterInfo, object> ParameterFunc { get; }
         public string OutputPath { get; }
+        public bool StartExternalProcess { get; }
         public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
         public Context(PortableExecutableReference[] references, string settingsPath,
-            Func<ParameterInfo, object> parameterFunc, string outputPath)
+            Func<ParameterInfo, object> parameterFunc, string outputPath, bool startExternalProcess)
         {
             References = references;
             SettingsPath = settingsPath;
             ParameterFunc = parameterFunc;
             OutputPath = outputPath;
+            StartExternalProcess = startExternalProcess;
         }
     }
 }
