@@ -8,7 +8,15 @@ namespace Examples
     {
         public static double Px(double value) => XUnit.FromInch(value / 300d);
 
-        public static Table Band(this Section section, double x, double y, int columnCount, Indexer indexer,
+        public static Section Band(this Section section, double x, double y, int columnCount, int rowCount, Indexer indexer,
+            [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
+        {
+            for (var i = 0; i < rowCount; i++)
+                section.Band(x, y + 98 * i, columnCount, indexer, line, filePath);
+            return section;
+        }
+
+        public static Section Band(this Section section, double x, double y, int columnCount, Indexer indexer,
             [CallerLineNumber] int line = 0, [CallerFilePath] string filePath = "")
         {
             var table = section.AddTable().Font(Styles.Courier15)
@@ -23,7 +31,7 @@ namespace Examples
                     .Add(indexer.Current, line, filePath));
                 indexer.Next();
             }
-            return table;
+            return section;
         }
     }
 }
