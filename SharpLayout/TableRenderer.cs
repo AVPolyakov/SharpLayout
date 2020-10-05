@@ -402,8 +402,9 @@ namespace SharpLayout
                 ? MaxTopBorder(info)
                 : MaxBottomBorder(firstRow.Value - 1, info.Table, info.BottomBorderFunc);
             var tableY = y0 + info.Table.TopMargin().ToOption().ValueOr(0);
+            var x0withMargin = x0 + info.Table.LeftMargin().ToOption().ValueOr(0);
             {
-                var x = x0 + info.MaxLeftBorder;
+                var x = x0withMargin + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
                 {
                     var topBorder = firstRow.Value == 0
@@ -436,7 +437,7 @@ namespace SharpLayout
                     var leftBorder = info.LeftBorderFunc(new CellInfo(row, 0));
                     if (leftBorder.HasValue)
                     {
-                        var borderX = x0 + info.MaxLeftBorder - leftBorder.Value.Width / 2;
+                        var borderX = x0withMargin + info.MaxLeftBorder - leftBorder.Value.Width / 2;
                         if ((index == count - 1 ||
                                 !info.LeftBorderFunc(new CellInfo(row + 1, 0)).HasValue) &&
                             info.BottomBorderFunc(new CellInfo(row, 0)).HasValue)
@@ -447,7 +448,7 @@ namespace SharpLayout
                                 borderX, y, borderX, y + info.MaxHeights[row]);
                     }
                 }
-                var x = x0 + info.MaxLeftBorder;
+                var x = x0withMargin + info.MaxLeftBorder;
                 foreach (var column in info.Table.Columns)
                 {
                     var cell = rowCaches.GetRowCache(info.Table).Row(row).Cells[column.Index];
@@ -544,7 +545,7 @@ namespace SharpLayout
                                 }
                                 Draw(tableInfo,
                                     Range(0, table.RowFuncs.Count), y0: y + dy + paragraphY, xGraphics,
-                                    document, tableInfos, x + table.LeftMargin().ToOption().ValueOr(0) + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode,
+                                    document, tableInfos, x + dx, syncPageInfo, tableLevel + 1, drawer, graphicsType, mode,
                                     rowCaches, section, drawCaches);
                                 return new { };
                             },
