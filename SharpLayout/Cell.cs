@@ -14,6 +14,8 @@ namespace SharpLayout
         
         public int ColumnIndex { get; }
 
+        public double ColumnWidth => Table.Columns[ColumnIndex].Width;
+
         private int? rowspan;
         public int? Rowspan() => rowspan;
         public Cell Rowspan(int? value)

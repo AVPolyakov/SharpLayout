@@ -8,13 +8,15 @@ namespace Watcher
     {
         private static DevSettings GetDevSettings()
         {
-            return new DevSettings {
-                SourceCodeFile = SourceCodeFiles.PaymentOrder,
+            return new DevSettings
+            {
+                SourceCodeFile = SourceCodeFiles.LegalEntityCreation,
                 PageNumber = 1,
-                Resolution = 120,
-                //R1C1AreVisible = true,
-                //CellsAreHighlighted = true,
-                //ParagraphsAreHighlighted = true
+                StartExternalProcess = true,
+                Resolution = 300,
+                //R1C1AreVisible = true,   
+                CellsAreHighlighted = true,
+                //ParagraphsAreHighlighted = true 
             };
         }
 
@@ -24,17 +26,29 @@ namespace Watcher
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
                 sourceCodeFiles1: new[] {
+                sourceCodeFiles2: new string[]
+                {
+                    @"..\Examples\LegalEntityCreationData.cs",
+                },
+                sourceCodeFiles1: new[]
+                {
                     @"..\Examples\DataModels\SqlServer.generated.cs",
                     @"..\Examples\Styles.cs",
+                    @"..\Examples\Indexer.cs",
+                    @"..\Examples\BandHelper.cs",
                 },
                 sourceCodeFiles2: new string[] { },
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
-                documentFunc: () => new Document {
+                documentFunc: () => new Document
+                {
                     R1C1AreVisible = devSettings.R1C1AreVisible,
                     CellsAreHighlighted = devSettings.CellsAreHighlighted,
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
-                });
+                })
+            {
+                StartExternalProcess = devSettings.StartExternalProcess
+            };
         }
 
         public static string FilePath => GetFilePath();
@@ -46,7 +60,8 @@ namespace Watcher
         PaymentOrder,
         ContractDealPassport,
         LoanAgreementDealPassport,
-        Svo
+        Svo,
+        LegalEntityCreation
     }
 
     public class DevSettings
@@ -57,5 +72,6 @@ namespace Watcher
         public bool CellsAreHighlighted  { get; set; }
         public bool R1C1AreVisible  { get; set; }
         public bool ParagraphsAreHighlighted  { get; set; }
+        public bool StartExternalProcess { get; set; }
     }
 }

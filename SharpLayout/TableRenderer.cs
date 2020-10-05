@@ -1251,7 +1251,7 @@ namespace SharpLayout
         private static void HighlightCells(IGraphics xGraphics, TableInfo info, Option<XPen> bottomBorder, int row, Column column, double x, double y,
             double tableY, Drawer drawer, Document document)
         {
-            if (document.CellsAreHighlighted)
+            if (document.CellsAreHighlighted && info.Table.Highlighted())
             {
                 var color = (row + column.Index) % 2 == 1
                     ? XColor.FromArgb(32, 127, 127, 127)

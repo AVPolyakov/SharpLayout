@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using static SharpLayout.ParagraphRenderer;
@@ -156,6 +157,14 @@ namespace SharpLayout
 			    foreach (var footnote in span.Footnotes)
 				    clone.Footnotes.Add(footnote);
 		    return clone;
+	    }
+	    
+	    private Option<Func<Stream>> template;
+	    public Option<Func<Stream>> Template() => template;
+	    public Section Template(Func<Stream> value)
+	    {
+		    template = value.ToOption();
+		    return this;
 	    }
     }
 }
