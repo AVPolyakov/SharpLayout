@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Examples;
@@ -22,21 +25,38 @@ namespace Starter
                     //ParagraphsAreHighlighted = true,
                     //CellLineNumbersAreVisible = true,
                     //ExpressionVisible = true,
+                    TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit
                 };
-                PaymentOrder.AddSection(document, new PaymentOrderData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
-                //Svo.AddSection(document);
-                //ContractDealPassport.AddSection(document);
-                //LoanAgreementDealPassport.AddSection(document);
+                LegalEntityCreation.AddSection(document, GetData());
 
-                document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
+                var path = "Temp.png";
 
-                //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
+                File.WriteAllBytes(path, document.CreateImage(ImageFormat.Tiff, resolution: 300).Item1[0]);
+                
+                StartProcess(path); //open with Paint.NET
+
+                //path.StartLiveViewer(alwaysShowWindow: true);
                 //StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
             }
             catch (Exception e)
             {
                 ShowException(e);
             }
+        }
+
+        private static LegalEntityCreationData GetData()
+        {
+            return new LegalEntityCreationData
+            {
+                FullName = "Полное имя aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                Name = "Сокращенное имя",
+                PostalCode = "123456",
+                Subject = "АБ",
+                AreaName = "Большой улус аааааааааааааааааааааааааааааааа",
+                Area = "Улус №1",
+                City = "Город №1",
+                CityName = "Большой город",
+            };
         }
 
         public static void StartProcess(string fileName)

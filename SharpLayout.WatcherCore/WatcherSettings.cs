@@ -11,6 +11,7 @@ namespace SharpLayout.WatcherCore
         public int Resolution { get; }
         public Func<Document> DocumentFunc { get; }
         public string[] QueryFiles { get; }
+        public bool StartExternalProcess { get; set; }
 
         public WatcherSettings(string sourceCodeFile, string[] sourceCodeFiles2, string[] sourceCodeFiles1, int pageNumber,
             int resolution, Func<Document> documentFunc, string[] queryFiles)
