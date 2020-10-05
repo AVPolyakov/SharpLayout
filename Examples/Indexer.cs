@@ -10,5 +10,7 @@ namespace Examples
         public void Next() => _index++;
 
         public string Current => _index < _value?.Length ? _value.Substring(_index, 1) : "";
+        
+        public static implicit operator Indexer(string value) => new Indexer(value);
     }
 }

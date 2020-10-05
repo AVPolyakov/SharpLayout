@@ -179,5 +179,15 @@ namespace SharpLayout
             highlighted = value;
             return this;
         }
+
+        private XPoint? location;
+        public XPoint? Location() => location;
+        public Table Location(XPoint? value)
+        {
+            location = value;
+            return this;
+        }
+        
+        public Table Location(double x, double y) => Location(new XPoint(x, y));
     }
 }
