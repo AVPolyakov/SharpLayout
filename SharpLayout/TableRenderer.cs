@@ -634,6 +634,20 @@ namespace SharpLayout
         private static void DrawHorizontalLine(this Drawer drawer, XPen pen,
             double x1, double y1, double x2, Option<double> leftBorder, bool bendRight)
         {
+            if (pen.DashStyle != XDashStyle.Solid)
+            {
+                if (leftBorder.HasValue)
+                {
+                    var newX1 = x1 - leftBorder.Value;
+                    drawer.DrawLine(pen, newX1, y1, x2, y1);
+                }
+                else
+                {
+                    drawer.DrawLine(pen, x1, y1, x2, y1);
+                }
+                return;
+            }
+            
             if (leftBorder.HasValue)
             {
                 if (bendRight)
@@ -679,6 +693,12 @@ namespace SharpLayout
 
         private static void DrawVerticalLine(this Drawer drawer, XPen pen, double x1, double y1, double y2, bool toRight)
         {
+            if (pen.DashStyle != XDashStyle.Solid)
+            {
+                drawer.DrawLine(pen, x1, y1, x1, y2);
+                return;
+            }
+            
             var d = pen.Width / 2;
             if (toRight)
                 drawer.DrawLines(pen, new[] {
