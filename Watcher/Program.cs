@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using DataModels;
 using LinqToDB.Data;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using Resources;
 using SharpLayout;
 
 namespace Watcher
@@ -36,7 +36,8 @@ namespace Watcher
             SharpLayout.WatcherCore.Watcher.Start(
                 settingsPath: settingsPath,
                 assemblies: new Assembly[] {
-                    typeof(DataConnection).Assembly
+                    typeof(DataConnection).Assembly,
+                    typeof(LegalEntityCreationTemplate).Assembly
                 }, 
                 parameterFunc: info => throw new Exception($"Factory is not specified for type {info.ParameterType}"),
                 outputPath: outputPath);

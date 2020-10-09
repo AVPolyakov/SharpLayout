@@ -11,12 +11,12 @@ namespace Watcher
         {
             return new DevSettings
             {
-                SourceCodeFile = SourceCodeFiles.LegalEntityCreation,
+                SourceCodeFile = SourceCodeFiles.PaymentOrder,
                 PageNumber = 1,
-                StartExternalProcess = true,
-                Resolution = 300,
+                //StartExternalProcess = true,
+                Resolution = 120,
                 //R1C1AreVisible = true,   
-                CellsAreHighlighted = true,
+                //CellsAreHighlighted = true,
                 //ParagraphsAreHighlighted = true 
             };
         }
@@ -26,10 +26,8 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles1: new[] {
                 sourceCodeFiles2: new string[]
                 {
-                    @"..\Examples\LegalEntityCreationData.cs",
                 },
                 sourceCodeFiles1: new[]
                 {
@@ -38,7 +36,6 @@ namespace Watcher
                     @"..\Examples\Indexer.cs",
                     @"..\Examples\BandHelper.cs",
                 },
-                sourceCodeFiles2: new string[] { },
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
                 documentFunc: () => new Document
@@ -47,13 +44,12 @@ namespace Watcher
                     CellsAreHighlighted = devSettings.CellsAreHighlighted,
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
                 },
-                queryFiles: GetQueryFiles(settingsDirectory, devSettings));
-        }
-
-                })
+                queryFiles: GetQueryFiles(settingsDirectory, devSettings))
             {
                 StartExternalProcess = devSettings.StartExternalProcess
             };
+        }
+
         private static string[] GetQueryFiles(string settingsDirectory, DevSettings devSettings)
         {
             var relativePath = $@"..\Examples\{devSettings.SourceCodeFile}Query.cs";
