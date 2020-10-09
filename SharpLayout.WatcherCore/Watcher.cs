@@ -174,7 +174,7 @@ namespace SharpLayout.WatcherCore
         };
 
         public static void Start(string settingsPath, Assembly[] assemblies, Func<ParameterInfo, object> parameterFunc,
-            string outputPath)
+            string outputPath, bool startExternalProcess = false)
         {
             Document.CollectCallerInfo = true;
 
@@ -188,7 +188,7 @@ namespace SharpLayout.WatcherCore
 	            })
 	            .Concat(assemblies.Select(a => AssemblyMetadata.CreateFromFile(a.Location).GetReference()))
 	            .ToArray();
-            var context = new Context(references, settingsPath, parameterFunc, outputPath);
+            var context = new Context(references, settingsPath, parameterFunc, outputPath, startExternalProcess);
             ProcessSettings(context, createPdf: false);
             StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
             Console.WriteLine("Press 'q' to quit.");
@@ -225,18 +225,18 @@ namespace SharpLayout.WatcherCore
             if (settingsChoice.HasValue1)
             {
                 var settings = settingsChoice.Value1;
-                var reference1 = CompileReference(context, settings.SourceCodeFiles1);
-                var reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                var dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
+                var reference1 = CompileReference(context, settings.SourceCodeFiles1, settings);
+                var reference2 = CompileReference(context, settings.SourceCodeFiles2, settings, reference1);
+                var dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, settings);
                 var data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                 Compile(context, settings, createPdf: createPdf, reference1, reference2, dataTypeReferenceTuple,
                     data);
                 foreach (var sourceCodeFile in settings.SourceCodeFiles1.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference1 = CompileReference(context, settings.SourceCodeFiles1);
-                            reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
+                            reference1 = CompileReference(context, settings.SourceCodeFiles1, settings);
+                            reference2 = CompileReference(context, settings.SourceCodeFiles2, settings, reference1);
+                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, settings);
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -244,15 +244,15 @@ namespace SharpLayout.WatcherCore
                 foreach (var sourceCodeFile in settings.SourceCodeFiles2.Select(_ => _.FullPath(context)))
                     context.Watchers.Add(
                         StartWatcher(sourceCodeFile, () => {
-                            reference2 = CompileReference(context, settings.SourceCodeFiles2, reference1);
-                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
+                            reference2 = CompileReference(context, settings.SourceCodeFiles2, settings, reference1);
+                            dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, settings);
                             data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                             Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                                 dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
                         }));
                 context.Watchers.Add(
                     StartWatcher(settings.GetDataTypePath().FullPath(context), () => {
-                        dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()});
+                        dataTypeReferenceTuple = CompileReferenceTuple(context, new []{settings.GetDataTypePath()}, settings);
                         data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
                         Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
                             dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
@@ -280,7 +280,7 @@ namespace SharpLayout.WatcherCore
             }
             else
             {
-                WriteError(settingsChoice.Value2, context);
+                WriteError(settingsChoice.Value2, context, new Option<WatcherSettings>());
             }
         }
 
@@ -292,8 +292,11 @@ namespace SharpLayout.WatcherCore
             if (!File.Exists(dataProviderPath))
             {
                 var dataType = settings.GetDataType(dataTypeReferenceTuple);
+                var text = File.Exists(context.GetDataPath(dataType)) 
+                    ? File.ReadAllText(context.GetDataPath(dataType)) 
+                    : "{}";
                 return JsonConvert.DeserializeObject(
-                    File.ReadAllText(context.GetDataPath(dataType)), dataType);
+                    text, dataType);
             }
             try
             {
@@ -302,7 +305,7 @@ namespace SharpLayout.WatcherCore
                 if (File.Exists(queryPath.FullPath(context)))
                     sourceCodeFiles.Add(queryPath);
                 sourceCodeFiles.Add(dataProviderPath);
-                return CompileAssembly(context, sourceCodeFiles, reference1, 
+                return CompileAssembly(context, sourceCodeFiles, settings, reference1, 
                         reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
                     .Select(tuple => {
                         var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
@@ -318,7 +321,7 @@ namespace SharpLayout.WatcherCore
             }
             catch (Exception e)
             {
-                ProcessException(context, e);
+                ProcessException(context, e, settings);
                 return new Option<object>();
             }
         }
@@ -350,17 +353,17 @@ namespace SharpLayout.WatcherCore
         private const string DataProvider = "DataProvider";
         private const string Data = "Data";
         
-        private static Option<PortableExecutableReference> CompileReference(Context context, string[] sourceCodeFiles,
+        private static Option<PortableExecutableReference> CompileReference(Context context, string[] sourceCodeFiles, Option<WatcherSettings> watcherSettings,
             params Option<PortableExecutableReference>[] references)
         {
-            return CompileReferenceTuple(context, sourceCodeFiles, references)
+            return CompileReferenceTuple(context, sourceCodeFiles, watcherSettings, references)
                 .Select(_ => _.Reference);
         }
 
-        private static Option<ReferenceTuple> CompileReferenceTuple(Context context, string[] sourceCodeFiles, 
+        private static Option<ReferenceTuple> CompileReferenceTuple(Context context, string[] sourceCodeFiles, Option<WatcherSettings> watcherSettings, 
             params Option<PortableExecutableReference>[] references)
         {
-            return CompileAssembly(context, sourceCodeFiles, references)
+            return CompileAssembly(context, sourceCodeFiles, watcherSettings, references)
                 .Select(tuple => new ReferenceTuple(
                     reference: AssemblyMetadata.CreateFromImage(tuple.Bytes).GetReference(),
                     assemblyTuple: tuple));
@@ -378,7 +381,7 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static Option<AssemblyTuple> CompileAssembly(Context context, IEnumerable<string> sourceCodeFiles,
+        private static Option<AssemblyTuple> CompileAssembly(Context context, IEnumerable<string> sourceCodeFiles, Option<WatcherSettings> watcherSettings,
             params Option<PortableExecutableReference>[] references)
         {
             if (references.Any(_ => !_.HasValue)) 
@@ -398,7 +401,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, watcherSettings);
                         return new Option<AssemblyTuple>();
                     }
                     bytes = stream.ToArray();
@@ -407,7 +410,7 @@ namespace SharpLayout.WatcherCore
             }
             catch (Exception e)
             {
-                ProcessException(context, e);
+                ProcessException(context, e, watcherSettings);
                 return new Option<AssemblyTuple>();
             }
         }
@@ -449,7 +452,7 @@ namespace SharpLayout.WatcherCore
                     var emitResult = compilation.Emit(stream);
                     if (!emitResult.Success)
                     {
-                        WriteError(GetErrorText(emitResult), context);
+                        WriteError(GetErrorText(emitResult), context, settings);
                         return;
                     }
                     bytes = stream.ToArray();
@@ -479,7 +482,9 @@ namespace SharpLayout.WatcherCore
                             document.SavePng(
                                 pageNumber: settings.PageNumber,
                                 path: GetOutputPath(context),
-                                resolution: settings.Resolution);
+                                resolution: settings.Resolution,
+                                settings,
+                                context);
                             break;
                         }
                         catch (IOException)
@@ -492,8 +497,25 @@ namespace SharpLayout.WatcherCore
             }
             catch (Exception e)
             {
-                ProcessException(context, e);
+                ProcessException(context, e, settings);
             }
+        }
+        
+        private static string SavePng(this Document document, int pageNumber, string path, int resolution,
+            Option<WatcherSettings> watcherSettings, Context context)
+        {
+            var result = document.SavePng(pageNumber, path, resolution);
+            var startExternalProcess = watcherSettings.HasValue 
+                ? watcherSettings.Value.StartExternalProcess 
+                : context.StartExternalProcess;
+            if (startExternalProcess)
+                StartProcess(result);
+            return result;
+        }
+
+        private static void StartProcess(string fileName)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
         }
 
         private static string GetDataPath(this Context context, Type dataType)
@@ -510,15 +532,15 @@ namespace SharpLayout.WatcherCore
             return dataType;
         }
 
-        private static void ProcessException(Context context, Exception e)
+        private static void ProcessException(Context context, Exception e, Option<WatcherSettings> watcherSettings)
         {
             if (e is TargetInvocationException exception)
                 if (exception.InnerException != null)
                 {
-                    WriteError(exception.InnerException.Message, context);
+                    WriteError(exception.InnerException.Message, context, watcherSettings);
                     return;
                 }
-            WriteError(e.Message, context);
+            WriteError(e.Message, context, watcherSettings);
         }
 
         private static string FullPath(this string sourceCodeFile, Context context)
@@ -621,7 +643,7 @@ namespace SharpLayout.WatcherCore
         private static string GetErrorText(EmitResult emitResult) =>
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
-        private static void WriteError(string errorText, Context context)
+        private static void WriteError(string errorText, Context context, Option<WatcherSettings> watcherSettings)
         {
             var text = $"ERROR! {errorText}";
             Console.WriteLine(text);
@@ -630,7 +652,7 @@ namespace SharpLayout.WatcherCore
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
                 .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
-            document.SavePng(0, GetOutputPath(context), 120);
+            document.SavePng(0, GetOutputPath(context), 120, watcherSettings, context);
         }
 
         private static NotifyFilters CombineAllNotifyFilters()
@@ -646,15 +668,17 @@ namespace SharpLayout.WatcherCore
         public string SettingsPath { get; }
         public Func<ParameterInfo, object> ParameterFunc { get; }
         public string OutputPath { get; }
+        public bool StartExternalProcess { get; }
         public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
         public Context(PortableExecutableReference[] references, string settingsPath,
-            Func<ParameterInfo, object> parameterFunc, string outputPath)
+            Func<ParameterInfo, object> parameterFunc, string outputPath, bool startExternalProcess)
         {
             References = references;
             SettingsPath = settingsPath;
             ParameterFunc = parameterFunc;
             OutputPath = outputPath;
+            StartExternalProcess = startExternalProcess;
         }
     }
 }

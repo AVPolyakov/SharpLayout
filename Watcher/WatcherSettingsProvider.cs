@@ -25,11 +25,6 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles1: new[] {
-                sourceCodeFiles2: new string[]
-                {
-                    @"..\Examples\LegalEntityCreationData.cs",
-                },
                 sourceCodeFiles1: new[]
                 {
                     @"..\Examples\DataModels\SqlServer.generated.cs",
@@ -37,7 +32,9 @@ namespace Watcher
                     @"..\Examples\Indexer.cs",
                     @"..\Examples\BandHelper.cs",
                 },
-                sourceCodeFiles2: new string[] { },
+                sourceCodeFiles2: new string[]
+                {
+                },
                 pageNumber: devSettings.PageNumber - 1,
                 resolution: devSettings.Resolution,
                 documentFunc: () => new Document

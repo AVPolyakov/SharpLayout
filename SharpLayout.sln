@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpLayout.WatcherCore", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMigration", "DatabaseMigration\DatabaseMigration.csproj", "{00B0373D-46F4-49CC-A133-CEFFD8385668}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Resources.csproj", "{51B2976A-ADDA-4E37-A532-BB668C8B7E80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{00B0373D-46F4-49CC-A133-CEFFD8385668}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00B0373D-46F4-49CC-A133-CEFFD8385668}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00B0373D-46F4-49CC-A133-CEFFD8385668}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51B2976A-ADDA-4E37-A532-BB668C8B7E80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51B2976A-ADDA-4E37-A532-BB668C8B7E80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51B2976A-ADDA-4E37-A532-BB668C8B7E80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51B2976A-ADDA-4E37-A532-BB668C8B7E80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

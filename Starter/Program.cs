@@ -31,7 +31,8 @@ namespace Starter
 
                 var path = "Temp.png";
 
-                File.WriteAllBytes(path, document.CreateImage(ImageFormat.Tiff, resolution: 300).Item1[0]);
+                var bytes = document.CreateImage(ImageFormat.Tiff, resolution: 300).Item1[0];
+                File.WriteAllBytes(path, bytes);
                 
                 StartProcess(path); //open with Paint.NET
 
