@@ -237,34 +237,36 @@ namespace SharpLayout.WatcherCore
                         watcher = new Option<FileSystemWatcher>();
                     else
                     {
-                        watcher = StartWatcher(context.GetDataPath(settings.GetDataType(dataTypeReferenceTuple.Value)),
-                            () => {
-                                data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
-                                Compile(context, settings, createPdf: false, reference1: reference1,
-                                    reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
-                            });
+                        if (!dataTypeReferenceTuple.Value.Reference.HasValue)
+                            watcher = new Option<FileSystemWatcher>();
+                        else
+                        {
+                            watcher = StartWatcher(context.GetDataPath(settings.GetDataType(dataTypeReferenceTuple.Value.Reference.Value)),
+                                () =>
+                                {
+                                    data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
+                                    Compile(context, settings, createPdf: false, reference1: reference1,
+                                        reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
+                                });
+                        }
                     }
                     context.DataWatcherContainer.Value = watcher;
                 }
                 void CreateDataTypeWatcher()
                 {
                     Option<FileSystemWatcher> watcher;
-                    if (!dataTypeReferenceTuple.HasValue)
+                    var dataTypePath = settings.GetDataTypePath().FullPath(context);
+                    if (!File.Exists(dataTypePath))
                         watcher = new Option<FileSystemWatcher>();
                     else
-                    {
-                        var dataTypePath = settings.GetDataTypePath().FullPath(context);
-                        if (!File.Exists(dataTypePath))
-                            watcher = new Option<FileSystemWatcher>();
-                        else
-                            watcher = StartWatcher(dataTypePath, () => {
-                                dataTypeReferenceTuple = GetDataTypeReferenceTuple(context, settings, reference1, reference2);
-                                CreateDataWatcher();
-                                data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
-                                Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
-                                    dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
-                            });
-                    }
+                        watcher = StartWatcher(dataTypePath, () =>
+                        {
+                            dataTypeReferenceTuple = GetDataTypeReferenceTuple(context, settings, reference1, reference2);
+                            CreateDataWatcher();
+                            data = GetData(context, settings, reference1, reference2, dataTypeReferenceTuple);
+                            Compile(context, settings, createPdf: false, reference1: reference1, reference2: reference2,
+                                dataTypeReferenceTuple: dataTypeReferenceTuple, data: data);
+                        });
                     context.DataTypeWatcherContainer.Value = watcher;
                 }
                 CreateDataWatcher();
@@ -319,50 +321,72 @@ namespace SharpLayout.WatcherCore
             }
         }
 
-        private static Option<ReferenceTuple> GetDataTypeReferenceTuple(Context context, WatcherSettings settings, 
+        private static Option<DataTypeReference> GetDataTypeReferenceTuple(Context context, WatcherSettings settings, 
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2)
         {
             var dataTypePath = settings.GetDataTypePath();
             if (!File.Exists(dataTypePath.FullPath(context)))
-                return new Option<ReferenceTuple>();
-            return CompileReferenceTuple(context, new []{dataTypePath}, settings, reference1, reference2);
+                return new Option<DataTypeReference>();
+            return new DataTypeReference(CompileReferenceTuple(context, new []{dataTypePath}, settings, reference1, reference2));
+        }
+        
+        private class DataTypeReference
+        {
+            public Option<ReferenceTuple> Reference { get; }
+
+            public DataTypeReference(Option<ReferenceTuple> reference)
+            {
+                Reference = reference;
+            }
         }
 
-        private static Option<object> GetData(Context context, WatcherSettings settings,
+        private static Option<DataContainer> GetData(Context context, WatcherSettings settings,
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2,
-            Option<ReferenceTuple> dataTypeReferenceTuple)
+            Option<DataTypeReference> dataTypeReference)
         {
             try
             {
-                if (!dataTypeReferenceTuple.HasValue)
-                    return new Option<object>();
+                if (!dataTypeReference.HasValue)
+                    return new Option<DataContainer>();
+                if (!dataTypeReference.Value.Reference.HasValue)
+                    return new DataContainer(new Option<object>());
                 var dataProviderPath = settings.GetDataProviderPath(context);
                 if (!File.Exists(dataProviderPath))
                 {
-                    var dataType = settings.GetDataType(dataTypeReferenceTuple.Value);
-                    return context.DeserializeData(dataType);
+                    var dataType = settings.GetDataType(dataTypeReference.Value.Reference.Value);
+                    return new DataContainer(context.DeserializeData(dataType));
                 }
                 var sourceCodeFiles = new List<string>(settings.QueryFiles) {dataProviderPath};
-                return CompileAssembly(context, sourceCodeFiles, settings, reference1,
-                        reference2, dataTypeReferenceTuple.Select(_ => _.Reference))
+                return new DataContainer(CompileAssembly(context, sourceCodeFiles, settings, reference1,
+                        reference2, dataTypeReference.Value.Reference.Select(_ => _.Reference))
                     .Select(tuple => {
                         var sourceCodeFileName = Path.GetFileNameWithoutExtension(settings.SourceCodeFile);
                         var dataProviderType = tuple.Assembly
                             .GetTypes().Single(t => t.Name == $"{sourceCodeFileName}{DataProvider}");
                         var dataProvider = (IDataProvider) Activator.CreateInstance(dataProviderType);
                         return dataProvider.Create(() => {
-                            var dataType = settings.GetDataType(dataTypeReferenceTuple.Value);
+                            var dataType = settings.GetDataType(dataTypeReference.Value.Reference.Value);
                             return context.DeserializeData(dataType);
                         });
-                    });
+                    }));
             }
             catch (Exception e)
             {
                 ProcessException(context, e, settings);
-                return new Option<object>();
+                return new DataContainer(new Option<object>());
             }
         }
+        
+        private class DataContainer
+        {
+            public Option<object> DataValue { get; }
 
+            public DataContainer(Option<object> dataValue)
+            {
+                DataValue = dataValue;
+            }
+        }
+        
         private static object DeserializeData(this Context context, Type dataType)
         {
             return JsonConvert.DeserializeObject(
@@ -464,26 +488,33 @@ namespace SharpLayout.WatcherCore
 
         private static void Compile(Context context, WatcherSettings settings, bool createPdf,
             Option<PortableExecutableReference> reference1, Option<PortableExecutableReference> reference2,
-            Option<ReferenceTuple> dataTypeReferenceTuple, Option<object> data)
+            Option<DataTypeReference> dataTypeReferenceTuple, Option<DataContainer> data)
         {
             if (!reference1.HasValue) return;
             if (!reference2.HasValue) return;
+            if (dataTypeReferenceTuple.HasValue)
+                if (!dataTypeReferenceTuple.Value.Reference.HasValue)
+                    return;
+            if (data.HasValue)
+                if (!data.Value.DataValue.HasValue)
+                    return;
             try
             {
                 var stopwatch = Stopwatch.StartNew();
                 var codeFile = FullPath(settings.SourceCodeFile, context);
+                var references = context.References
+                    .Concat(new[] {
+                        reference1.Value,
+                        reference2.Value
+                    })
+                    .ToList();
+                if (dataTypeReferenceTuple.HasValue) 
+                    references.Add(dataTypeReferenceTuple.Value.Reference.Value.Reference);
                 var compilation = CSharpCompilation.Create(
                     Guid.NewGuid().ToString("N"),
                     new[] {SyntaxFactory.ParseSyntaxTree(File.ReadAllText(codeFile), path: codeFile)},
                     options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                    references: context.References
-                        .Concat(new[] {
-                            reference1.Value,
-                            reference2.Value
-                        })
-                        .Concat(
-                            dataTypeReferenceTuple.Match(
-                                _ => new[] {_.Reference}, () => new PortableExecutableReference[] { }))
+                    references: references
                 );
                 byte[] bytes;
                 using (var stream = new MemoryStream())
@@ -502,9 +533,17 @@ namespace SharpLayout.WatcherCore
                 var method = type.GetMethod("AddSection");
                 var document = settings.DocumentFunc();
                 var parameters = method.GetParameters().Skip(2).Select(info => context.ParameterFunc(info));
-                var dataValue = data.HasValue 
-                    ? data.Value 
-                    : context.DeserializeData(method.GetParameters()[1].ParameterType);
+                object dataValue;
+                if (data.HasValue)
+                    dataValue = data.Value.DataValue.Value;
+                else
+                {
+                    var parameterType = method.GetParameters()[1].ParameterType;
+                    context.DataWatcherContainer.Value = StartWatcher(context.GetDataPath(parameterType),
+                        () => Compile(context, settings, createPdf: false, reference1: reference1,
+                            reference2: reference2, dataTypeReferenceTuple: dataTypeReferenceTuple, data: data));
+                    dataValue = context.DeserializeData(parameterType);
+                }
                 method.Invoke(null, new[] {document, dataValue}.Concat(parameters).ToArray());
                 if (createPdf)
                 {
