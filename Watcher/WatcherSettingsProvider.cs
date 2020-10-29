@@ -9,11 +9,11 @@ namespace Watcher
         private static DevSettings GetDevSettings()
         {
             return new DevSettings {
-                SourceCodeFile = SourceCodeFiles.LegalEntityCreation,
+                SourceCodeFile = SourceCodeFiles.PaymentOrder,
                 PageNumber = 1,
                 Resolution = 120,
                 //R1C1AreVisible = true,
-                CellsAreHighlighted = true,
+                //CellsAreHighlighted = true,
                 //ParagraphsAreHighlighted = true
                 
                 //StartExternalProcess = true
@@ -25,10 +25,7 @@ namespace Watcher
             var devSettings = GetDevSettings();
             return new WatcherSettings(
                 sourceCodeFile: $@"..\Examples\{devSettings.SourceCodeFile}.cs",
-                sourceCodeFiles2: new[]
-                {
-                    $@"..\Examples\{devSettings.SourceCodeFile}Data.cs"
-                },
+                sourceCodeFiles2: GetSourceCodeFiles2(devSettings),
                 sourceCodeFiles1: new[] {
                     @"..\Examples\Styles.cs",
                     @"..\Examples\Indexer.cs",
@@ -44,6 +41,20 @@ namespace Watcher
             {
                 StartExternalProcess = devSettings.StartExternalProcess
             };
+        }
+
+        private static string[] GetSourceCodeFiles2(DevSettings devSettings)
+        {
+            switch (devSettings.SourceCodeFile)
+            {
+                case SourceCodeFiles.LegalEntityCreation:
+                    return new[]
+                    {
+                        $@"..\Examples\{devSettings.SourceCodeFile}Data.cs"
+                    };
+                default:
+                    return new string[]{};
+            }
         }
 
         public static string FilePath => GetFilePath();
