@@ -76,7 +76,7 @@ LiveViewer tool tracks file changes and automatically updates a image on the scr
 
 You can hold Ctrl and mouse left click on the image `Ctrl + Сlick`, LiveViewer will jump to the corresponding line of source code in Visual Studio or JetBrains Rider.
 
-You can resize a elements by mouse. Select the size in Visual Studio editor. Hold left button and draw a rectangle by mouse in LiveViewer. Press `w` (width) or `h` (height) button. See second video below.
+You can resize a elements by mouse. Select the size in Visual Studio editor. Hold left button and draw a rectangle by mouse in LiveViewer. Press `w` (width) or `h` (height) button. See second video below. If you use Rider the height or width will be copied to clipboard.
 
 To change scale of image, change `resolution` parameter in `SavePng` method.
 
