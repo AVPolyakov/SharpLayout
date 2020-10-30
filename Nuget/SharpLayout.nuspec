@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SharpLayout</id>
-    <version>1.0.66</version>
+    <version>1.0.69</version>
     <title>C# library for creating PDF.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
