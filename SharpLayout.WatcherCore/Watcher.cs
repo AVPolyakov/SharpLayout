@@ -339,10 +339,10 @@ namespace SharpLayout.WatcherCore
                     Process.Start("cmd", $"/c start {fileName}");
                 }
                 else
-                    document.SavePng2(
+                    document.SavePng(
                         pageNumber: settings.PageNumber,
                         path: GetOutputPath(context),
-                        resolution: settings.Resolution, settings, context);
+                        resolution: settings.Resolution, watcherSettings: settings, context: context);
                 stopwatch.Stop();
                 Console.WriteLine($"Done. {DateTime.Now:HH:mm:ss} {stopwatch.ElapsedMilliseconds}ms");
             }
@@ -352,7 +352,7 @@ namespace SharpLayout.WatcherCore
             }
         }
         
-        private static string SavePng2(this Document document, int pageNumber, string path, int resolution,
+        private static void SavePng(this Document document, int pageNumber, string path, int resolution,
             Option<WatcherSettings> watcherSettings, Context context)
         {
             var result = document.SavePng(pageNumber, path, resolution);
@@ -361,7 +361,6 @@ namespace SharpLayout.WatcherCore
                 : context.StartExternalProcess;
             if (startExternalProcess)
                 StartProcess(result);
-            return result;
         }
 
         private static void StartProcess(string fileName)
@@ -489,7 +488,7 @@ namespace SharpLayout.WatcherCore
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
                 .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
-            document.SavePng2(0, GetOutputPath(context), 120, watcherSettings, context);
+            document.SavePng(0, GetOutputPath(context), 120, watcherSettings, context);
         }
 
         private static NotifyFilters CombineAllNotifyFilters()
