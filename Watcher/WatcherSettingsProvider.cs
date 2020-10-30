@@ -39,7 +39,8 @@ namespace Watcher
                     ParagraphsAreHighlighted = devSettings.ParagraphsAreHighlighted
                 })
             {
-                StartExternalProcess = devSettings.StartExternalProcess
+                StartExternalProcess = devSettings.StartExternalProcess,
+                DataSourceDirectory = @"..\Starter\DataSources"
             };
         }
 

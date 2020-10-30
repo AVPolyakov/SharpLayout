@@ -319,7 +319,7 @@ namespace SharpLayout.WatcherCore
                 var type = assembly.GetTypes().Single(_ => _.Name == typeName);
                 var method = type.GetMethod("AddSection");
                 var parameterType = method.GetParameters()[1].ParameterType;
-                var dataPath = Path.Combine(Path.GetDirectoryName(GetOutputPath(context)),
+                var dataPath = Path.Combine(GetDataSourceDirectory(context, settings),
                     $"{parameterType.FullName}_DataSource.json");
                 if (newSettings)
                     context.Watchers.Add(StartWatcher(dataPath,
@@ -351,7 +351,14 @@ namespace SharpLayout.WatcherCore
                 ProcessException(context, e, settings);
             }
         }
-        
+
+        private static string GetDataSourceDirectory(Context context, WatcherSettings settings)
+        {
+            return settings.DataSourceDirectory == null 
+                ? Path.GetDirectoryName(GetOutputPath(context)) 
+                : settings.DataSourceDirectory.FullPath(context);
+        }
+
         private static void SavePng(this Document document, int pageNumber, string path, int resolution,
             Option<WatcherSettings> watcherSettings, Context context)
         {
