@@ -13,6 +13,15 @@ namespace SharpLayout.WatcherCore
         public bool StartExternalProcess { get; set; }
         public string DataSourceDirectory { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceCodeFile"></param>
+        /// <param name="sourceCodeFiles2">Source code files of level 2.</param>
+        /// <param name="sourceCodeFiles1">Source code files of level 1.</param>
+        /// <param name="pageNumber"></param>
+        /// <param name="resolution"></param>
+        /// <param name="documentFunc"></param>
         public WatcherSettings(string sourceCodeFile, string[] sourceCodeFiles2, string[] sourceCodeFiles1, int pageNumber,
             int resolution, Func<Document> documentFunc)
         {
