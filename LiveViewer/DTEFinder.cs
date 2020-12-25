@@ -7,12 +7,12 @@ namespace LiveViewer
 {
     public static class DTEFinder
     {
-        public const string ProgId = "VisualStudio.DTE.16.0";
+        private const string ProgId = "VisualStudio.DTE";
 
         [DllImport("ole32.dll")]
         private static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);
 
-        public static DTE2 GetDTE(int processId)
+        public static DTE2 GetDTE(int? processId)
         {
             object runningObject = null;
 
@@ -46,7 +46,9 @@ namespace LiveViewer
                         // Do nothing, there is something in the ROT that we do not have access to.
                     }
 
-                    if (!string.IsNullOrEmpty(name) && string.Equals(name, $"!{ProgId}:{processId}", StringComparison.Ordinal))
+                    if (!string.IsNullOrEmpty(name) &&
+                        name.StartsWith($"!{ProgId}", StringComparison.Ordinal) && 
+                        (!processId.HasValue || name.EndsWith($":{processId}", StringComparison.Ordinal)))
                     {
                         Marshal.ThrowExceptionForHR(rot.GetObject(runningObjectMoniker, out runningObject));
                         break;

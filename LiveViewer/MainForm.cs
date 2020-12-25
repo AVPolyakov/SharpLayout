@@ -73,7 +73,7 @@ namespace LiveViewer
             else
                 try
                 {
-                    return (DTE2) Marshal.GetActiveObject(DTEFinder.ProgId);
+                    return DTEFinder.GetDTE(processId: null);
                 }
                 catch
                 {
