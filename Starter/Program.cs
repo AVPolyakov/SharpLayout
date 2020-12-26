@@ -82,7 +82,7 @@ namespace Starter
         }
 
         private static string Ide => Environment.UserName switch {
-            "APolyakov" => "vs",
+            "APolyakov" => "rider",
             _ => "vs"
         };
 
