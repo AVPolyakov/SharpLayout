@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -44,6 +44,7 @@
       <None Remove="Ref\System.Drawing.dll" />
       <None Remove="Ref\System.Drawing.Primitives.dll" />
       <None Remove="Ref\System.Dynamic.Runtime.dll" />
+      <None Remove="Ref\System.Formats.Asn1.dll" />
       <None Remove="Ref\System.Globalization.Calendars.dll" />
       <None Remove="Ref\System.Globalization.dll" />
       <None Remove="Ref\System.Globalization.Extensions.dll" />
@@ -67,6 +68,7 @@
       <None Remove="Ref\System.Memory.dll" />
       <None Remove="Ref\System.Net.dll" />
       <None Remove="Ref\System.Net.Http.dll" />
+      <None Remove="Ref\System.Net.Http.Json.dll" />
       <None Remove="Ref\System.Net.HttpListener.dll" />
       <None Remove="Ref\System.Net.Mail.dll" />
       <None Remove="Ref\System.Net.NameResolution.dll" />
@@ -104,7 +106,6 @@
       <None Remove="Ref\System.Runtime.Handles.dll" />
       <None Remove="Ref\System.Runtime.InteropServices.dll" />
       <None Remove="Ref\System.Runtime.InteropServices.RuntimeInformation.dll" />
-      <None Remove="Ref\System.Runtime.InteropServices.WindowsRuntime.dll" />
       <None Remove="Ref\System.Runtime.Intrinsics.dll" />
       <None Remove="Ref\System.Runtime.Loader.dll" />
       <None Remove="Ref\System.Runtime.Numerics.dll" />
@@ -198,6 +199,7 @@
       <EmbeddedResource Include="Ref\System.Drawing.dll" />
       <EmbeddedResource Include="Ref\System.Drawing.Primitives.dll" />
       <EmbeddedResource Include="Ref\System.Dynamic.Runtime.dll" />
+      <EmbeddedResource Include="Ref\System.Formats.Asn1.dll" />
       <EmbeddedResource Include="Ref\System.Globalization.Calendars.dll" />
       <EmbeddedResource Include="Ref\System.Globalization.dll" />
       <EmbeddedResource Include="Ref\System.Globalization.Extensions.dll" />
@@ -221,6 +223,7 @@
       <EmbeddedResource Include="Ref\System.Memory.dll" />
       <EmbeddedResource Include="Ref\System.Net.dll" />
       <EmbeddedResource Include="Ref\System.Net.Http.dll" />
+      <EmbeddedResource Include="Ref\System.Net.Http.Json.dll" />
       <EmbeddedResource Include="Ref\System.Net.HttpListener.dll" />
       <EmbeddedResource Include="Ref\System.Net.Mail.dll" />
       <EmbeddedResource Include="Ref\System.Net.NameResolution.dll" />
@@ -258,7 +261,6 @@
       <EmbeddedResource Include="Ref\System.Runtime.Handles.dll" />
       <EmbeddedResource Include="Ref\System.Runtime.InteropServices.dll" />
       <EmbeddedResource Include="Ref\System.Runtime.InteropServices.RuntimeInformation.dll" />
-      <EmbeddedResource Include="Ref\System.Runtime.InteropServices.WindowsRuntime.dll" />
       <EmbeddedResource Include="Ref\System.Runtime.Intrinsics.dll" />
       <EmbeddedResource Include="Ref\System.Runtime.Loader.dll" />
       <EmbeddedResource Include="Ref\System.Runtime.Numerics.dll" />
@@ -319,5 +321,5 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
     </ItemGroup>
-    
+
 </Project>
