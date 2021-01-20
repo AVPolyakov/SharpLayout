@@ -145,11 +145,13 @@ namespace SharpLayout
             {
                 foreach (var tableFuncList in section.tableFuncs)
                 {
+                    pages.Add(new PageData(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()), section));
                     var firstOnPage = true;
-                    var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches, paragraphCaches, pageIndex: pages.Count);
+                    var y = section.TopMargin(xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches, paragraphCaches, pageIndex: pages.PageIndex());
                     var footnotes = ImmutableQueue.Create<Table>();
                     var tables = GetTables(tableFuncList, xGraphics, document);
-                    var tableParts = tables.GetTableGroups().Select(tableGroup => {
+                    foreach (var tableGroup in tables.GetTableGroups())
+                    {
                         var slices = SplitByPages(tableGroup, firstOnPage, out var endY, section, y, xGraphics, tableInfos, new TextMode.Measure(), document, rowCaches,
                             footnotes, out var endFootnotes, paragraphCaches, pages);
                         var parts = slices.SelectMany(slice => slice.Rows.Select(
@@ -158,24 +160,21 @@ namespace SharpLayout
                             firstOnPage = false;
                         y = endY;
                         footnotes = endFootnotes;
-                        return parts;
-                    }).ToList();
-                    var result = new List<Page> {new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>())};
-                    foreach (var part in tableParts.SelectMany(_ => _))
-                    {
-                        if (!part.IsFirst)
-                            result.Add(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()));
-                        var page = result[result.Count - 1];
-                        page.TableParts.Add(part);
-                        var partFootnotes = part.Rows.SelectMany(row => part.TableInfo.Footnotes[row]).ToList();
-                        if (partFootnotes.Count > 0)
+                        foreach (var part in parts)
                         {
-                            if (page.Footnotes.Count == 0)
-                                page.Footnotes.AddRange(section.FootnoteSeparators);
-                            page.Footnotes.AddRange(partFootnotes);
+                            if (!part.IsFirst)
+                                pages.Add(new PageData(new Page(tableParts: new List<TablePart>(), footnotes: new List<Table>()), section));
+                            var page = pages[pages.Count - 1].Page;
+                            page.TableParts.Add(part);
+                            var partFootnotes = part.Rows.SelectMany(row => part.TableInfo.Footnotes[row]).ToList();
+                            if (partFootnotes.Count > 0)
+                            {
+                                if (page.Footnotes.Count == 0)
+                                    page.Footnotes.AddRange(section.FootnoteSeparators);
+                                page.Footnotes.AddRange(partFootnotes);
+                            }
                         }
                     }
-                    pages.AddRange(result.Select(page => new PageData(page, section)));
                 }
             }
             var syncPageInfos = new List<PageTuple>();
@@ -265,6 +264,8 @@ namespace SharpLayout
             }
             return syncPageInfos;
         }
+
+        private static int PageIndex(this List<PageData> pages) => pages.Count - 1;
 
         private class TableSlice
 	    {
@@ -372,7 +373,7 @@ namespace SharpLayout
 		                                    infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
 		                    }
 		                    y = section.TopMargin(xGraphics, tableInfos, mode, document, rowCaches, drawCaches,
-                                pageIndex: pages.Count + slices.PageCountDelta + tablePieces.Count) + topIndent;
+                                pageIndex: pages.PageIndex() + slices.PageCountDelta + tablePieces.Count) + topIndent;
                             footnotes = ImmutableQueue.Create<Table>();
 		                }
                         else
