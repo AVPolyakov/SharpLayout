@@ -283,7 +283,7 @@ namespace SharpLayout
             IGraphics xGraphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document, Dictionary<Table, RowCache> rowCaches,
             ImmutableQueue<Table> tableFootnotes, out ImmutableQueue<Table> endFootnotes, DrawCache drawCaches)
         {
-	        var slices = new List<TableSlice>();
+	        var slices = new TableSliceContainer();
 	        var currentTableY = tableY;
 	        var currentTableFootnotes = tableFootnotes;
 	        var infos = tableGroup.Tables.Select(table => GetTableInfo(tableInfos, xGraphics, new TextMode.Measure(), document, rowCaches, section, drawCaches).GetValue(table)).ToList();
@@ -394,7 +394,29 @@ namespace SharpLayout
 	        }
 	        endY = currentTableY;
             endFootnotes = currentTableFootnotes;
-	        return slices;
+	        return slices.TableSlices;
+        }
+
+        private class TableSliceContainer
+        {
+            public List<TableSlice> TableSlices { get; } = new List<TableSlice>();
+            private int pageCountDelta;
+            
+            public int PageCountDelta => pageCountDelta;
+
+            public void Add(TableSlice tableSlice)
+            {
+                foreach (var rowsPart in tableSlice.Rows)
+                    if (rowsPart.Count() > 1)
+                        pageCountDelta++;
+                TableSlices.Add(tableSlice);
+            }
+
+            public void Clear()
+            {
+                pageCountDelta = 0;
+                TableSlices.Clear();
+            }
         }
 
         private static ImmutableQueue<Table> AddRange(this ImmutableQueue<Table> footnotes, List<Table> tables)
