@@ -12,7 +12,7 @@ namespace SharpLayout
         public PageSettings PageSettings { get; }
         internal readonly List<List<Func<Document, IGraphics, Table[]>>> tableFuncs = 
             new List<List<Func<Document, IGraphics, Table[]>>>{new List<Func<Document, IGraphics, Table[]>>()};
-        public List<Table> Headers { get; } = new List<Table>();
+        internal readonly List<Func<PageRenderContext, Table>> HeaderFuncs = new List<Func<PageRenderContext, Table>>();
         public List<Table> Footers { get; } = new List<Table>();
         public List<Table> FootnoteSeparators { get; } = new List<Table>();
 
@@ -43,9 +43,11 @@ namespace SharpLayout
             return table;
         }
 
-        public Section AddHeader(Table table)
+        public Section AddHeader(Table table) => AddHeader(_ => table);
+
+        public Section AddHeader(Func<PageRenderContext, Table> tableFunc)
         {
-            Headers.Add(table);
+            HeaderFuncs.Add(tableFunc);
             return this;
         }
 

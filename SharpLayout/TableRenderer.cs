@@ -190,13 +190,14 @@ namespace SharpLayout
                     void DrawHeaders(Drawer drawer, int pageIndex)
                     {
                         var y0 = 0d;
-                        foreach (var header in section.Headers)
+                        var pageHeaderFooterContext = new PageRenderContext(pageIndex);
+                        foreach (var header in section.HeaderFuncs)
                         {
-                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(header),
-                                Range(0, header.RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
+                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(header(pageHeaderFooterContext)),
+                                Range(0, header(pageHeaderFooterContext).RowFuncs.Count), y0: y0, xGraphics, document, tableInfos,
                                 section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
                                 paragraphCaches);
-                            y0 += header.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
+                            y0 += header(pageHeaderFooterContext).GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
                         }
                     }
 
@@ -755,7 +756,7 @@ namespace SharpLayout
 		    Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches, int pageIndex)
         {
             return Max(section.PageSettings.TopMargin,
-                section.Headers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
+                section.HeaderFuncs.Sum(table => table(new PageRenderContext(pageIndex)).GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
         }
 
         private static double BottomMargin(this Section section, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
