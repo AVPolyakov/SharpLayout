@@ -585,7 +585,7 @@ qwe3
 	    [Fact]
 	    public void KeepWithNext_DifferentPageHeaders()
 	    {
-		    var document = new Document{R1C1AreVisible = true};
+		    var document = new Document();
 		    var section = document.Add(new Section(new PageSettings {
 				TopMargin = 0
 		    }));
@@ -658,14 +658,9 @@ Other header", Styles.TimesNewRoman10));
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
                     Styles.TimesNewRoman10));
-            StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            Assert(nameof(KeepWithNext_DifferentPageHeaders), document.CreatePng().Item1);
 	    }
-
-        private static void StartProcess(string fileName)
-        {
-            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
-        }
-
+        
         [Fact]
 	    public void KeepWith()
 	    {
