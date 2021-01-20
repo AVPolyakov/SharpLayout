@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -582,6 +583,90 @@ qwe3
 	    }
 
 	    [Fact]
+	    public void KeepWithNext_DifferentPageHeaders()
+	    {
+		    var document = new Document{R1C1AreVisible = true};
+		    var section = document.Add(new Section(new PageSettings {
+				TopMargin = 0
+		    }));
+            section.AddHeader(c => {
+                if (c.PageNumber == 1)
+                {
+                    var table = new Table();
+                    var c1 = table.AddColumn(Px(500));
+                    var r1 = table.AddRow();
+                    r1[c1].Add(new Paragraph().Add(@"First header
+First header
+First header", Styles.TimesNewRoman10));
+                    return table;
+                }
+                else if (c.PageNumber == 2)
+                {
+                    var table = new Table();
+                    var c1 = table.AddColumn(Px(500));
+                    var r1 = table.AddRow();
+                    r1[c1].Add(new Paragraph().Add("Second header", Styles.TimesNewRoman10));
+                    return table;
+                }
+                else
+                {
+                    var table = new Table();
+                    var c1 = table.AddColumn(Px(500));
+                    var r1 = table.AddRow();
+                    r1[c1].Add(new Paragraph().Add(@"Other header
+Other header", Styles.TimesNewRoman10));
+                    return table;
+                }
+            });
+		    section.Add(new Paragraph()
+			    .Add("1 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    section.Add(new Paragraph().KeepWithNext(true)
+			    .Add("2 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+            {
+                var table = section.AddTable().Border(BorderWidth);
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1.Height(Px(2700-200));
+                r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            }
+            section.Add(new Paragraph()
+                .Add("3 Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+	    }
+
+        private static void StartProcess(string fileName)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
+        }
+
+        [Fact]
 	    public void KeepWith()
 	    {
 		    var document = new Document();
