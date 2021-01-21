@@ -202,24 +202,25 @@ namespace SharpLayout
 
                     void DrawFooters(Drawer drawer, int pageIndex)
                     {
+                        var renderContext = new RenderContext(pageIndex, pages.Count);
                         var y0 = section.PageSettings.PageHeight -
-                            section.Footers.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
-                        foreach (var footer in section.Footers)
+                            section.FooterFuncs.Sum(t => t(renderContext).GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
+                        foreach (var footer in section.FooterFuncs)
                         {
-                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footer),
-                                Range(0, footer.RowFuncs.Count),
+                            Draw(GetTableInfo(tableInfos, xGraphics, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches).GetValue(footer(renderContext)),
+                                Range(0, footer(renderContext).RowFuncs.Count),
                                 y0: y0,
                                 xGraphics, document, tableInfos,
                                 section.PageSettings.LeftMargin, syncPageInfo, tableLevel: 0, drawer, graphicsType, new TextMode.Draw(pageIndex, pages.Count), rowCaches, section,
                                 paragraphCaches);
-                            y0 += footer.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
+                            y0 += footer(renderContext).GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches);
                         }
                     }
 
                     void DrawFootnotes(Drawer drawer, int pageIndex)
                     {
                         var y0 = section.PageSettings.PageHeight -
-                            section.BottomMargin(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, paragraphCaches) -
+                            section.BottomMargin(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, paragraphCaches, pageIndex) -
                             pages[pageIndex].Page.Footnotes.Sum(t => t.GetTableHeight(xGraphics, tableInfos, new TextMode.Draw(pageIndex, pages.Count), document, rowCaches, section, paragraphCaches));
                         foreach (var footnote in pages[pageIndex].Page.Footnotes)
                         {
@@ -315,13 +316,14 @@ namespace SharpLayout
 			        var addHeader = false;
 			        IEnumerable<int> RowRange(int start, int count) =>
 				        (!addHeader ? Empty<int>() : infos[tableIndex].TableHeaderRows.OrderBy(_ => _)).Concat(Range(start, count));
-		            var bottomMargin = section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches, drawCaches);
                     while (true)
 		            {
 		                y += infos[tableIndex].MaxHeights[row];
 		                if (infos[tableIndex].Footnotes[row].Count > 0)
 		                    footnotes = (footnotes.IsEmpty ? footnotes.AddRange(section.FootnoteSeparators) : footnotes)
 		                        .AddRange(infos[tableIndex].Footnotes[row]);
+                        var bottomMargin = section.BottomMargin(xGraphics, tableInfos, mode, document, rowCaches, drawCaches,
+                            pageIndex: TotalPageIndex(pages, slices, tablePieces));
 		                if (section.PageSettings.PageHeight - bottomMargin -
 		                    footnotes.Sum(table => table.GetTableHeight(
 		                        xGraphics, tableInfos, mode, document, rowCaches, section, drawCaches)) -
@@ -373,7 +375,7 @@ namespace SharpLayout
 		                                    infos[tableIndex].TableHeaderRows.Sum(rowIndex => infos[tableIndex].MaxHeights[rowIndex]);
 		                    }
 		                    y = section.TopMargin(xGraphics, tableInfos, mode, document, rowCaches, drawCaches,
-                                pageIndex: pages.PageIndex() + slices.PageCountDelta + tablePieces.Count) + topIndent;
+                                pageIndex: TotalPageIndex(pages, slices, tablePieces)) + topIndent;
                             footnotes = ImmutableQueue.Create<Table>();
 		                }
                         else
@@ -397,6 +399,11 @@ namespace SharpLayout
 	        endY = currentTableY;
             endFootnotes = currentTableFootnotes;
 	        return slices.TableSlices;
+        }
+
+        private static int TotalPageIndex(List<PageData> pages, TableSliceContainer slices, List<IEnumerable<int>> tablePieces)
+        {
+            return pages.PageIndex() + slices.PageCountDelta + tablePieces.Count;
         }
 
         private class TableSliceContainer
@@ -761,10 +768,10 @@ namespace SharpLayout
         }
 
         private static double BottomMargin(this Section section, IGraphics graphics, Dictionary<Table, TableInfo> tableInfos, TextMode mode, Document document,
-	        Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches)
+            Dictionary<Table, RowCache> rowCaches, DrawCache drawCaches, int pageIndex)
         {
             return Max(section.PageSettings.BottomMargin,
-                section.Footers.Sum(table => table.GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
+                section.FooterFuncs.Sum(table => table(new RenderContext(pageIndex, TextMode.DefaultNumber)).GetTableHeight(graphics, tableInfos, mode, document, rowCaches, section, drawCaches)));
         }
 
         private static double MaxTopBorder(TableInfo info)
