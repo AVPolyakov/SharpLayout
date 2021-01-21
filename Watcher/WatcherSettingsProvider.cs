@@ -9,7 +9,7 @@ namespace Watcher
         private static DevSettings GetDevSettings()
         {
             return new DevSettings {
-                SourceCodeFile = SourceCodeFiles.PaymentOrder,
+                SourceCodeFile = SourceCodeFiles.Test,
                 PageNumber = 1,
                 Resolution = 120,
                 //R1C1AreVisible = true,
@@ -68,7 +68,8 @@ namespace Watcher
         ContractDealPassport,
         LoanAgreementDealPassport,
         Svo,
-        LegalEntityCreation
+        LegalEntityCreation,
+        Test,
     }
 
     public class DevSettings

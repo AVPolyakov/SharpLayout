@@ -590,32 +590,35 @@ qwe3
 				TopMargin = 0
 		    }));
             section.AddHeader(c => {
-                if (c.PageNumber == 1)
+                switch (c.PageNumber)
                 {
-                    var table = new Table();
-                    var c1 = table.AddColumn(Px(500));
-                    var r1 = table.AddRow();
-                    r1[c1].Add(new Paragraph().Add(@"First header
+                    case 1:
+                    {
+                        var table = new Table();
+                        var c1 = table.AddColumn(Px(500));
+                        var r1 = table.AddRow();
+                        r1[c1].Add(new Paragraph().Add(@"First header
 First header
 First header", Styles.TimesNewRoman10));
-                    return table;
-                }
-                else if (c.PageNumber == 2)
-                {
-                    var table = new Table();
-                    var c1 = table.AddColumn(Px(500));
-                    var r1 = table.AddRow();
-                    r1[c1].Add(new Paragraph().Add("Second header", Styles.TimesNewRoman10));
-                    return table;
-                }
-                else
-                {
-                    var table = new Table();
-                    var c1 = table.AddColumn(Px(500));
-                    var r1 = table.AddRow();
-                    r1[c1].Add(new Paragraph().Add(@"Other header
+                        return table;
+                    }
+                    case 2:
+                    {
+                        var table = new Table();
+                        var c1 = table.AddColumn(Px(500));
+                        var r1 = table.AddRow();
+                        r1[c1].Add(new Paragraph().Add("Second header", Styles.TimesNewRoman10));
+                        return table;
+                    }
+                    default:
+                    {
+                        var table = new Table();
+                        var c1 = table.AddColumn(Px(500));
+                        var r1 = table.AddRow();
+                        r1[c1].Add(new Paragraph().Add(@"Other header
 Other header", Styles.TimesNewRoman10));
-                    return table;
+                        return table;
+                    }
                 }
             });
 		    section.Add(new Paragraph()

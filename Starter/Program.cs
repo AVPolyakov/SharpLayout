@@ -24,6 +24,7 @@ namespace Starter
                     //ExpressionVisible = true,
                 };
                 PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+                //Test.AddSection(document);
                 //Svo.AddSection(document);
                 //ContractDealPassport.AddSection(document);
                 //LoanAgreementDealPassport.AddSection(document);

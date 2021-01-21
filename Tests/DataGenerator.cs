@@ -48,9 +48,15 @@ namespace Tests
             });
         }
 
+        [Fact]
+        public void TestData()
+        {
+            WriteData(new TestData());
+        }
+
         private static void WriteData(object data)
         {
-            File.WriteAllText($@"..\..\..\..\Starter\bin\Debug\netcoreapp3.1\{data.GetType().FullName}_DataSource.json", 
+            File.WriteAllText($@"..\..\..\..\Starter\bin\Debug\net5.0\{data.GetType().FullName}_DataSource.json", 
                 JsonConvert.SerializeObject(data, Formatting.Indented));
         }
     }
