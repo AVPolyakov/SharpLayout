@@ -9,7 +9,7 @@ namespace Watcher
         private static DevSettings GetDevSettings()
         {
             return new DevSettings {
-                SourceCodeFile = SourceCodeFiles.Test,
+                SourceCodeFile = SourceCodeFiles.PaymentOrder,
                 PageNumber = 1,
                 Resolution = 120,
                 //R1C1AreVisible = true,

@@ -11,24 +11,24 @@ namespace Examples
         {
             var pageSettings = new PageSettings {
                 TopMargin = 0,
-                BottomMargin = Cm(1),
+                BottomMargin = 0,
                 LeftMargin = Cm(1),
                 RightMargin = Cm(1)
             };
             var section = document.Add(new Section(pageSettings));
-            section.AddHeader(c => {
+            section.AddFooter(c => {
                 switch (c.PageNumber)
                 {
                     case 1:
                     {
                         var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Cm(0.5));
+                            .Margin(Top | Bottom, Px(20));
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"First header
-First header
-First header
+                            .Add(@"First footer
+First footer
+First footer
 ")
                             .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
                         return table;
@@ -36,11 +36,11 @@ First header
                     case 2:
                     {
                         var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Cm(0.5));
+                            .Margin(Top | Bottom, Px(20));
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"Second header
+                            .Add(@"Second footer
 ")
                             .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
                         return table;
@@ -48,12 +48,12 @@ First header
                     default:
                     {
                         var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Cm(0.5));
+                            .Margin(Top | Bottom, Px(20));
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"Other header
-Other header
+                            .Add(@"Other footer
+Other footer
 ")
                             .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
                         return table;
