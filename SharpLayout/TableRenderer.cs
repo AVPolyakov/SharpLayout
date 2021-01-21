@@ -415,9 +415,8 @@ namespace SharpLayout
 
             public void Add(TableSlice tableSlice)
             {
-                foreach (var rowsPart in tableSlice.Rows)
-                    if (rowsPart.Count() > 1)
-                        pageCountDelta++;
+                if (tableSlice.Rows.Count > 1)
+                    pageCountDelta++;
                 TableSlices.Add(tableSlice);
             }
 
