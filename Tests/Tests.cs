@@ -48,7 +48,7 @@ namespace Tests
 First header
 First header
 ")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add($"Page {c.PageNumber} of {c.PageCount}"));
                         return table;
                     }
                     case 2:
@@ -60,7 +60,7 @@ First header
                         r1[c1].Add(new Paragraph()
                             .Add(@"Second header
 ")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add($"Page {c.PageNumber} of {c.PageCount}"));
                         return table;
                     }
                     default:
@@ -73,7 +73,7 @@ First header
                             .Add(@"Other header
 Other header
 ")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add($"Page {c.PageNumber} of {c.PageCount}"));
                         return table;
                     }
                 }

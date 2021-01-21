@@ -203,7 +203,7 @@ namespace SharpLayout
     {
         private readonly Func<RenderContext, string> func;
 
-        public string GetText(Document document, TextMode mode) => func(new RenderContext(mode));
+        public string GetText(Document document, TextMode mode) => func(mode.RenderContext);
 
         public bool IsExpression => false;
 
@@ -215,44 +215,17 @@ namespace SharpLayout
 
     public class RenderContext
     {
-        private readonly TextMode mode;
+        private readonly int pageIndex;
 
-        public RenderContext(TextMode mode)
+        public RenderContext(int pageIndex, int pagesCount)
         {
-            this.mode = mode;
+            this.pageIndex = pageIndex;
+            PageCount = pagesCount;
         }
 
-        public string PageNumber
-        {
-            get
-            {
-                switch (mode)
-                {
-                    case TextMode.Measure _:
-                        return "8";
-                    case TextMode.Draw draw:
-                        return $"{draw.PageIndex + 1}";
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(mode));
-                }
-            }
-        }
+        public int PageNumber => pageIndex + 1;
 
-        public string PageCount
-        {
-            get
-            {
-                switch (mode)
-                {
-                    case TextMode.Measure _:
-                        return "8";
-                    case TextMode.Draw draw:
-                        return $"{draw.PagesCount}";
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(mode));
-                }
-            }
-        }
+        public int PageCount { get; }
     }
 
     public class ExpressionValue<T> : IValue
@@ -291,10 +264,13 @@ namespace SharpLayout
         IValue SubText(int startIndex, int length);
     }
 
-    public class TextMode
+    public abstract class TextMode
     {
+	    public const int DefaultNumber = 8;
+	    
         public class Measure: TextMode
-        {            
+        {
+	        public override RenderContext RenderContext => new RenderContext(pageIndex: DefaultNumber, pagesCount: DefaultNumber);
         }
 
         public class Draw: TextMode
@@ -307,10 +283,10 @@ namespace SharpLayout
                 PageIndex = pageIndex;
                 PagesCount = pagesCount;
             }
-        }
 
-        protected TextMode()
-        {
+            public override RenderContext RenderContext => new RenderContext(PageIndex, PagesCount);
         }
+        
+        public abstract RenderContext RenderContext { get; }
     }
 }
