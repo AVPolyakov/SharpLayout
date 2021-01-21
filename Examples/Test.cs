@@ -1,6 +1,5 @@
 using SharpLayout;
 using static Examples.Styles;
-using static SharpLayout.Direction;
 using static SharpLayout.Util;
 
 namespace Examples
@@ -16,63 +15,55 @@ namespace Examples
                 RightMargin = Cm(1)
             };
             var section = document.Add(new Section(pageSettings));
-            section.AddFooter(c => {
+            section.AddHeader(c => {
                 switch (c.PageNumber)
                 {
                     case 1:
                     {
-                        var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Px(20));
+                        var table = new Table().Font(TimesNewRoman10);
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"First footer
-First footer
-First footer
-")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add(@"First header"));
                         return table;
                     }
                     case 2:
                     {
-                        var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Px(20));
+                        var table = new Table().Font(TimesNewRoman10);
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"Second footer
-")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add(@"Second header
+Second header"));
+                        return table;
+                    }
+                    case 3:
+                    {
+                        var table = new Table().Font(TimesNewRoman10);
+                        var c1 = table.AddColumn(Px(500));
+                        var r1 = table.AddRow();
+                        r1[c1].Add(new Paragraph()
+                            .Add(@"Header 3
+Header 3
+Header 3"));
                         return table;
                     }
                     default:
                     {
-                        var table = new Table().Font(TimesNewRoman10)
-                            .Margin(Top | Bottom, Px(20));
+                        var table = new Table().Font(TimesNewRoman10);
                         var c1 = table.AddColumn(Px(500));
                         var r1 = table.AddRow();
                         r1[c1].Add(new Paragraph()
-                            .Add(@"Other footer
-Other footer
-")
-                            .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+                            .Add(@"Other header
+Other header
+Other header
+Other header"));
                         return table;
                     }
                 }
             });
-            section.Add(new Paragraph().TextIndent(Cm(1)).Alignment(HorizontalAlign.Justify)
-                .Add("Choose composition first when creating new classes from existing classes. Only if " +
-                    "inheritance is required by your design should it be used. If you use inheritance where " +
-                    "composition will work, your designs will become needlessly complicated. " +
-                    "Choose composition first when creating new classes from existing classes. Only if " +
-                    "inheritance is required by your design should it be used. If you use inheritance where " +
-                    "composition will work, your designs will become needlessly complicated. " +
-                    "Choose composition first when creating new classes from existing classes. Only if " +
-                    "inheritance is required by your design should it be used. If you use inheritance where " +
-                    "composition will work, your designs will become needlessly complicated. ",
-                    TimesNewRoman10));
             {
-                var table = section.AddTable().Font(TimesNewRoman10);
+                var table = section.AddTable().Font(TimesNewRoman10).KeepWithNext(true);
                 var c1 = table.AddColumn(Cm(5));
                 for (var i = 0; i < 80; i++)
                 {
@@ -83,7 +74,7 @@ Other footer
             {
                 var table = section.AddTable().Font(TimesNewRoman10);
                 var c1 = table.AddColumn(Cm(5));
-                for (var i = 0; i < 80; i++)
+                for (var i = 0; i < 160; i++)
                 {
                     var r = table.AddRow();
                     r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
