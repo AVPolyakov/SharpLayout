@@ -10,9 +10,9 @@ namespace SharpLayout
         private static readonly ConcurrentDictionary<FontKey, XFont> cache =
             new ConcurrentDictionary<FontKey, XFont>();
 
-        private static XFont GetXFont(string familyName, double emSize, XFontStyle style, XPdfFontOptions pdfOptions)
+        private static XFont GetXFont(string familyName, double emSize, XFontStyle style, XPdfFontOptions pdfOptions, out  FontKey key)
         {
-            var key = new FontKey(familyName, emSize, style, pdfOptions.FontEncoding);
+            key = new FontKey(familyName, emSize, style, pdfOptions.FontEncoding);
             if (cache.TryGetValue(key, out var value))
                 return value;
             var xFont = new XFont(familyName, emSize, style, pdfOptions);
@@ -20,11 +20,12 @@ namespace SharpLayout
             return xFont;
         }
 
+        public FontKey Key { get; }
+
         public Font(string familyName, double emSize, XFontStyle style, XPdfFontOptions pdfOptions)
         {
-            gdiFont = Lazy.Create(() => new System.Drawing.Font(
-                Name, (float)Size, (FontStyle)Style, GraphicsUnit.World));
-            XFont = GetXFont(familyName, emSize, style, pdfOptions);
+            XFont = GetXFont(familyName, emSize, style, pdfOptions, out  var key);
+            Key = key;
         }
 
         public XFont XFont { get; }
@@ -44,9 +45,5 @@ namespace SharpLayout
         public bool Bold => XFont.Bold;
 
         public string Name => XFont.Name;
-
-        private readonly Lazy<System.Drawing.Font> gdiFont;
-
-        public System.Drawing.Font GdiFont => gdiFont.Value;
     }
 }

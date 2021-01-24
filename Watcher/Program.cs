@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using Resources;
 using SharpLayout;
+using SharpLayout.ImageRendering;
 
 namespace Watcher
 {
@@ -15,6 +17,7 @@ namespace Watcher
         public static void Main()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            GlobalFontSettings.FontResolver = new FontResolver();
 
             var settingsPath = WatcherSettingsProvider.FilePath;
             var outputPath = @"..\Starter\bin\Debug\net5.0\Temp.png";

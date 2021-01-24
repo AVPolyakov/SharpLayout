@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Examples\Examples.csproj" />
+    <ProjectReference Include="..\SharpLayout.ImageRendering\SharpLayout.ImageRendering.csproj" />
     <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
   </ItemGroup>
 

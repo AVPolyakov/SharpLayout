@@ -4,7 +4,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Examples;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
+using Resources;
 using SharpLayout;
+using SharpLayout.ImageRendering;
 
 namespace Starter
 {
@@ -13,6 +16,7 @@ namespace Starter
         static void Main()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            GlobalFontSettings.FontResolver = new FontResolver();
             Document.CollectCallerInfo = true;
             try
             {

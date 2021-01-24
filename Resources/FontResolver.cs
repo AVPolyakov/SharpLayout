@@ -71,7 +71,7 @@ namespace Resources
                             return new FontResolverInfo(FaceNames.Arial);
                     }
             }       
-            throw new Exception($"Font not found, FamilyName = {familyName}, IsBold = {isBold}, IsItalic = {isItalic}");
+            return new FontResolverInfo(FaceNames.Arial);
         }
 
         public byte[] GetFont(string faceName)

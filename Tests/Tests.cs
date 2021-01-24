@@ -9,6 +9,7 @@ using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using Resources;
 using SharpLayout;
+using SharpLayout.ImageRendering;
 using Tests.Images;
 using Xunit;
 using static SharpLayout.Direction;

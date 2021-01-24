@@ -55,7 +55,7 @@ namespace SharpLayout
 		}
 	}
 
-    internal class PageTuple
+    public class PageTuple
     {
         public SyncPageInfo SyncPageInfo { get; }
         public Section Section { get; }
@@ -134,7 +134,7 @@ namespace SharpLayout
             }
         }
 
-        internal static List<PageTuple> Draw(IGraphics xGraphics, Action<int, Action<IGraphics>, Section> pageAction,
+        public static List<PageTuple> Draw(IGraphics xGraphics, Action<int, Action<IGraphics>, Section> pageAction,
             Document document, GraphicsType graphicsType, SectionGroup sectionGroup, IPageFilter pageFilter)
         {
             var tableInfos = new Dictionary<Table, TableInfo>();

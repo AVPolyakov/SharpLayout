@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.Emit;
 using Newtonsoft.Json;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using SharpLayout.ImageRendering;
 using SharpLayout.WatcherCore.Ref;
 
 namespace SharpLayout.WatcherCore

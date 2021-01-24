@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout.WatcherCore", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Resources.csproj", "{ECA6139B-CBE7-4C7D-95D5-B1A78FBFC8CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLayout.ImageRendering", "SharpLayout.ImageRendering\SharpLayout.ImageRendering.csproj", "{1141D2FF-5390-467F-8346-B479A02AFEDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{ECA6139B-CBE7-4C7D-95D5-B1A78FBFC8CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECA6139B-CBE7-4C7D-95D5-B1A78FBFC8CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECA6139B-CBE7-4C7D-95D5-B1A78FBFC8CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1141D2FF-5390-467F-8346-B479A02AFEDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1141D2FF-5390-467F-8346-B479A02AFEDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1141D2FF-5390-467F-8346-B479A02AFEDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1141D2FF-5390-467F-8346-B479A02AFEDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
