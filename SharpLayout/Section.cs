@@ -10,10 +10,18 @@ namespace SharpLayout
     public class Section
     {
         public PageSettings PageSettings { get; }
+        
         internal readonly List<List<Func<Document, IGraphics, Table[]>>> tableFuncs = 
             new List<List<Func<Document, IGraphics, Table[]>>>{new List<Func<Document, IGraphics, Table[]>>()};
+        
         public List<Table> Headers { get; } = new List<Table>();
+        public Option<List<Table>> FirstPageHeaders { get; set; }
+        public Option<List<Table>> EvenPageHeaders  { get; set; }
+        
         public List<Table> Footers { get; } = new List<Table>();
+        public Option<List<Table>> FirstPageFooters { get; set; }
+        public Option<List<Table>> EvenPageFooters { get; set; }
+        
         public List<Table> FootnoteSeparators { get; } = new List<Table>();
 
         public Section(PageSettings pageSettings)
@@ -45,29 +53,137 @@ namespace SharpLayout
 
         public Section AddHeader(Table table)
         {
-            Headers.Add(table);
+	        Headers.Add(table);
             return this;
         }
 
-        public Table AddFooter([CallerLineNumber] int line = 0)
+        public Section SetEmptyFirstPageHeaders()
         {
-            var table = new Table(line);
-            AddFooter(table);
-            return table;
+	        FirstPageHeaders = new List<Table>();
+	        return this;
+        }
+        
+        public Table AddFirstPageHeader([CallerLineNumber] int line = 0)
+        {
+	        var table = new Table(line);
+	        AddFirstPageHeader(table);
+	        return table;
+        }
+        
+        public Section AddFirstPageHeader(Table table)
+        {
+	        List<Table> headers;
+	        if (!FirstPageHeaders.HasValue)
+	        {
+		        headers = new List<Table>();
+		        FirstPageHeaders = headers;
+	        }
+	        else
+		        headers = FirstPageHeaders.Value;
+	        headers.Add(table);
+	        return this;
         }
 
+        public Section SetEmptyEvenPageHeaders()
+        {
+	        EvenPageHeaders = new List<Table>();
+	        return this;
+        }
+        
+        public Table AddEvenPageHeader([CallerLineNumber] int line = 0)
+        {
+	        var table = new Table(line);
+	        AddEvenPageHeader(table);
+	        return table;
+        }
+        
+        public Section AddEvenPageHeader(Table table)
+        {
+	        List<Table> headers;
+	        if (!EvenPageHeaders.HasValue)
+	        {
+		        headers = new List<Table>();
+		        EvenPageHeaders = headers;
+	        }
+	        else
+		        headers = EvenPageHeaders.Value;
+	        headers.Add(table);
+            return this;
+        }
+        
+        public Table AddFooter([CallerLineNumber] int line = 0)
+        {
+	        var table = new Table(line);
+	        AddFooter(table);
+	        return table;
+        }
+
+        public Section AddFooter(Table table)
+        {
+	        Footers.Add(table);
+	        return this;
+        }
+
+        public Section SetEmptyFirstPageFooters()
+        {
+	        FirstPageFooters = new List<Table>();
+	        return this;
+        }
+        
+        public Table AddFirstPageFooter([CallerLineNumber] int line = 0)
+        {
+	        var table = new Table(line);
+	        AddFirstPageFooter(table);
+	        return table;
+        }
+        
+        public Section AddFirstPageFooter(Table table)
+        {
+	        List<Table> footers;
+	        if (!FirstPageFooters.HasValue)
+	        {
+		        footers = new List<Table>();
+		        FirstPageFooters = footers;
+	        }
+	        else
+		        footers = FirstPageFooters.Value;
+	        footers.Add(table);
+	        return this;
+        }
+
+        public Section SetEmptyEvenPageFooters()
+        {
+	        EvenPageFooters = new List<Table>();
+	        return this;
+        }
+        
+        public Table AddEvenPageFooter([CallerLineNumber] int line = 0)
+        {
+	        var table = new Table(line);
+	        AddEvenPageFooter(table);
+	        return table;
+        }
+        
+        public Section AddEvenPageFooter(Table table)
+        {
+	        List<Table> footers;
+	        if (!EvenPageFooters.HasValue)
+	        {
+		        footers = new List<Table>();
+		        EvenPageFooters = footers;
+	        }
+	        else
+		        footers = EvenPageFooters.Value;
+	        footers.Add(table);
+	        return this;
+        }
+        
         public Section AddPageBreak()
         {
             tableFuncs.Add(new List<Func<Document, IGraphics, Table[]>>());
             return this;
         }
-
-        public Section AddFooter(Table table)
-        {
-            Footers.Add(table);
-            return this;
-        }
-
+        
         /// <summary>
         /// See https://superuser.com/q/1130373
         /// </summary>

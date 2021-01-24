@@ -68,7 +68,8 @@ namespace Watcher
         ContractDealPassport,
         LoanAgreementDealPassport,
         Svo,
-        LegalEntityCreation
+        LegalEntityCreation,
+        Test,
     }
 
     public class DevSettings

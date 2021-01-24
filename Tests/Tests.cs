@@ -22,6 +22,238 @@ namespace Tests
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         }
+        
+        [Fact]
+        public void EmptyFirstPageHeader()
+        {
+            var document = new Document();
+            var pageSettings = new PageSettings {
+                TopMargin = 0,
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(1),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            section.SetEmptyFirstPageHeaders();
+            {
+                var table = section.AddHeader().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Cm(0.5));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(c => $"Page {c.PageNumber} of {c.PageCount}"));
+            }
+            section.AddPageBreak();
+            section.AddPageBreak();
+            Assert(nameof(EmptyFirstPageHeader), document.CreatePng().Item1);
+        }
+
+        [Fact]
+        public void DifferentFooters()
+        {
+            var document = new Document();
+            var pageSettings = new PageSettings {
+                TopMargin = 0,
+                BottomMargin = 0,
+                LeftMargin = Cm(1),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            {
+                var table = section.AddFirstPageFooter().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Px(20));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"First footer
+First footer
+First footer
+")
+                    .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+            }
+            {
+                var table = section.AddEvenPageFooter().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Px(20));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Second footer
+")
+                    .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+            }
+            {
+                var table = section.AddFooter().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Px(20));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Other footer
+Other footer
+")
+                    .Add(rc => $"Page {rc.PageNumber} of {rc.PageCount}"));
+            }
+            section.Add(new Paragraph().TextIndent(Cm(1)).Alignment(HorizontalAlign.Justify)
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ", Styles.TimesNewRoman10));
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 80; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 1, row {i}"));
+                }
+            }
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 80; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
+                }
+            }
+            Assert(nameof(DifferentFooters), document.CreatePng().Item1);
+        }
+        
+        [Fact]
+        public void DifferentPageHeaders()
+        {
+            var document = new Document();
+            var pageSettings = new PageSettings {
+                TopMargin = 0,
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(1),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            {
+                var table = section.AddFirstPageHeader().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Cm(0.5));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"First header
+First header
+First header
+")
+                    .Add(c => $"Page {c.PageNumber} of {c.PageCount}"));
+            }
+            {
+                var table = section.AddEvenPageHeader().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Cm(0.5));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Second header
+")
+                    .Add(c => $"Page {c.PageNumber} of {c.PageCount}"));
+            }
+            {
+                var table = section.AddHeader().Font(Styles.TimesNewRoman10)
+                    .Margin(Top | Bottom, Cm(0.5));
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Other header
+Other header
+")
+                    .Add(c => $"Page {c.PageNumber} of {c.PageCount}"));
+            }
+            section.Add(new Paragraph().TextIndent(Cm(1)).Alignment(HorizontalAlign.Justify)
+                .Add("Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 80; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 1, row {i}"));
+                }
+            }
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 80; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
+                }
+            }
+            Assert(nameof(DifferentPageHeaders), document.CreatePng().Item1);
+        }
+        
+        [Fact]
+        public void DifferentPageHeaders2()
+        {
+            var document = new Document();
+            var pageSettings = new PageSettings {
+                TopMargin = 0,
+                BottomMargin = 0,
+                LeftMargin = Cm(1),
+                RightMargin = Cm(1)
+            };
+            var section = document.Add(new Section(pageSettings));
+            {
+                var table = section.AddFirstPageHeader().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"First header"));
+            }
+            {
+                var table = section.AddEvenPageHeader().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Second header
+Second header"));
+            }
+            {
+                var table = section.AddHeader().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph()
+                    .Add(@"Other header
+Other header
+Other header"));
+            }
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10).KeepWithNext(true);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 80; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 1, row {i}"));
+                }
+            }
+            {
+                var table = section.AddTable().Font(Styles.TimesNewRoman10);
+                var c1 = table.AddColumn(Cm(5));
+                for (var i = 0; i < 160; i++)
+                {
+                    var r = table.AddRow();
+                    r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
+                }
+            }
+            Assert(nameof(DifferentPageHeaders2), document.CreatePng().Item1);
+        }
 
         [Fact]
         public void SectionGroup()
@@ -582,6 +814,77 @@ qwe3
 	    }
 
 	    [Fact]
+	    public void KeepWithNext_DifferentPageHeaders()
+	    {
+		    var document = new Document();
+		    var section = document.Add(new Section(new PageSettings {
+				TopMargin = 0
+		    }));
+            {
+                var table = section.AddFirstPageHeader();
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph().Add(@"First header
+First header
+First header", Styles.TimesNewRoman10));
+            }
+            {
+                var table = section.AddEvenPageHeader();
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph().Add("Second header", Styles.TimesNewRoman10));
+            }
+            {
+                var table = section.AddHeader();
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1[c1].Add(new Paragraph().Add(@"Other header
+Other header", Styles.TimesNewRoman10));
+            }
+            section.Add(new Paragraph()
+			    .Add("1 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+		    section.Add(new Paragraph().KeepWithNext(true)
+			    .Add("2 Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. " +
+				    "Choose composition first when creating new classes from existing classes. Only if " +
+				    "inheritance is required by your design should it be used. If you use inheritance where " +
+				    "composition will work, your designs will become needlessly complicated. ",
+				    Styles.TimesNewRoman10));
+            {
+                var table = section.AddTable().Border(BorderWidth);
+                var c1 = table.AddColumn(Px(500));
+                var r1 = table.AddRow();
+                r1.Height(Px(2700-200));
+                r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            }
+            section.Add(new Paragraph()
+                .Add("3 Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. " +
+                    "Choose composition first when creating new classes from existing classes. Only if " +
+                    "inheritance is required by your design should it be used. If you use inheritance where " +
+                    "composition will work, your designs will become needlessly complicated. ",
+                    Styles.TimesNewRoman10));
+            Assert(nameof(KeepWithNext_DifferentPageHeaders), document.CreatePng().Item1);
+	    }
+        
+        [Fact]
 	    public void KeepWith()
 	    {
 		    var document = new Document();

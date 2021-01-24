@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SharpLayout</id>
-    <version>1.0.69</version>
+    <version>1.0.70</version>
     <title>C# library for creating PDF.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
@@ -11,7 +11,7 @@
     <projectUrl>https://github.com/AVPolyakov/SharpLayout</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/AVPolyakov/SharpLayout/master/Files/icon.png</iconUrl>
     <description>C# library for creating PDF.</description>
-    <releaseNotes>Using PDFsharp Core.</releaseNotes>
+    <releaseNotes>Added three headers and three footers</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>PDF CSharp PDFsharp</tags>
     <dependencies>
