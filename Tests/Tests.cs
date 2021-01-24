@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Examples;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 using PdfSharp.Pdf;
+using Resources;
 using SharpLayout;
 using Tests.Images;
 using Xunit;
@@ -22,6 +24,7 @@ namespace Tests
         static Tests()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            GlobalFontSettings.FontResolver = new FontResolver();
         }
         
         [Fact]
@@ -379,10 +382,14 @@ Other header"));
             var r1 = table.AddRow();
             r1[c1].Add(new Image()
 	            .Content(Image1));
+            var r2 = table.AddRow();
+            r2[c1].Add(new Image()
+	            .Content(Image2));
             Assert(nameof(Image), document.CreatePng().Item1);
         }
 
         private static FileStream Image1() => File.OpenRead(@"Images\Image1.png");
+        private static FileStream Image2() => File.OpenRead(@"Images\Image2.jpg");
 
         [Fact]
         public void Image_Alignments()

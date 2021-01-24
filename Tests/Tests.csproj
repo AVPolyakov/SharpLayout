@@ -8,9 +8,6 @@
 
   <ItemGroup>
     <None Remove="Images\ResourceImage1.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Images\ResourceImage1.png" />
   </ItemGroup>
 
@@ -31,6 +28,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Images\Image1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\Image2.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
