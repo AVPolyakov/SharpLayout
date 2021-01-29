@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -18,7 +17,7 @@ namespace Watcher
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             var settingsPath = WatcherSettingsProvider.FilePath;
-            var outputPath = @"..\Starter\bin\Debug\netcoreapp3.1\Temp.png";
+            var outputPath = @"..\Starter\bin\Debug\net5.0\Temp.png";
             var fullOutputPath = Path.Combine(Path.GetDirectoryName(settingsPath), outputPath);
             
             var document = new Document();
