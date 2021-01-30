@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using PdfSharp.Drawing;
+﻿using PdfSharp.Drawing;
 
 namespace SharpLayout
 {
@@ -11,8 +10,8 @@ namespace SharpLayout
             return cell;
         }
 
-        public static double Px(double value) => XUnit.FromCentimeter(value / 100d);
-
         public static double Cm(double value) => XUnit.FromCentimeter(value);
+        
+        public static double Mm(double value) => XUnit.FromMillimeter(value);
     }
 }

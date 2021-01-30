@@ -8,7 +8,7 @@ namespace SharpLayout.WatcherCore
         public string[] SourceCodeFiles1 { get; }
         public string[] SourceCodeFiles2 { get; }
         public int PageNumber { get; }
-        public int Resolution { get; }
+        public double Resolution { get; }
         public Func<Document> DocumentFunc { get; }
         public bool StartExternalProcess { get; set; }
         public string DataSourceDirectory { get; set; }
@@ -23,7 +23,7 @@ namespace SharpLayout.WatcherCore
         /// <param name="resolution"></param>
         /// <param name="documentFunc"></param>
         public WatcherSettings(string sourceCodeFile, string[] sourceCodeFiles2, string[] sourceCodeFiles1, int pageNumber,
-            int resolution, Func<Document> documentFunc)
+            double resolution, Func<Document> documentFunc)
         {
             SourceCodeFile = sourceCodeFile;
             SourceCodeFiles1 = sourceCodeFiles1;

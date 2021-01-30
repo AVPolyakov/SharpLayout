@@ -13,6 +13,7 @@ using static SharpLayout.Direction;
 using static SharpLayout.InlineVerticalAlign;
 using static SharpLayout.Util;
 using static Examples.Styles;
+using static SharpLayout.Dpi254;
 
 namespace Tests
 {

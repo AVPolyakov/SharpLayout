@@ -558,7 +558,7 @@ namespace SharpLayout
                                 if (graphicsType == GraphicsType.Image)
                                     syncPageInfo.ItemInfos.Add(new SyncItemInfo {
                                         X = x,
-                                        Y = y + dy + paragraphY,
+                                        Y = y + dy + paragraphY + paragraph.TopMargin().ToOption().ValueOr(0),
                                         Height = paragraph.GetInnerHeight(xGraphics, info.Table, row, column, info.RightBorderFunc, mode, document, rowCaches, drawCaches),
                                         Width = paragraph.GetInnerWidth(width),
                                         CallerInfos = paragraph.CallerInfos ?? new List<CallerInfo>(),

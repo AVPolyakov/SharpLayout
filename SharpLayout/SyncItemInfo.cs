@@ -4,7 +4,7 @@ namespace SharpLayout
 {
     public class SyncBitmapInfo
     {
-        public int Resolution { get; set; }
+        public double Resolution { get; set; }
         public int HorizontalPixelCount { get; set; }
         public int VerticalPixelCount { get; set; }
         public SyncPageInfo PageInfo { get; set; }

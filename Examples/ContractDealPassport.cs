@@ -2,6 +2,7 @@
 using static SharpLayout.Direction;
 using static Examples.Styles;
 using static SharpLayout.Util;
+using static SharpLayout.Dpi254;
 
 namespace Examples
 {

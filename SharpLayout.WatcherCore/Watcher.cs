@@ -360,7 +360,7 @@ namespace SharpLayout.WatcherCore
                 : settings.DataSourceDirectory.FullPath(context);
         }
 
-        private static void SavePng(this Document document, int pageNumber, string path, int resolution,
+        private static void SavePng(this Document document, int pageNumber, string path, double resolution,
             Option<WatcherSettings> watcherSettings, Context context)
         {
             var result = document.SavePng(pageNumber, path, resolution);
@@ -449,10 +449,10 @@ namespace SharpLayout.WatcherCore
                 }
             }
 
-            watcher.Changed += async (s, e) => await Handle(e);
-            watcher.Renamed += async (s, e) => await Handle(e);
-            watcher.Created += async (s, e) => await Handle(e);
-            watcher.Deleted += async (s, e) => await Handle(e);
+            watcher.Changed += async (_, e) => await Handle(e);
+            watcher.Renamed += async (_, e) => await Handle(e);
+            watcher.Created += async (_, e) => await Handle(e);
+            watcher.Deleted += async (_, e) => await Handle(e);
             watcher.Filter = Path.GetFileName(path);
             watcher.EnableRaisingEvents = true;
             return watcher;

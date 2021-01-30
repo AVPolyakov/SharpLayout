@@ -95,23 +95,23 @@ namespace SharpLayout
             return path;
         }
 
-        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution = defaultResolution)
+        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(double resolution = defaultResolution)
         {
             return CreatePng(resolution, AllPageFilter.Instance);
         }
         
-        private Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(int resolution, IPageFilter pageFilter)
+        private Tuple<List<byte[]>, List<SyncBitmapInfo>> CreatePng(double resolution, IPageFilter pageFilter)
         {
             return CreateImage(ImageFormat.Png, pageFilter, resolution);
         }
 
-        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, int resolution = defaultResolution)
+        public Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, double resolution = defaultResolution)
         {
             return CreateImage(imageFormat, AllPageFilter.Instance, resolution);
         }
 
         private Tuple<List<byte[]>, List<SyncBitmapInfo>> CreateImage(ImageFormat imageFormat, IPageFilter pageFilter,
-            int resolution)
+            double resolution)
         {
             var list = new List<byte[]>();
             var syncBitmapInfos = new List<SyncBitmapInfo>();
@@ -149,7 +149,7 @@ namespace SharpLayout
             return Tuple.Create(list, syncBitmapInfos);
         }
 
-        public string SavePng(int pageNumber, string path, int resolution = defaultResolution)
+        public string SavePng(int pageNumber, string path, double resolution = defaultResolution)
         {
             var tuple = CreatePng(resolution, new OnePageFilter(pageNumber));
             File.WriteAllBytes(path, tuple.Item1[0]);
@@ -158,9 +158,9 @@ namespace SharpLayout
             return path;
         }
         
-        private const int defaultResolution = 254;
+        private const double defaultResolution = 254;
 
-        private T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, Section section, int resolution)
+        private T FillBitmap<T>(Func<IGraphics, T> func, Action<Bitmap> action2, Section section, double resolution)
         {
             var horizontalPixelCount = HorizontalPixelCount(section.PageSettings, resolution);
             var verticalPixelCount = VerticalPixelCount(section.PageSettings, resolution);
@@ -182,16 +182,16 @@ namespace SharpLayout
                     graphics.ScaleTransform(s, s);
                     result = func(new ImageGraphics(graphics));
                 }
-                bitmap.SetResolution(resolution, resolution);
+                bitmap.SetResolution((float) resolution, (float) resolution);
                 action2(bitmap);
                 return result;
             }
         }
         
-        private static int VerticalPixelCount(PageSettings pageSettings, int resolution) 
+        private static int VerticalPixelCount(PageSettings pageSettings, double resolution) 
             => (int) (new XUnit(pageSettings.PageHeight).Inch * resolution);
 
-        private static int HorizontalPixelCount(PageSettings pageSettings, int resolution) 
+        private static int HorizontalPixelCount(PageSettings pageSettings, double resolution) 
             => (int) (new XUnit(pageSettings.PageWidth).Inch * resolution);
 
         public static byte[] ToBytes(Bitmap bitmap, ImageFormat imageFormat)
