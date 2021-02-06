@@ -9,6 +9,7 @@ using PdfSharp.Pdf;
 using Resources;
 using SharpLayout;
 using SharpLayout.ImageRendering;
+using static Resources.FontFamilies;
 
 namespace Watcher
 {
@@ -17,7 +18,6 @@ namespace Watcher
         public static void Main()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            GlobalFontSettings.FontResolver = new FontResolver();
 
             var settingsPath = WatcherSettingsProvider.FilePath;
             var outputPath = @"..\Starter\bin\Debug\net5.0\Temp.png";
@@ -27,7 +27,7 @@ namespace Watcher
             var settings = new PageSettings();
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
-                .Add("Starting...", new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
+                .Add("Starting...", new Font(Consolas, 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
             document.SavePng(0, fullOutputPath, 120);
             
             fullOutputPath.StartLiveViewer(true);

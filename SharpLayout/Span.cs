@@ -82,15 +82,16 @@ namespace SharpLayout
                 var ascent = xFont.FontFamily.GetCellAscent(xFont.Style);
                 var lineSpacing = xFont.FontFamily.GetLineSpacing(xFont.Style);
                 var inlineVerticalAlignScaling = 0.8 * ascent / lineSpacing;
-                return new Font(xFont.Name, inlineVerticalAlignScaling * xFont.Size, xFont.Style, xFont.PdfOptions);
+                return new Font(xFont.FamilyInfo, inlineVerticalAlignScaling * xFont.Size, xFont.Style, xFont.PdfOptions);
             }
             else
                 return xFont;
         }
 
-        internal Font FontWithoutInlineVerticalAlign(Option<Table> table) => FontOrNone(table).ValueOr(defaultFont);
+        internal Font FontWithoutInlineVerticalAlign(Option<Table> table) => FontOrNone(table).Match(
+	        _ => _,
+	        () => new Font(DefaultFontFamilies.Roboto, 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)));
 
-        private static readonly Font defaultFont = new Font("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
 
         private InlineVerticalAlign inlineVerticalAlign;
         public InlineVerticalAlign InlineVerticalAlign() => inlineVerticalAlign;

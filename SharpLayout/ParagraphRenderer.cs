@@ -130,7 +130,7 @@ namespace SharpLayout
                         Font font;
                         if (alignment == HorizontalAlign.Justify && span.Font(table).Underline)
                         {
-                            font = new Font(span.Font(table).FontFamily.Name, span.Font(table).Size, new[] {
+                            font = new Font(span.Font(table).FamilyInfo, span.Font(table).Size, new[] {
                                 XFontStyle.Regular,
                                 XFontStyle.Bold,
                                 XFontStyle.Italic,

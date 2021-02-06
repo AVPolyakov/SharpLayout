@@ -4,10 +4,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Examples;
 using PdfSharp.Drawing;
-using PdfSharp.Fonts;
-using Resources;
 using SharpLayout;
 using SharpLayout.ImageRendering;
+using static Resources.FontFamilies;
 
 namespace Starter
 {
@@ -16,7 +15,6 @@ namespace Starter
         static void Main()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            GlobalFontSettings.FontResolver = new FontResolver();
             Document.CollectCallerInfo = true;
             try
             {
@@ -36,7 +34,7 @@ namespace Starter
                 document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
 
                 //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                //StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+                StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
             }
             catch (Exception e)
             {
@@ -55,7 +53,7 @@ namespace Starter
             var settings = new PageSettings();
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
-                .Add($"{e}", new Font("Consolas", 9.5, XFontStyle.Regular, Styles.PdfOptions))));
+                .Add($"{e}", new Font(Consolas, 9.5, XFontStyle.Regular, Styles.PdfOptions))));
             document.SavePng(0, "Temp.png", 120).StartLiveViewer(true, false);
         }
 

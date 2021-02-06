@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +13,14 @@
   <ItemGroup>
     <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0013" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="Fonts\Roboto-Regular.ttf.gz" />
+    <EmbeddedResource Include="Fonts\Roboto-Regular.ttf.gz" />
+  </ItemGroup>
+  
 </Project>

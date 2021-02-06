@@ -2,6 +2,7 @@ using System;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using SharpLayout;
+using static Resources.FontFamilies;
 using static SharpLayout.Direction;
 using static SharpLayout.Util;
 
@@ -9,26 +10,26 @@ namespace Examples
 {
     public static class Styles
     {
-        public static Font TimesNewRoman10_5 => new Font("Times New Roman", 10.5, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman60Bold => new Font("Times New Roman", 60, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman10_5 => new Font(TimesNewRoman, 10.5, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman60Bold => new Font(TimesNewRoman, 60, XFontStyle.Bold, PdfOptions);
 
-        public static Font TimesNewRoman7_5 => new Font("Times New Roman", 7.5, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman8 => new Font("Times New Roman", 8, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman9 => new Font("Times New Roman", 9, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman9_5 => new Font("Times New Roman", 9.5, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman10 => new Font("Times New Roman", 10, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman10Bold => new Font("Times New Roman", 10, XFontStyle.Bold, PdfOptions);
-        public static Font TimesNewRoman10_5Bold => new Font("Times New Roman", 10.5, XFontStyle.Bold, PdfOptions);
-        public static Font TimesNewRoman11 => new Font("Times New Roman", 11, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman11_5 => new Font("Times New Roman", 11.5, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman11_5Bold => new Font("Times New Roman", 11.5, XFontStyle.Bold, PdfOptions);
-        public static Font TimesNewRoman12 => new Font("Times New Roman", 12, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman14 => new Font("Times New Roman", 14, XFontStyle.Regular, PdfOptions);
-        public static Font Courier15 => new Font("Courier New", 15, XFontStyle.Regular, PdfOptions);
-        public static Font TimesNewRoman12Bold => new Font("Times New Roman", 12, XFontStyle.Bold, PdfOptions);
-        public static Font TimesNewRoman13Bold => new Font("Times New Roman", 13, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman7_5 => new Font(TimesNewRoman, 7.5, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman8 => new Font(TimesNewRoman, 8, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman9 => new Font(TimesNewRoman, 9, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman9_5 => new Font(TimesNewRoman, 9.5, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman10 => new Font(TimesNewRoman, 10, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman10Bold => new Font(TimesNewRoman, 10, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman10_5Bold => new Font(TimesNewRoman, 10.5, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman11 => new Font(TimesNewRoman, 11, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman11_5 => new Font(TimesNewRoman, 11.5, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman11_5Bold => new Font(TimesNewRoman, 11.5, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman12 => new Font(TimesNewRoman, 12, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman14 => new Font(TimesNewRoman, 14, XFontStyle.Regular, PdfOptions);
+        public static Font Courier15 => new Font(CourierNew, 15, XFontStyle.Regular, PdfOptions);
+        public static Font TimesNewRoman12Bold => new Font(TimesNewRoman, 12, XFontStyle.Bold, PdfOptions);
+        public static Font TimesNewRoman13Bold => new Font(TimesNewRoman, 13, XFontStyle.Bold, PdfOptions);
         
-        public static Font Arial9 => new Font("Arial", 9, XFontStyle.Regular, PdfOptions);
+        public static Font Arial9 => new Font(Arial, 9, XFontStyle.Regular, PdfOptions);
 
         public const double BorderWidth = 0.5D;
 
