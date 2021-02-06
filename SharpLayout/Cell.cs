@@ -103,7 +103,7 @@ namespace SharpLayout
             return this;
         }
 
-        public List<CallerInfo> callerInfos;
+        private List<CallerInfo> callerInfos;
         public List<CallerInfo> CallerInfos
         {
             get
