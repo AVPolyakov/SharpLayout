@@ -6,6 +6,6 @@ namespace SharpLayout
     {
         public string Identifier = Guid.NewGuid().ToString();
 
-        public FontFamilyInfo GetFamilyInfo(string familyName) => new(this, familyName);
+        public FontFamilyInfo FamilyInfo(string familyName) => new(this, familyName);
     }
 }
