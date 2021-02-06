@@ -1509,21 +1509,31 @@ Other header", Styles.TimesNewRoman10));
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
                 var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
                 var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
+            }
+            {
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, false);
+                Xunit.Assert.False(info.MustSimulateBold);
+                Xunit.Assert.False(info.MustSimulateItalic);
+                Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
         }
-
+        
         private static void SingleFont(FontFamilyInfo familyInfo)
         {
             {
@@ -1531,18 +1541,37 @@ Other header", Styles.TimesNewRoman10));
                 Xunit.Assert.True(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
                 var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.True(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
                 var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, true);
                 Xunit.Assert.True(info.MustSimulateBold);
                 Xunit.Assert.True(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
+            }
+            {
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, false);
+                Xunit.Assert.False(info.MustSimulateBold);
+                Xunit.Assert.False(info.MustSimulateItalic);
+                Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
+                Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
+            }
+        }
+        
+        private static string DefaultFaceName
+        {
+            get
+            {
+                var fontFamilyInfo = DefaultFontFamilies.Roboto;
+                return GlobalFontSettings.FontResolver.ResolveTypeface(fontFamilyInfo.FullName, false, false).FaceName;
             }
         }
 
