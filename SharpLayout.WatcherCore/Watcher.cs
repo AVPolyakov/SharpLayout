@@ -382,10 +382,10 @@ namespace SharpLayout.WatcherCore
             if (e is TargetInvocationException exception)
                 if (exception.InnerException != null)
                 {
-                    WriteError(exception.InnerException.Message, context, watcherSettings);
+                    WriteError(exception.InnerException.Message, context, watcherSettings, e);
                     return;
                 }
-            WriteError(e.Message, context, watcherSettings);
+            WriteError(e.Message, context, watcherSettings, e);
         }
 
         private static string FullPath(this string sourceCodeFile, Context context)
@@ -488,15 +488,17 @@ namespace SharpLayout.WatcherCore
         private static string GetErrorText(EmitResult emitResult) =>
             $"{emitResult.Diagnostics.FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)}";
 
-        private static void WriteError(string errorText, Context context, Option<WatcherSettings> watcherSettings)
+        private static void WriteError(string errorText, Context context, Option<WatcherSettings> watcherSettings, Option<Exception> exception = default)
         {
             var text = $"ERROR! {errorText}";
             Console.WriteLine(text);
+            if (exception.HasValue)
+                Console.WriteLine(exception.Value);
             var document = new Document();
             var settings = new PageSettings();
             settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
             document.Add(new Section(settings).Add(new Paragraph()
-                .Add(text, new Font("Consolas", 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
+                .Add(text, new Font(DefaultFontFamilies.Roboto, 9.5, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode)))));
             document.SavePng(0, GetOutputPath(context), 120, watcherSettings, context);
         }
 
@@ -514,7 +516,7 @@ namespace SharpLayout.WatcherCore
         public Func<ParameterInfo, object> ParameterFunc { get; }
         public string OutputPath { get; }
         public bool StartExternalProcess { get; }
-        public readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
+        public readonly List<FileSystemWatcher> Watchers = new();
 
         public Context(PortableExecutableReference[] references, string settingsPath,
             Func<ParameterInfo, object> parameterFunc, string outputPath, bool startExternalProcess)

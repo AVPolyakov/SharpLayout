@@ -1331,7 +1331,7 @@ namespace SharpLayout
             }
             if (document.R1C1AreVisible)
             {
-                var font = new Font("Times New Roman", 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+                var font = new Font(DefaultFontFamilies.Roboto, 10, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
                 var redBrush = new XSolidBrush(XColor.FromArgb(200, 255, 0, 0));
                 var purpleBrush = new XSolidBrush(XColor.FromArgb(200, 87, 0, 127));
                 if (column.Index == 0)
@@ -1364,7 +1364,7 @@ namespace SharpLayout
             var callerInfos = cell.CallerInfos ?? new List<CallerInfo>();
             if (callerInfos.Count <= 0) return;
             var text = string.Join(" ", callerInfos.Select(_ => _.Line));
-            var font = new Font("Arial", 7, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
+            var font = new Font(DefaultFontFamilies.Roboto, 7, XFontStyle.Regular, new XPdfFontOptions(PdfFontEncoding.Unicode));
             var height = info.MaxHeights[row] - bottomBorder.Select(_ => _.Width).ValueOr(0);
             var width = column.Width - info.RightBorderFunc(new CellInfo(row, column.Index)).Select(_ => _.Width).ValueOr(0);
             drawer.DrawString(text,

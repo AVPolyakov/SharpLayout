@@ -113,7 +113,7 @@ namespace SharpLayout
 
         public T Match<T>(Func<Paragraph, T> paragraph, Func<Table, T> table, Func<Image, T> image) => paragraph(this);
 
-        public List<CallerInfo> callerInfos;
+        private List<CallerInfo> callerInfos;
         public List<CallerInfo> CallerInfos
         {
             get

@@ -5,31 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Fonts\*.ttf.gz" />
       <EmbeddedResource Include="LegalEntityCreationTemplate.tiff" />
-      <None Remove="Fonts\TimesNewRoman\times.ttf" />
-      <EmbeddedResource Include="Fonts\TimesNewRoman\times.ttf" />
-      <None Remove="Fonts\TimesNewRoman\timesbd.ttf" />
-      <EmbeddedResource Include="Fonts\TimesNewRoman\timesbd.ttf" />
-      <None Remove="Fonts\TimesNewRoman\timesbi.ttf" />
-      <EmbeddedResource Include="Fonts\TimesNewRoman\timesbi.ttf" />
-      <None Remove="Fonts\TimesNewRoman\timesi.ttf" />
-      <EmbeddedResource Include="Fonts\TimesNewRoman\timesi.ttf" />
-      <None Remove="Fonts\Wingdings\wingding.ttf" />
-      <EmbeddedResource Include="Fonts\Wingdings\wingding.ttf" />
-      <None Remove="Fonts\Wingdings2\WINGDNG2.TTF" />
-      <EmbeddedResource Include="Fonts\Wingdings2\WINGDNG2.TTF" />
-      <None Remove="Fonts\Arial\arialbd.ttf" />
-      <EmbeddedResource Include="Fonts\Arial\arialbd.ttf" />
-      <None Remove="Fonts\Arial\arialbi.ttf" />
-      <EmbeddedResource Include="Fonts\Arial\arialbi.ttf" />
-      <None Remove="Fonts\Arial\ariali.ttf" />
-      <EmbeddedResource Include="Fonts\Arial\ariali.ttf" />
-      <None Remove="Fonts\Arial\arial.ttf" />
-      <EmbeddedResource Include="Fonts\Arial\arial.ttf" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj" />
+      <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
     </ItemGroup>
 
 </Project>
