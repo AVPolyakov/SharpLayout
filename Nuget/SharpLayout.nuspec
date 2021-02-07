@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SharpLayout</id>
-    <version>1.0.73</version>
+    <version>1.0.74</version>
     <title>C# library for creating PDF.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
@@ -17,7 +17,8 @@
     <dependencies>
       <dependency id="Newtonsoft.Json" version="11.0.2" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="System.Drawing.Common" version="4.5.1" />
+      <dependency id="SixLabors.ImageSharp" version="1.0.2" />
+      <dependency id="SixLabors.Fonts" version="1.0.0-beta0013" />
     </dependencies>    
   </metadata>
 </package>
