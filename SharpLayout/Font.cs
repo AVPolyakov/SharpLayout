@@ -9,10 +9,10 @@ namespace SharpLayout
 
         private static XFont GetXFont(FontFamilyInfo familyInfo, double emSize, XFontStyle style, XPdfFontOptions pdfOptions, out  FontKey key)
         {
-            key = new FontKey(familyInfo.FullName, emSize, style, pdfOptions.FontEncoding);
+            key = new FontKey(familyInfo.Name, emSize, style, pdfOptions.FontEncoding);
             if (cache.TryGetValue(key, out var value))
                 return value;
-            var xFont = new XFont(familyInfo.FullName, emSize, style, pdfOptions);
+            var xFont = new XFont(familyInfo.Name, emSize, style, pdfOptions);
             cache.TryAdd(key, xFont);
             return xFont;
         }

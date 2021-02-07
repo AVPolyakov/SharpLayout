@@ -73,7 +73,7 @@ namespace SharpLayout.ImageRendering
             if (gdiFontCache.TryGetValue(key, out var value))
                 return value;
             var gdiFont = new System.Drawing.Font(
-                font.FamilyInfo.Name, (float) font.Size, (FontStyle) font.Style, GraphicsUnit.World);
+                font.FamilyInfo.OriginalName, (float) font.Size, (FontStyle) font.Style, GraphicsUnit.World);
             gdiFontCache.TryAdd(key, gdiFont);
             return gdiFont;
         }

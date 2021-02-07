@@ -3,13 +3,13 @@ namespace SharpLayout
     public class FontFamilyInfo
     {
         public FontSlot Slot { get; }
-        public string Name { get; }
-        public string FullName => $"{Name}_{Slot.Identifier}";
+        public string OriginalName { get; }
+        public string Name => $"{OriginalName}_{Slot.Identifier}";
 
-        internal FontFamilyInfo(FontSlot slot, string name)
+        internal FontFamilyInfo(FontSlot slot, string originalName)
         {
             Slot = slot;
-            Name = name;
+            OriginalName = originalName;
         }
     }
 }

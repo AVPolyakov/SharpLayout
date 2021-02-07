@@ -29,7 +29,7 @@ namespace SharpLayout
             
             var isBold = fontDescription.Style.HasFlag(FontStyle.Bold);
             var isItalic = fontDescription.Style.HasFlag(FontStyle.Italic);
-            var familyName = slot.FamilyInfo(fontDescription.FontFamilyInvariantCulture).FullName;
+            var familyName = slot.FamilyInfo(fontDescription.FontFamilyInvariantCulture).Name;
             fontResolverInfos.TryAdd(
                 new FontResolutionKey(familyName, isBold, isItalic), 
                 new FontResolverInfo(faceName));

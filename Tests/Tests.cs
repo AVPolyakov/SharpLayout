@@ -1464,7 +1464,7 @@ Other header", Styles.TimesNewRoman10));
             foreach (var propertyInfo in type.GetProperties(BindingFlags.Static | BindingFlags.Public))
             {
                 var fontFamilyInfo = (FontFamilyInfo) propertyInfo.GetValue(null);
-                var text = fontFamilyInfo.Name;
+                var text = fontFamilyInfo.OriginalName;
                 var size = 12;
                 section.Add(new Paragraph()
                     .Add($"***{text}***", new Font(DefaultFontFamilies.Roboto, size, XFontStyle.Regular, PdfOptions)));
@@ -1490,12 +1490,12 @@ Other header", Styles.TimesNewRoman10));
                     Wingdings,
                     Wingdings2,
                 }
-                .Select(_ => _.FullName).ToHashSet();
+                .Select(_ => _.Name).ToHashSet();
             var type = typeof(FontFamilies);
             foreach (var propertyInfo in type.GetProperties(BindingFlags.Static | BindingFlags.Public))
             {
                 var fontFamilyInfo = (FontFamilyInfo) propertyInfo.GetValue(null);
-                if (singleFontFamilies.Contains(fontFamilyInfo.FullName))
+                if (singleFontFamilies.Contains(fontFamilyInfo.Name))
                     SingleFont(fontFamilyInfo);
                 else
                     MultipleFonts(fontFamilyInfo);
@@ -1505,28 +1505,28 @@ Other header", Styles.TimesNewRoman10));
         private static void MultipleFonts(FontFamilyInfo familyInfo)
         {
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, false);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, true, false);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, true);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, false, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, true);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, true, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, false);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, false, false);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
@@ -1537,28 +1537,28 @@ Other header", Styles.TimesNewRoman10));
         private static void SingleFont(FontFamilyInfo familyInfo)
         {
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, false);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, true, false);
                 Xunit.Assert.True(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, true);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, false, true);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.True(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, true, true);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, true, true);
                 Xunit.Assert.True(info.MustSimulateBold);
                 Xunit.Assert.True(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
                 Xunit.Assert.NotEqual(DefaultFaceName, info.FaceName);
             }
             {
-                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.FullName, false, false);
+                var info = GlobalFontSettings.FontResolver.ResolveTypeface(familyInfo.Name, false, false);
                 Xunit.Assert.False(info.MustSimulateBold);
                 Xunit.Assert.False(info.MustSimulateItalic);
                 Xunit.Assert.NotEmpty(GlobalFontSettings.FontResolver.GetFont(info.FaceName));
@@ -1571,7 +1571,7 @@ Other header", Styles.TimesNewRoman10));
             get
             {
                 var fontFamilyInfo = DefaultFontFamilies.Roboto;
-                return GlobalFontSettings.FontResolver.ResolveTypeface(fontFamilyInfo.FullName, false, false).FaceName;
+                return GlobalFontSettings.FontResolver.ResolveTypeface(fontFamilyInfo.Name, false, false).FaceName;
             }
         }
 
