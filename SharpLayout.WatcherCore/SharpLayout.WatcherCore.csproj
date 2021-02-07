@@ -318,7 +318,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SharpLayout.ImageRendering\SharpLayout.ImageRendering.csproj" />
-      <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
     </ItemGroup>
 
     <ItemGroup>

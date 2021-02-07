@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>SharpLayout.WatcherCore</id>
-    <version>1.0.23</version>
-    <title>Watcher for SharpLayout.</title>
+    <id>SharpLayout.ImageRendering</id>
+    <version>1.0.0</version>
+    <title>SharpLayout image rendering.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/AVPolyakov/SharpLayout/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/AVPolyakov/SharpLayout</projectUrl>
-    <description>Watcher for SharpLayout.</description>
+    <iconUrl>https://raw.githubusercontent.com/AVPolyakov/SharpLayout/master/Files/icon.png</iconUrl>
+    <description>SharpLayout image rendering.</description>
     <copyright>Copyright 2021</copyright>
-    <tags>PDF CSharp PDFsharp</tags>
+    <tags>SharpLayout Image Rendering</tags>
     <dependencies>
-      <dependency id="SharpLayout.ImageRendering" version="1.0.0" />
-      <dependency id="Microsoft.CodeAnalysis.CSharp" version="3.3.1" />
+      <dependency id="SharpLayout" version="1.0.73" />
     </dependencies>    
   </metadata>
 </package>
