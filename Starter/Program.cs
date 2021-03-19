@@ -16,47 +16,34 @@ namespace Starter
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             Document.CollectCallerInfo = true;
-            try
-            {
-                var document = new Document {
-                    //CellsAreHighlighted = true,
-                    //R1C1AreVisible = true,
-                    //ParagraphsAreHighlighted = true,
-                    //CellLineNumbersAreVisible = true,
-                    //ExpressionVisible = true,
-                };
-                PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
-                //Test.AddSection(document);
-                //Svo.AddSection(document);
-                //ContractDealPassport.AddSection(document);
-                //LoanAgreementDealPassport.AddSection(document);
 
-                document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
-
-                //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-                StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
-            }
-            catch (Exception e)
+            var document = new Document
             {
-                ShowException(e);
-            }
+                //CellsAreHighlighted = true,
+                //R1C1AreVisible = true,
+                //ParagraphsAreHighlighted = true,
+                //CellLineNumbersAreVisible = true,
+                //ExpressionVisible = true,
+            };
+            PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
+            Svo.AddSection(document, new SvoData());
+            ContractDealPassport.AddSection(document, new ContractDealPassportData());
+            LoanAgreementDealPassport.AddSection(document, new LoanAgreementDealPassportData());
+
+            //document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
+
+            //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
+
+            var path = $"Temp_{Guid.NewGuid():N}.pdf";
+
+            StartProcess(document.SavePdf(path));
         }
 
         public static void StartProcess(string fileName)
         {
             Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
         }
-
-        private static void ShowException(Exception e)
-        {
-            var document = new Document();
-            var settings = new PageSettings();
-            settings.LeftMargin = settings.TopMargin = settings.RightMargin = settings.BottomMargin = Util.Cm(0.5);
-            document.Add(new Section(settings).Add(new Paragraph()
-                .Add($"{e}", new Font(Consolas, 9.5, XFontStyle.Regular, Styles.PdfOptions))));
-            document.SavePng(0, "Temp.png", 120).StartLiveViewer(true, false);
-        }
-
+        
         public static void StartLiveViewer(this string fileName, bool alwaysShowWindow, bool findId = true)
         {
             var processes = Process.GetProcessesByName("LiveViewer");
