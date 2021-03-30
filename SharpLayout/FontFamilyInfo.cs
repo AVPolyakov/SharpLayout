@@ -4,9 +4,9 @@ namespace SharpLayout
     {
         public FontSlot Slot { get; }
         public string OriginalName { get; }
-        public string Name => $"{OriginalName}_{Slot.Identifier}";
+        public string Name => Slot.Identifier.HasValue ? $"{OriginalName}_{Slot.Identifier}" : OriginalName;
 
-        internal FontFamilyInfo(FontSlot slot, string originalName)
+        public FontFamilyInfo(FontSlot slot, string originalName)
         {
             Slot = slot;
             OriginalName = originalName;

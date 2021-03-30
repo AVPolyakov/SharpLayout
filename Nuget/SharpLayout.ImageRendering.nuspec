@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SharpLayout.ImageRendering</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>SharpLayout image rendering.</title>
     <authors>Alexander Polyakov</authors>
     <owners>Alexander Polyakov</owners>
@@ -14,7 +14,7 @@
     <copyright>Copyright 2021</copyright>
     <tags>SharpLayout Image Rendering</tags>
     <dependencies>
-      <dependency id="SharpLayout" version="1.0.75" />
+      <dependency id="SharpLayout" version="1.0.76" />
       <dependency id="System.Drawing.Common" version="4.5.1" />
     </dependencies>    
   </metadata>

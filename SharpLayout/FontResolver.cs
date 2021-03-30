@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using PdfSharp.Fonts;
 using SharpLayout.Fonts;
 using SixLabors.Fonts;
@@ -39,23 +40,28 @@ namespace SharpLayout
         {
             foreach (var resourceName in anchorType.Assembly.GetManifestResourceNames())
                 if (resourceName.StartsWith(anchorType.Namespace))
-                    Install(slot, new StreamHandler(resourceName, anchorType));
+                    Install(slot, resourceName, anchorType.Assembly);
+        }
+
+        public static void Install(FontSlot slot, string resourceName, Assembly assembly)
+        {
+            Install(slot, new StreamHandler(resourceName, assembly));
         }
 
         private class StreamHandler: IHandler<Stream>
         {
             private readonly string resourceName;
-            private readonly Type anchorType;
+            private readonly Assembly assembly;
 
-            public StreamHandler(string resourceName, Type anchorType)
+            public StreamHandler(string resourceName, Assembly assembly)
             {
                 this.resourceName = resourceName;
-                this.anchorType = anchorType;
+                this.assembly = assembly;
             }
 
             public TResult Handle<TResult>(Func<Stream, TResult> func)
             {
-                using (var resourceStream = anchorType.Assembly.GetManifestResourceStream(resourceName))
+                using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
                 {
                     var extension = Path.GetExtension(resourceName);
                     if (".gz".Equals(extension, StringComparison.InvariantCultureIgnoreCase))
