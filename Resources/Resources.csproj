@@ -10,7 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj" />
       <ProjectReference Include="..\SharpLayout\SharpLayout.csproj" />
     </ItemGroup>
 

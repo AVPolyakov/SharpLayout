@@ -1,5 +1,7 @@
-NuGet.exe pack SharpLayout.csproj -IncludeReferencedProjects -Prop Configuration=Release
+NuGet.exe pack SharpLayout.csproj -Prop Configuration=Release
 
 NuGet.exe pack SharpLayout.ImageRendering.csproj -Prop Configuration=Release
 
 NuGet.exe pack SharpLayout.WatcherCore.csproj -Prop Configuration=Release
+
+NuGet.exe pack PdfSharp-net.csproj -Prop Configuration=Release

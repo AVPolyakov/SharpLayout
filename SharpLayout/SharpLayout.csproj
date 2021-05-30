@@ -9,12 +9,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PDFsharp\src\PdfSharp\PdfSharp-netstandard.csproj" />
-  </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="PdfSharp-net" Version="1.0.1" />
     <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0013" />
   </ItemGroup>
   

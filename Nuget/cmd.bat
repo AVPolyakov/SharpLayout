@@ -1,5 +1,5 @@
 copy SharpLayout.nuspec ..\SharpLayout\
-NuGet.exe pack ..\SharpLayout\SharpLayout.csproj -IncludeReferencedProjects -Prop Configuration=Release
+NuGet.exe pack ..\SharpLayout\SharpLayout.csproj -Prop Configuration=Release
 del ..\SharpLayout\SharpLayout.nuspec
 
 copy SharpLayout.ImageRendering.nuspec ..\SharpLayout.ImageRendering\

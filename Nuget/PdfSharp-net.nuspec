@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>PdfSharp-net</id>
+    <version>1.0.1</version>
+    <authors>Alexander Polyakov</authors>
+    <owners>Alexander Polyakov</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/AVPolyakov/PDFsharp</projectUrl>
+    <description>This package was built from the source at commit https://github.com/AVPolyakov/PDFsharp/commit/0d919f5f0e2744548358352819f3c3728359b360</description>
+    <copyright>Copyright 2021</copyright>
+    <tags>PDFsharp PDF creation .NETCore</tags>
+    <repository type="git" url="https://github.com/AVPolyakov/PDFsharp" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="SixLabors.ImageSharp" version="1.0.2" />
+      </group>
+    </dependencies>    
+  </metadata>
+</package>
