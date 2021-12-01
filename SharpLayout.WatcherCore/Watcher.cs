@@ -192,7 +192,7 @@ namespace SharpLayout.WatcherCore
 	            .ToArray();
             var context = new Context(references, settingsPath, parameterFunc, outputPath, startExternalProcess);
             ProcessSettings(context, createPdf: false);
-            StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
+            using var watcher = StartWatcher(settingsPath, () => ProcessSettings(context, createPdf: false));
             Console.WriteLine("Press 'q' to quit.");
             while (true)
             {
