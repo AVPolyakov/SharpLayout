@@ -2,9 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -67,13 +70,35 @@ namespace SharpLayout.ImageRendering
                 drawStringFormat);
         }
 
+        private static readonly ConcurrentDictionary<FontResolutionKey, FontFamily> fontFamilies = new ();
+
         private static System.Drawing.Font GetGdiFont(Font font)
         {
             var key = font.Key;
             if (gdiFontCache.TryGetValue(key, out var value))
                 return value;
+
+            var fontResolutionKey = new FontResolutionKey(font.FamilyInfo.Name,
+                isBold: font.Style.HasFlag(XFontStyle.Bold), isItalic: font.Style.HasFlag(XFontStyle.Italic));
+            if (!fontFamilies.ContainsKey(fontResolutionKey))
+            {
+                var fontResolverInfo = GlobalFontSettings.FontResolver.ResolveTypeface(font.FamilyInfo.Name,
+                    isBold: font.Style.HasFlag(XFontStyle.Bold), isItalic: font.Style.HasFlag(XFontStyle.Italic));
+                var bytes = GlobalFontSettings.FontResolver.GetFont(fontResolverInfo.FaceName);
+
+                var fontCollection = new PrivateFontCollection();
+
+                var fontDataPtr = Marshal.AllocCoTaskMem(bytes.Length);
+                Marshal.Copy(bytes, 0, fontDataPtr, bytes.Length);
+                fontCollection.AddMemoryFont(fontDataPtr, bytes.Length);
+
+                var family = fontCollection.Families[0];
+
+                fontFamilies.TryAdd(fontResolutionKey, family);
+            }
+
             var gdiFont = new System.Drawing.Font(
-                font.FamilyInfo.OriginalName, (float) font.Size, (FontStyle) font.Style, GraphicsUnit.World);
+                fontFamilies[fontResolutionKey], (float) font.Size, (FontStyle) font.Style, GraphicsUnit.World);
             gdiFontCache.TryAdd(key, gdiFont);
             return gdiFont;
         }
