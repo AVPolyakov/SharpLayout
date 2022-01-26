@@ -630,7 +630,17 @@ qwe3
 		    document.CreatePng();
 		}
 
-		[Fact]
+        [Fact]
+        public void UnderlinedSpace()
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            var timesNewRoma = new Font(TimesNewRoman, 9, XFontStyle.Underline, PdfOptions);
+            section.Add(new Paragraph().Add("    one     ", timesNewRoma).Add("\u200B", timesNewRoma));
+            Assert(nameof(UnderlinedSpace), document.CreatePng().Item1);
+        }
+
+        [Fact]
         public void Checkbox()
         {
             var document = new Document();

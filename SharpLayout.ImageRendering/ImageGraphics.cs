@@ -62,12 +62,23 @@ namespace SharpLayout.ImageRendering
         {
             var lineSpace = font.XFont.GetHeight();
             var cyAscent = lineSpace * font.XFont.CellAscent / font.XFont.CellSpace;
-            graphics.DrawString(s,
+            graphics.DrawString(GetDrawingString(s),
                 GetGdiFont(font),
                 GetBrush(brush),
                 (float) x,
                 (float) (y - cyAscent),
                 drawStringFormat);
+
+            static string GetDrawingString(string s)
+            {
+                var result = s;
+                //https://stackoverflow.com/a/13081203
+                if (result.StartsWith(" "))
+                    result = "\u200B" + result;
+                if (result.EndsWith(" "))
+                    result += "\u200B";
+                return result;
+            }
         }
 
         private static readonly ConcurrentDictionary<FontResolutionKey, FontFamily> fontFamilies = new ();
