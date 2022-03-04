@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using Examples;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
+using QRCoder;
 using Resources;
 using SharpLayout;
 using SharpLayout.ImageRendering;
@@ -27,6 +29,37 @@ namespace Tests
         static Tests()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        }
+        
+        [Fact]
+        public void QRCode()
+        {
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode("https://github.com/AVPolyakov/SharpLayout", QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new PngByteQRCode(qrCodeData);
+            var bytes = qrCode.GetGraphic(20, drawQuietZones: false);
+
+            var size = Cm(2);
+            
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings()));
+            {
+                var table = section.AddTable();
+                var c1 = table.AddColumn(size);
+                var r1 = table.AddRow();
+                r1[c1].Add(new Image()
+                    .Content(() => new MemoryStream(bytes))
+                    .Width(size).Height(size));
+            }
+
+            //StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            Assert(nameof(QRCode), document.CreatePng().Item1);
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static void StartProcess(string fileName)
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
         }
         
         [Fact]
