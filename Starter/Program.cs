@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Examples;
-using PdfSharp.Drawing;
+using PdfSharp;
 using SharpLayout;
-using SharpLayout.ImageRendering;
-using static Resources.FontFamilies;
+using static SharpLayout.Direction;
+using static SharpLayout.Util;
 
 namespace Starter
 {
@@ -15,68 +13,49 @@ namespace Starter
         static void Main()
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            Document.CollectCallerInfo = true;
+            
+            const int count = 3000;
 
-            var document = new Document
+            for (var j = 1; j <= 5; j++)
+                M1(count);
+            for (var j = 1; j <= 20; j++)
             {
-                //CellsAreHighlighted = true,
-                //R1C1AreVisible = true,
-                //ParagraphsAreHighlighted = true,
-                //CellLineNumbersAreVisible = true,
-                //ExpressionVisible = true,
-            };
-            PaymentOrder.AddSection(document, new PaymentData {IncomingDate = DateTime.Now, OutcomingDate = DateTime.Now});
-            Svo.AddSection(document, new SvoData());
-            ContractDealPassport.AddSection(document, new ContractDealPassportData());
-            LoanAgreementDealPassport.AddSection(document, new LoanAgreementDealPassportData());
-
-            //document.SavePng(pageNumber: 0, "Temp.png", resolution: 120).StartLiveViewer(alwaysShowWindow: true);
-
-            //StartProcess(document.SavePng(0, "Temp2.png")); //open with Paint.NET
-
-            var path = $"Temp_{Guid.NewGuid():N}.pdf";
-
-            StartProcess(document.SavePdf(path));
-        }
-
-        public static void StartProcess(string fileName)
-        {
-            Process.Start(new ProcessStartInfo("cmd", $"/c start {fileName}") {CreateNoWindow = true});
-        }
-        
-        public static void StartLiveViewer(this string fileName, bool alwaysShowWindow, bool findId = true)
-        {
-            var processes = Process.GetProcessesByName("LiveViewer");
-            if (processes.Length <= 0)
-            {
-                string arguments;
-                if (findId && Ide == "vs")
-                {
-                    const string solutionName = "SharpLayout";
-                    var firstOrDefault = Process.GetProcesses().FirstOrDefault(p => p.ProcessName == "devenv" &&
-                        p.MainWindowTitle.Contains(solutionName));
-                    if (firstOrDefault != null)
-                        arguments = $" {firstOrDefault.Id}";
-                    else
-                        arguments = "";
-                }
-                else
-                    arguments = "";
-                Process.Start("LiveViewer", fileName + " " + Ide + arguments);
-            }
-            else
-            {
-                if (alwaysShowWindow)
-                    SetForegroundWindow(processes[0].MainWindowHandle);
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                M1(count);
+                stopwatch.Stop();
+                Console.WriteLine($"{stopwatch.ElapsedMilliseconds}");
             }
         }
 
-        private static string Ide => Environment.UserName switch {
-            "APolyakov" => "rider",
-            _ => "vs"
-        };
+        private static void M1(int count)
+        {
+            var document = new Document();
+            var section = document.Add(new Section(new PageSettings
+            {
+                TopMargin = Cm(1.2),
+                BottomMargin = Cm(1),
+                LeftMargin = Cm(2),
+                RightMargin = Cm(1),
+                Orientation = PageOrientation.Landscape
+            }));
+            var table = section.AddTable().Border(Styles.BorderWidth);
+            var columnCount = 14;
+            for (var i = 0; i < columnCount; i++)
+                table.AddColumn();
+            table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins);
+            for (var j = 0; j < count; j++)
+            {
+                table.AddRow(r => {
+                    for (var i = 0; i < columnCount; i++)
+                    {
+                        r[table.Columns[i]].Add(new Paragraph().Margin(Left | Right, Cm(0.05))
+                            .Add("QWEQWE QWETQWTQWRTWERT QWETQWET QWEQWR ASDASF", Styles.TimesNewRoman8));
+                    }
+                });
+            }
 
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
+            document.CreatePdf();
+        }
     }
 }
