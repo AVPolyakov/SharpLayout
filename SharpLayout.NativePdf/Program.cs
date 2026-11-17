@@ -14,6 +14,29 @@ namespace MeasureComparisonTest
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             
+            M2();
+        }
+
+        private static void M2()
+        {
+            byte[] ttfBytes = File.ReadAllBytes("Roboto-Regular.ttf");
+
+            var doc = new MinimalPdfDocument();
+            var font = doc.RegisterFont("Roboto-Regular", ttfBytes);
+            var page = doc.AddPage();
+
+            page.DrawString("Привет, мир! Платёжное поручение № 104 от 18.11.2026", font, 12, 50, 50);
+
+            using (var fs = File.Create("only_text.pdf"))
+            {
+                doc.Save(fs);
+            }
+
+            Console.WriteLine("Файл only_text.pdf успешно создан.");
+        }
+        
+        private static void M1()
+        {
             byte[] ttfBytes = File.ReadAllBytes("Roboto-Regular.ttf");
             string sample = "Платёжное поручение № 104 от 17.11.2026";
             double fontSize = 10.0;
