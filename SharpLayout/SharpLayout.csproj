@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -11,13 +11,16 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="PdfSharp-net" Version="1.0.1" />
     <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0013" />
   </ItemGroup>
   
   <ItemGroup>
     <None Remove="Fonts\Roboto-Regular.ttf.gz" />
     <EmbeddedResource Include="Fonts\Roboto-Regular.ttf.gz" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PDFsharp2\src\PdfSharp-net\PdfSharp-net.csproj" />
   </ItemGroup>
   
 </Project>
