@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace SharpLayout.NativePdf
@@ -19,6 +20,9 @@ namespace SharpLayout.NativePdf
 
     public class TrueTypeMetrics
     {
+        // Покрывает диапазоны Basic Latin, Latin-1, Extended и всю кириллицу (U+0000 .. U+04FF)
+        private const int FastLookupSize = 0x0500;
+
         public ushort UnitsPerEm { get; private set; }
         public short Ascender { get; private set; }
         public short Descender { get; private set; }
@@ -26,7 +30,8 @@ namespace SharpLayout.NativePdf
         public ushort WinAscent { get; private set; }
         public ushort WinDescent { get; private set; }
 
-        private readonly Dictionary<int, ushort> _charToGlyph = new Dictionary<int, ushort>();
+        private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
+        private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
         private ushort[] _advanceWidths;
 
         public TrueTypeMetrics(byte[] ttfBytes)
@@ -44,33 +49,67 @@ namespace SharpLayout.NativePdf
                 return new LayoutSize(0, lineHeight);
 
             long totalAdvanceUnits = 0;
+            ushort[] fastGlyphs = _fastGlyphIds;
+            ushort[] widths = _advanceWidths;
+            int widthsLen = widths.Length;
+            ushort fallbackWidth = widthsLen > 0 ? widths[widthsLen - 1] : (ushort)0;
+
             for (int i = 0; i < text.Length; i++)
             {
-                int codePoint = char.ConvertToUtf32(text, i);
-                if (char.IsSurrogatePair(text, i))
-                    i++;
+                char ch = text[i];
+                ushort gid;
 
-                ushort glyphId = GetGlyphId(codePoint);
-                totalAdvanceUnits += GetAdvanceWidth(glyphId);
+                if (ch < FastLookupSize)
+                {
+                    // Мгновенный поиск O(1) без вычисления хэша и без проверки суррогатных пар
+                    gid = fastGlyphs[ch];
+                }
+                else if (char.IsHighSurrogate(ch) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+                {
+                    int codePoint = char.ConvertToUtf32(ch, text[i + 1]);
+                    i++;
+                    gid = _fallbackGlyphIds.TryGetValue(codePoint, out ushort found) ? found : (ushort)0;
+                }
+                else
+                {
+                    // Редкие BMP-символы вне диапазона 0x04FF (например, знак '№' U+2116 или '₽' U+20BD)
+                    gid = _fallbackGlyphIds.TryGetValue(ch, out ushort found) ? found : (ushort)0;
+                }
+
+                totalAdvanceUnits += gid < widthsLen ? widths[gid] : fallbackWidth;
             }
 
             double width = (double)totalAdvanceUnits / UnitsPerEm * fontSize;
             return new LayoutSize(width, lineHeight);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort GetGlyphId(int codePoint)
         {
-            return _charToGlyph.TryGetValue(codePoint, out ushort gid) ? gid : (ushort)0;
+            if ((uint)codePoint < FastLookupSize)
+                return _fastGlyphIds[codePoint];
+
+            return _fallbackGlyphIds.TryGetValue(codePoint, out ushort gid) ? gid : (ushort)0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort GetAdvanceWidth(ushort glyphId)
         {
-            if (_advanceWidths == null || _advanceWidths.Length == 0)
+            ushort[] widths = _advanceWidths;
+            if (widths == null || widths.Length == 0)
                 return 0;
 
-            return glyphId < _advanceWidths.Length
-                ? _advanceWidths[glyphId]
-                : _advanceWidths[_advanceWidths.Length - 1];
+            return glyphId < widths.Length ? widths[glyphId] : widths[widths.Length - 1];
+        }
+
+        private void SetGlyphMapping(int codePoint, ushort glyphId)
+        {
+            if (glyphId == 0) return;
+
+            if ((uint)codePoint < FastLookupSize)
+                _fastGlyphIds[codePoint] = glyphId;
+            else
+                _fallbackGlyphIds[codePoint] = glyphId;
         }
 
         private void ParseFont(byte[] ttfBytes)
@@ -93,19 +132,19 @@ namespace SharpLayout.NativePdf
                     tables[tag] = (offset, length);
                 }
 
-                // 1. Таблица head: получаем UnitsPerEm (смещение +18 байт от начала таблицы)
+                // 1. Таблица head
                 ms.Position = tables["head"].Offset + 18;
                 UnitsPerEm = ReadUInt16(ms);
 
-                // 2. Таблица hhea: получаем Ascender, Descender, LineGap и число метрик
+                // 2. Таблица hhea
                 ms.Position = tables["hhea"].Offset + 4;
                 Ascender = ReadInt16(ms);
                 Descender = ReadInt16(ms);
                 LineGap = ReadInt16(ms);
-                ms.Position += 24; // пропускаем промежуточные поля заголовка hhea
+                ms.Position += 24;
                 ushort numberOfHMetrics = ReadUInt16(ms);
 
-                // 3. Таблица OS/2: получаем usWinAscent и usWinDescent для расчёта высоты строки как в GDI+/PDFsharp
+                // 3. Таблица OS/2
                 if (tables.TryGetValue("OS/2", out var os2Table))
                 {
                     ms.Position = os2Table.Offset + 74;
@@ -113,11 +152,11 @@ namespace SharpLayout.NativePdf
                     WinDescent = ReadUInt16(ms);
                 }
 
-                // 4. Таблица maxp: узнаём общее количество глифов в шрифте
+                // 4. Таблица maxp
                 ms.Position = tables["maxp"].Offset + 4;
                 ushort numGlyphs = ReadUInt16(ms);
 
-                // 5. Таблица hmtx: считываем ширину каждого глифа
+                // 5. Таблица hmtx
                 ms.Position = tables["hmtx"].Offset;
                 _advanceWidths = new ushort[numGlyphs];
                 ushort lastAdvance = 0;
@@ -132,7 +171,7 @@ namespace SharpLayout.NativePdf
                     _advanceWidths[i] = lastAdvance;
                 }
 
-                // 6. Таблица cmap: строим карту Unicode -> GlyphID
+                // 6. Таблица cmap
                 ParseCmapFormat4(ms, tables["cmap"].Offset);
             }
         }
@@ -149,7 +188,6 @@ namespace SharpLayout.NativePdf
                 ushort encodingId = ReadUInt16(ms);
                 uint subtableOffset = ReadUInt32(ms);
 
-                // Стандартная таблица Windows Unicode BMP (Platform 3, Encoding 1)
                 if (platformId == 3 && encodingId == 1)
                 {
                     targetSubtableOffset = cmapOffset + subtableOffset;
@@ -165,14 +203,14 @@ namespace SharpLayout.NativePdf
             if (format != 4)
                 throw new NotSupportedException($"Ожидался формат cmap 4, но получен формат {format}.");
 
-            ms.Position += 4; // length, language
+            ms.Position += 4;
             ushort segCount = (ushort)(ReadUInt16(ms) / 2);
-            ms.Position += 6; // searchRange, entrySelector, rangeShift
+            ms.Position += 6;
 
             ushort[] endCode = new ushort[segCount];
             for (int i = 0; i < segCount; i++) endCode[i] = ReadUInt16(ms);
 
-            ms.Position += 2; // reservedPad
+            ms.Position += 2;
 
             ushort[] startCode = new ushort[segCount];
             for (int i = 0; i < segCount; i++) startCode[i] = ReadUInt16(ms);
@@ -205,8 +243,7 @@ namespace SharpLayout.NativePdf
                             gid = (ushort)((gid + idDelta[s]) & 0xFFFF);
                     }
 
-                    if (gid != 0)
-                        _charToGlyph[c] = gid;
+                    SetGlyphMapping(c, gid);
                 }
             }
         }
