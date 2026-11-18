@@ -4,6 +4,7 @@ using System.IO;
 using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using SharpLayout.NativePdf;
 
 namespace SharpLayout
 {
@@ -41,24 +42,43 @@ namespace SharpLayout
         
         public byte[] CreatePdf()
         {
-            using (var pdfDocument = new PdfDocument())
+            var minimalPdfDocument = new MinimalPdfDocument();
+
+            Render(minimalPdfDocument);
+            
+            using (var stream = new MemoryStream())
             {
-	            Render(pdfDocument);
-                if (pdfDocument.PageCount == 0)
-                {
-                    var page = pdfDocument.AddPage();
-                    page.Size = PageSize.A4;
-                    page.Orientation = PageOrientation.Portrait;
-                }                
-	            using (var stream = new MemoryStream())
-                {
-                    pdfDocument.Save(stream);
-                    return stream.ToArray();
-                }
+                minimalPdfDocument.Save(stream);
+                return stream.ToArray();
             }
         }
 
-	    public void Render(PdfDocument pdfDocument)
+        private void Render(MinimalPdfDocument minimalPdfDocument)
+        {
+            foreach (var sectionGroupFunc in SectionGroups)
+            {
+                var sectionGroup = sectionGroupFunc();
+                
+                if (sectionGroup.Sections.Count == 0) 
+                    continue;
+
+                var page = minimalPdfDocument.AddPage();
+
+                TableRenderer.Draw(
+                    new NativePdfGraphics(page, minimalPdfDocument),
+                    (pageIndex, action, section) =>
+                    {
+                        var page2 = minimalPdfDocument.AddPage();
+                        action(new NativePdfGraphics(page2, minimalPdfDocument));
+                    },
+                    this, 
+                    GraphicsType.Pdf, 
+                    sectionGroup, 
+                    AllPageFilter.Instance);
+            }
+        }
+
+        public void Render(PdfDocument pdfDocument)
 	    {
 		    pdfDocument.ViewerPreferences.Elements.SetName("/PrintScaling", "/None");
 		    pdfDocument.Info.Creator = "SharpLayout";

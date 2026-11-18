@@ -16,13 +16,19 @@ namespace SharpLayout.NativePdf
         private const string CloseArr = "\x5D";
 
         private readonly List<MinimalPdfPage> _pages = new List<MinimalPdfPage>();
-        private readonly List<MinimalPdfFont> _fonts = new List<MinimalPdfFont>();
+        private readonly Dictionary<FontKey, MinimalPdfFont> _fonts = new();
 
-        public MinimalPdfFont RegisterFont(string name, byte[] ttfBytes)
+        public MinimalPdfFont GetOrRegisterFont(Font font)
         {
-            var font = new MinimalPdfFont(name, ttfBytes) { Alias = $"F{_fonts.Count + 1}" };
-            _fonts.Add(font);
-            return font;
+            var key = font.Key;
+            
+            if (_fonts.TryGetValue(key, out var value))
+                return value;
+
+            var trueTypeMetrics = FontStorage.GetMetrics(font);
+            var minimalPdfFont = new MinimalPdfFont(trueTypeMetrics.TtfBytes) { Alias = $"F{_fonts.Count + 1}" };
+            _fonts.Add(key, minimalPdfFont);
+            return minimalPdfFont;
         }
 
         public MinimalPdfPage AddPage(double width = 595.28, double height = 841.89)
@@ -42,7 +48,7 @@ namespace SharpLayout.NativePdf
             int pagesId = ReserveObject();
 
             var fontResources = new StringBuilder($"{OpenDict} ");
-            foreach (var font in _fonts)
+            foreach (var font in _fonts.Values)
             {
                 var m = font.Metrics;
                 var usedGids = font.UsedCodePoints.Select(cp => m.GetGlyphId(cp));
@@ -52,7 +58,7 @@ namespace SharpLayout.NativePdf
                     $"{OpenDict} /Length {compressedTtf.Length} /Length1 {subsetTtf.Length} /Filter /FlateDecode {CloseDict}",
                     compressedTtf));
 
-                string familyName = (!string.IsNullOrEmpty(m.FontFamily) ? m.FontFamily : font.Name).Replace(" ", "#20");
+                string familyName = (!string.IsNullOrEmpty(m.FontFamily) ? m.FontFamily : $"Font_{font.Alias}").Replace(" ", "#20");
                 string styleSuffix = "";
                 if (m.IsBold && m.IsItalic) styleSuffix = ",BoldItalic";
                 else if (m.IsBold) styleSuffix = ",Bold";

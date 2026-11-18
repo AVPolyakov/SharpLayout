@@ -62,7 +62,8 @@ namespace SharpLayout
 
         public XSize MeasureString(string text, Font font, XStringFormat stringFormat)
         {
-            return FontStorage.MeasureString(text, font);
+            var size = FontStorage.GetMetrics(font).MeasureString(text, font.Size);
+            return new XSize(size.Width, size.Height);
         }
     }
 }

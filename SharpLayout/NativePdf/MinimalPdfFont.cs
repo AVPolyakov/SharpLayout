@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -7,15 +6,13 @@ namespace SharpLayout.NativePdf
 {
     public class MinimalPdfFont
     {
-        public string Name { get; }
         public byte[] RawBytes { get; }
         public TrueTypeMetrics Metrics { get; }
         internal string Alias { get; set; }
         internal HashSet<int> UsedCodePoints { get; } = new HashSet<int>();
 
-        public MinimalPdfFont(string name, byte[] ttfBytes)
+        public MinimalPdfFont(byte[] ttfBytes)
         {
-            Name = name.Replace(" ", "");
             RawBytes = ttfBytes;
             Metrics = new TrueTypeMetrics(ttfBytes);
         }

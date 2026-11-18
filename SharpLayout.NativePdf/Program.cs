@@ -3,7 +3,9 @@ using System.IO;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
+using SharpLayout;
 using SharpLayout.NativePdf;
+using static Resources.FontFamilies;
 
 namespace MeasureComparisonTest
 {
@@ -19,10 +21,8 @@ namespace MeasureComparisonTest
 
         private static void M2()
         {
-            byte[] ttfBytes = File.ReadAllBytes("timesbd.ttf");
-
             var doc = new MinimalPdfDocument();
-            var font = doc.RegisterFont("timesbd", ttfBytes);
+            var font = doc.GetOrRegisterFont(new Font(TimesNewRoman, 8, XFontStyle.Regular, PdfOptions));
             var page = doc.AddPage();
 
             page.DrawString("Привет, мир! Платёжное поручение № 104 от 18.11.2026", font, 12, 50, 50);
@@ -34,6 +34,8 @@ namespace MeasureComparisonTest
 
             Console.WriteLine("Файл only_text.pdf успешно создан.");
         }
+        
+        public static XPdfFontOptions PdfOptions => new(PdfFontEncoding.Unicode);
         
         private static void M1()
         {
