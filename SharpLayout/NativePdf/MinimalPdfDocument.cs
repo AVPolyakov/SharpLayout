@@ -97,7 +97,7 @@ namespace SharpLayout.NativePdf
                 int cidFontId = AddObject(Encoding.ASCII.GetBytes(
                     $"{OpenDict} /Type /Font /Subtype /CIDFontType2 /BaseFont /{pdfFontName} " +
                     $"/CIDSystemInfo {OpenDict} /Registry (Adobe) /Ordering (Identity) /Supplement 0 {CloseDict} " +
-                    $"/FontDescriptor {descriptorId} 0 R /DW 1000 /W {widths} /CIDToGIDMap /Identity {CloseDict}"));
+                    $"/FontDescriptor {descriptorId} 0 R /W {widths} /CIDToGIDMap /Identity {CloseDict}"));
 
                 byte[] cmapBytes = CompressZlib(BuildToUnicodeCMap(font));
                 int toUnicodeId = AddObject(BuildStreamObject(
