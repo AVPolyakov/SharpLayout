@@ -20,8 +20,16 @@ namespace SharpLayout.NativePdf
 
     public class TrueTypeMetrics
     {
+        private readonly bool _simulateBold;
         private const int FastLookupSize = 0x0500;
 
+        /// <summary>
+        /// Factor of the em size of a regular font to look bold. Used for bold simulation.
+        /// Value of 2% found in original XPS 1.0 documentation.
+        /// Source: https://github.com/AVPolyakov/PDFsharp/blob/master/src/PdfSharp/Drawing/FontHelper.cs#L104-L109
+        /// </summary>
+        private const double BoldEmphasis = 0.02;
+        
         public string FontFamily { get; private set; }
         public bool IsBold { get; private set; }
         public bool IsItalic { get; private set; }
@@ -37,8 +45,9 @@ namespace SharpLayout.NativePdf
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
         private ushort[] _advanceWidths;
 
-        public TrueTypeMetrics(byte[] ttfBytes)
+        public TrueTypeMetrics(byte[] ttfBytes, bool simulateBold = false)
         {
+            _simulateBold = simulateBold;
             ParseFont(ttfBytes);
         }
 
@@ -60,8 +69,10 @@ namespace SharpLayout.NativePdf
             for (int i = 0; i < text.Length; i++)
             {
                 char ch = text[i];
-                ushort gid;
+                if (ch < 32)
+                    continue;
 
+                ushort gid;
                 if (ch < FastLookupSize)
                 {
                     gid = fastGlyphs[ch];
@@ -81,6 +92,13 @@ namespace SharpLayout.NativePdf
             }
 
             double width = (double)totalAdvanceUnits / UnitsPerEm * fontSize;
+
+            // Exact replica of XStyleSimulations.BoldSimulation from PDFsharp (+2% of font size per character)
+            if (_simulateBold)
+            {
+                width += text.Length * fontSize * BoldEmphasis;
+            }
+
             return new LayoutSize(width, lineHeight);
         }
 

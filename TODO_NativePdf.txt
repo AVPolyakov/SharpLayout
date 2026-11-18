@@ -1,14 +1,5 @@
 1. Поддержать XGdiFontStyle.Underline и XGdiFontStyle.Strikeout. Если по этим енамам запустить find usages, то в PDFSharp вроде несложная реализация.
 
-2. Поддержать XStyleSimulations.BoldSimulation. Она есть в PdfSharp.Drawing.FontHelper.MeasureString:
-                // Adjust bold simulation.
-                if ((font.GlyphTypeface.StyleSimulations & XStyleSimulations.BoldSimulation) == XStyleSimulations.BoldSimulation)
-                {
-                    // Add 2% of the em-size for each character.
-                    // Unsure how to deal with white space. Currently count as regular character.
-                    size.Width += length * font.Size * Const.BoldEmphasis;
-                }
-
 3. ИИ предлагает три оптимизации, см. ниже. Обрати внимание на оптимизацию в пункте 3 (Разговор с ИИ называется: Лицензия PDFsharp).
 
 1. Прямая запись байтов без StringBuilder и string.Format (Zero-Allocation)

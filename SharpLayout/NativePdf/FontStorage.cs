@@ -20,8 +20,8 @@ public static class FontStorage
                 var fontResolverInfo = GlobalFontSettings.FontResolver.ResolveTypeface(font.FamilyInfo.Name,
                     isBold: font.Style.HasFlag(XFontStyle.Bold), isItalic: font.Style.HasFlag(XFontStyle.Italic));
                 var bytes = GlobalFontSettings.FontResolver.GetFont(fontResolverInfo.FaceName);
-
-                return new TrueTypeMetrics(bytes);
+                
+                return new TrueTypeMetrics(bytes, simulateBold: fontResolverInfo.MustSimulateBold);
             });
     }
     
