@@ -48,7 +48,7 @@ namespace SharpLayout.NativePdf
             hex.Append(">");
 
             _sb.AppendFormat(CultureInfo.InvariantCulture,
-                "BT 0 0 0 rg /{0} {1:0.###} Tf {2:0.###} {3:0.###} Td {4} Tj ET\n",
+                "BT 0 0 0 rg /{0} {1:0.####} Tf {2:0.####} {3:0.####} Td {4} Tj ET\n",
                 font.Alias, fontSize, x, baselineY, hex);
         }
 
