@@ -199,7 +199,7 @@ namespace SharpLayout.ImageRendering
             graphics.DrawLines(GetPen(pen), points.Select(_ => new PointF((float)_.X, (float)_.Y)).ToArray());
         }
 
-        public XSize MeasureString(string text, XFont font, XStringFormat stringFormat)
+        public XSize MeasureString(string text, Font font, XStringFormat stringFormat)
         {
             return pdfGraphics.MeasureString(text, font, stringFormat);
         }

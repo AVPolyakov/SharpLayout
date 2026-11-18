@@ -118,7 +118,7 @@ namespace SharpLayout
                         return spaces.Any()
                             ? (innerWidth - lineParts.ContentWidth(softLineParts, graphics, mode, table) - TextIndent()) /
                               spaces.Sum(tuple => graphics.MeasureString(new string(tuple.Item2.Char, 1),
-                                  tuple.Item1.GetSoftLinePart(softLineParts).Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width)
+                                  tuple.Item1.GetSoftLinePart(softLineParts).Span.Font(table), MeasureTrailingSpacesStringFormat).Width)
                             : new double?();
                     });
                     foreach (var part in lineParts)
@@ -146,7 +146,7 @@ namespace SharpLayout
                                 switch (drawTextPart)
                                 {
                                     case DrawTextPart.Space space:
-                                        var measureWidth = graphics.MeasureString(new string(space.Char, 1), font.XFont, MeasureTrailingSpacesStringFormat).Width;
+                                        var measureWidth = graphics.MeasureString(new string(space.Char, 1), font, MeasureTrailingSpacesStringFormat).Width;
                                         if (multiplier.Value.HasValue)
                                             if (paragraph.IsParagraphPart || lineIndex < lineCount.Value - 1)
                                                 if (alignment == HorizontalAlign.Justify)
@@ -160,7 +160,7 @@ namespace SharpLayout
                                         break;
                                     case DrawTextPart.Word word:
                                         drawer.DrawString(word.Text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, drawCache));
-                                        stringWidth = graphics.MeasureString(word.Text, font.XFont, MeasureTrailingSpacesStringFormat).Width;
+                                        stringWidth = graphics.MeasureString(word.Text, font, MeasureTrailingSpacesStringFormat).Width;
                                         break;
                                     default:
                                         throw new ArgumentOutOfRangeException();
@@ -170,7 +170,7 @@ namespace SharpLayout
                             }
                         else
                         {
-                            var measureString = graphics.MeasureString(text, font.XFont, MeasureTrailingSpacesStringFormat);
+                            var measureString = graphics.MeasureString(text, font, MeasureTrailingSpacesStringFormat);
                             drawer.DrawString(text, font, span.CalculateBrush(document, table), x, y + baseLine + span.InlineVerticalAlignOffset(table, drawCache));
                             x += measureString.Width;
                             rectangleWidth += measureString.Width;
@@ -306,7 +306,7 @@ namespace SharpLayout
         private static double ContentWidth(this List<LinePart> lineParts, List<ISoftLinePart> softLineParts, IGraphics graphics, TextMode mode, Table table)
         { 
             return lineParts.Sum(part => graphics.MeasureString(part.Text(softLineParts, mode),
-                part.GetSoftLinePart(softLineParts).Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width);
+                part.GetSoftLinePart(softLineParts).Span.Font(table), MeasureTrailingSpacesStringFormat).Width);
         }
 
         public static double GetLineCount(IGraphics graphics, Paragraph paragraph, double width, TextMode mode, Document document, Table table, DrawCache drawCache)
@@ -445,7 +445,7 @@ namespace SharpLayout
             var value = part.CharSizeCache.Array[key];
             if (value != 0.0)
                 return value;
-            var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table).XFont, MeasureTrailingSpacesStringFormat).Width;
+            var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
             part.CharSizeCache.Array[key] = width;
             return width;
         }

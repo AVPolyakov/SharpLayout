@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using PdfSharp.Drawing;
+using SharpLayout.NativePdf;
 
 namespace SharpLayout
 {
@@ -11,7 +12,7 @@ namespace SharpLayout
         void DrawString(string s, Font font, XBrush brush, double x, double y);
         void DrawLine(XPen pen, double x1, double y1, double x2, double y2);
         void DrawRectangle(XBrush brush, double x, double y, double width, double height);
-        XSize MeasureString(string text, XFont font, XStringFormat stringFormat);
+        XSize MeasureString(string text, Font font, XStringFormat stringFormat);
         void DrawLines(XPen pen, XPoint[] points);
     }
 
@@ -59,9 +60,9 @@ namespace SharpLayout
             xGraphics.DrawRectangle(brush, x, y, width, height);
         }
 
-        public XSize MeasureString(string text, XFont font, XStringFormat stringFormat)
+        public XSize MeasureString(string text, Font font, XStringFormat stringFormat)
         {
-            return xGraphics.MeasureString(text, font, stringFormat);
+            return FontStorage.MeasureString(text, font);
         }
     }
 }

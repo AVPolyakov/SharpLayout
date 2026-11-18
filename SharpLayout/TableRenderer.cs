@@ -1339,7 +1339,7 @@ namespace SharpLayout
                     var text = $"r{row + 1}";
                     var lineSpace = font.GetHeight();
                     var rnHeight = lineSpace * font.FontFamily.GetCellAscent(font.Style) / font.FontFamily.GetLineSpacing(font.Style);
-                    var rnX = x - xGraphics.MeasureString(text, font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width;
+                    var rnX = x - xGraphics.MeasureString(text, font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width;
                     drawer.DrawString(text, font, redBrush, rnX, y + rnHeight);
                     if (row == 0)
                     {
@@ -1347,7 +1347,7 @@ namespace SharpLayout
                         drawer.DrawString(lineText,
                             font,
                             purpleBrush,
-                            rnX - xGraphics.MeasureString($"{lineText} ", font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
+                            rnX - xGraphics.MeasureString($"{lineText} ", font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
                             y + rnHeight);
                     }
                 }
@@ -1370,7 +1370,7 @@ namespace SharpLayout
             drawer.DrawString(text,
                 font,
                 new XSolidBrush(XColor.FromArgb(128, 0, 0, 255)),
-                x + width - xGraphics.MeasureString(text, font.XFont, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
+                x + width - xGraphics.MeasureString(text, font, ParagraphRenderer.MeasureTrailingSpacesStringFormat).Width,
                 y + height);
         }
 
