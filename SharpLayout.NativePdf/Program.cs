@@ -19,10 +19,10 @@ namespace MeasureComparisonTest
 
         private static void M2()
         {
-            byte[] ttfBytes = File.ReadAllBytes("Roboto-Regular.ttf");
+            byte[] ttfBytes = File.ReadAllBytes("timesbd.ttf");
 
             var doc = new MinimalPdfDocument();
-            var font = doc.RegisterFont("Roboto-Regular", ttfBytes);
+            var font = doc.RegisterFont("timesbd", ttfBytes);
             var page = doc.AddPage();
 
             page.DrawString("Привет, мир! Платёжное поручение № 104 от 18.11.2026", font, 12, 50, 50);

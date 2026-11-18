@@ -52,11 +52,18 @@ namespace SharpLayout.NativePdf
                     $"{OpenDict} /Length {compressedTtf.Length} /Length1 {subsetTtf.Length} /Filter /FlateDecode {CloseDict}",
                     compressedTtf));
 
+                string familyName = (!string.IsNullOrEmpty(m.FontFamily) ? m.FontFamily : font.Name).Replace(" ", "#20");
+                string styleSuffix = "";
+                if (m.IsBold && m.IsItalic) styleSuffix = ",BoldItalic";
+                else if (m.IsBold) styleSuffix = ",Bold";
+                else if (m.IsItalic) styleSuffix = ",Italic";
+                string pdfFontName = $"SHARPL+{familyName}{styleSuffix}";
+                
                 int ascent = m.WinAscent > 0 ? m.WinAscent : m.Ascender;
                 int descent = m.WinDescent > 0 ? -m.WinDescent : m.Descender;
 
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
-                    $"{OpenDict} /Type /FontDescriptor /FontName /{font.Name} /Flags 4 " +
+                    $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags 4 " +
                     $"/FontBBox {OpenArr}-500 {descent} 1500 {ascent}{CloseArr} " +
                     $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {ascent} /StemV 80 " +
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));
@@ -77,7 +84,7 @@ namespace SharpLayout.NativePdf
                 widths.Append(CloseArr);
 
                 int cidFontId = AddObject(Encoding.ASCII.GetBytes(
-                    $"{OpenDict} /Type /Font /Subtype /CIDFontType2 /BaseFont /{font.Name} " +
+                    $"{OpenDict} /Type /Font /Subtype /CIDFontType2 /BaseFont /{pdfFontName} " +
                     $"/CIDSystemInfo {OpenDict} /Registry (Adobe) /Ordering (Identity) /Supplement 0 {CloseDict} " +
                     $"/FontDescriptor {descriptorId} 0 R /DW 1000 /W {widths} /CIDToGIDMap /Identity {CloseDict}"));
 
@@ -86,7 +93,7 @@ namespace SharpLayout.NativePdf
                     $"{OpenDict} /Length {cmapBytes.Length} /Filter /FlateDecode {CloseDict}", cmapBytes));
 
                 int type0Id = AddObject(Encoding.ASCII.GetBytes(
-                    $"{OpenDict} /Type /Font /Subtype /Type0 /BaseFont /{font.Name}-Identity-H " +
+                    $"{OpenDict} /Type /Font /Subtype /Type0 /BaseFont /{pdfFontName}-Identity-H " +
                     $"/Encoding /Identity-H /DescendantFonts {OpenArr}{cidFontId} 0 R{CloseArr} /ToUnicode {toUnicodeId} 0 R {CloseDict}"));
 
                 fontResources.Append($"/{font.Alias} {type0Id} 0 R ");
@@ -173,7 +180,6 @@ namespace SharpLayout.NativePdf
                 sb.Append($"{mappings.Count} beginbfchar\n");
                 foreach (var kv in mappings)
                 {
-                    // Важно: для символов BMP (<= 0xFFFF) пишем 4 hex-цифры, для суррогатных пар (> 0xFFFF) — UTF-16BE (8 hex-цифр)
                     if (kv.Value <= 0xFFFF)
                     {
                         sb.AppendFormat("<{0:X4}> <{1:X4}>\n", kv.Key, kv.Value);
@@ -213,11 +219,9 @@ namespace SharpLayout.NativePdf
                 outMs.WriteByte(0x9C);
                 using (var ds = new DeflateStream(outMs, CompressionLevel.Optimal, true))
                     ds.Write(data, 0, data.Length);
-
                 uint a = 1, b = 0;
                 foreach (byte d in data) { a = (a + d) % 65521; b = (b + a) % 65521; }
                 uint adler = (b << 16) | a;
-
                 outMs.WriteByte((byte)(adler >> 24));
                 outMs.WriteByte((byte)(adler >> 16));
                 outMs.WriteByte((byte)(adler >> 8));
@@ -225,7 +229,6 @@ namespace SharpLayout.NativePdf
                 return outMs.ToArray();
             }
         }
-
         private static void WriteAscii(Stream s, string text)
         {
             var b = Encoding.ASCII.GetBytes(text);

@@ -20,8 +20,11 @@ namespace SharpLayout.NativePdf
 
     public class TrueTypeMetrics
     {
-        // Покрывает диапазоны Basic Latin, Latin-1, Extended и всю кириллицу (U+0000 .. U+04FF)
         private const int FastLookupSize = 0x0500;
+
+        public string FontFamily { get; private set; }
+        public bool IsBold { get; private set; }
+        public bool IsItalic { get; private set; }
 
         public ushort UnitsPerEm { get; private set; }
         public short Ascender { get; private set; }
@@ -61,7 +64,6 @@ namespace SharpLayout.NativePdf
 
                 if (ch < FastLookupSize)
                 {
-                    // Мгновенный поиск O(1) без вычисления хэша и без проверки суррогатных пар
                     gid = fastGlyphs[ch];
                 }
                 else if (char.IsHighSurrogate(ch) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
@@ -72,7 +74,6 @@ namespace SharpLayout.NativePdf
                 }
                 else
                 {
-                    // Редкие BMP-символы вне диапазона 0x04FF (например, знак '№' U+2116 или '₽' U+20BD)
                     gid = _fallbackGlyphIds.TryGetValue(ch, out ushort found) ? found : (ushort)0;
                 }
 
@@ -118,7 +119,7 @@ namespace SharpLayout.NativePdf
             {
                 ReadUInt32(ms); // sfntVersion
                 ushort numTables = ReadUInt16(ms);
-                ms.Position += 6; // searchRange, entrySelector, rangeShift
+                ms.Position += 6;
 
                 var tables = new Dictionary<string, (uint Offset, uint Length)>();
                 for (int i = 0; i < numTables; i++)
@@ -144,19 +145,30 @@ namespace SharpLayout.NativePdf
                 ms.Position += 24;
                 ushort numberOfHMetrics = ReadUInt16(ms);
 
-                // 3. Таблица OS/2
+                // 3. Таблица OS/2 (флаги стиля и метрики высоты)
                 if (tables.TryGetValue("OS/2", out var os2Table))
                 {
+                    ms.Position = os2Table.Offset + 62;
+                    ushort fsSelection = ReadUInt16(ms);
+                    IsItalic = (fsSelection & 0x0001) != 0;
+                    IsBold = (fsSelection & 0x0020) != 0;
+
                     ms.Position = os2Table.Offset + 74;
                     WinAscent = ReadUInt16(ms);
                     WinDescent = ReadUInt16(ms);
                 }
 
-                // 4. Таблица maxp
+                // 4. Таблица name (FontFamily)
+                if (tables.TryGetValue("name", out var nameTable))
+                {
+                    FontFamily = ParseFontFamily(ms, nameTable.Offset);
+                }
+
+                // 5. Таблица maxp
                 ms.Position = tables["maxp"].Offset + 4;
                 ushort numGlyphs = ReadUInt16(ms);
 
-                // 5. Таблица hmtx
+                // 6. Таблица hmtx
                 ms.Position = tables["hmtx"].Offset;
                 _advanceWidths = new ushort[numGlyphs];
                 ushort lastAdvance = 0;
@@ -171,9 +183,52 @@ namespace SharpLayout.NativePdf
                     _advanceWidths[i] = lastAdvance;
                 }
 
-                // 6. Таблица cmap
+                // 7. Таблица cmap
                 ParseCmapFormat4(ms, tables["cmap"].Offset);
             }
+        }
+
+        private static string ParseFontFamily(MemoryStream ms, uint nameOffset)
+        {
+            ms.Position = nameOffset + 2;
+            ushort count = ReadUInt16(ms);
+            ushort stringOffset = ReadUInt16(ms);
+            long storageBase = nameOffset + stringOffset;
+
+            string fallback = null;
+            for (int i = 0; i < count; i++)
+            {
+                ushort platformId = ReadUInt16(ms);
+                ushort encodingId = ReadUInt16(ms);
+                ushort languageId = ReadUInt16(ms);
+                ushort nameId = ReadUInt16(ms);
+                ushort length = ReadUInt16(ms);
+                ushort offset = ReadUInt16(ms);
+
+                if (nameId == 1) // Font Family name
+                {
+                    long savedPos = ms.Position;
+                    ms.Position = storageBase + offset;
+                    byte[] raw = ReadBytes(ms, length);
+                    ms.Position = savedPos;
+
+                    string value = null;
+                    if (platformId == 3 || platformId == 0)
+                        value = Encoding.BigEndianUnicode.GetString(raw);
+                    else if (platformId == 1 && encodingId == 0)
+                        value = Encoding.ASCII.GetString(raw);
+
+                    if (value != null)
+                    {
+                        if (platformId == 3 && languageId == 0x0409)
+                            return value;
+
+                        if (fallback == null)
+                            fallback = value;
+                    }
+                }
+            }
+            return fallback;
         }
 
         private void ParseCmapFormat4(MemoryStream ms, uint cmapOffset)
@@ -221,12 +276,10 @@ namespace SharpLayout.NativePdf
             long idRangeOffsetTablePos = ms.Position;
             ushort[] idRangeOffset = new ushort[segCount];
             for (int i = 0; i < segCount; i++) idRangeOffset[i] = ReadUInt16(ms);
-
             for (int s = 0; s < segCount; s++)
             {
                 if (startCode[s] == 0xFFFF)
                     break;
-
                 for (int c = startCode[s]; c <= endCode[s]; c++)
                 {
                     ushort gid;
@@ -242,12 +295,10 @@ namespace SharpLayout.NativePdf
                         if (gid != 0)
                             gid = (ushort)((gid + idDelta[s]) & 0xFFFF);
                     }
-
                     SetGlyphMapping(c, gid);
                 }
             }
         }
-
         private static byte[] ReadBytes(Stream s, int count)
         {
             byte[] buffer = new byte[count];
@@ -260,16 +311,13 @@ namespace SharpLayout.NativePdf
             }
             return buffer;
         }
-
         private static ushort ReadUInt16(Stream s)
         {
             int b0 = s.ReadByte();
             int b1 = s.ReadByte();
             return (ushort)((b0 << 8) | b1);
         }
-
         private static short ReadInt16(Stream s) => (short)ReadUInt16(s);
-
         private static uint ReadUInt32(Stream s)
         {
             uint b0 = (uint)s.ReadByte();
