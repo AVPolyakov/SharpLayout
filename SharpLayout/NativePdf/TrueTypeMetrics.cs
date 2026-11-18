@@ -236,6 +236,7 @@ namespace SharpLayout.NativePdf
             ms.Position = cmapOffset + 2;
             ushort numSubtables = ReadUInt16(ms);
             uint targetSubtableOffset = 0;
+            bool isSymbolEncoding = false;
 
             for (int i = 0; i < numSubtables; i++)
             {
@@ -243,15 +244,21 @@ namespace SharpLayout.NativePdf
                 ushort encodingId = ReadUInt16(ms);
                 uint subtableOffset = ReadUInt32(ms);
 
-                if (platformId == 3 && encodingId == 1)
+                if (platformId == 3 && encodingId == 1) // Windows Unicode BMP
                 {
                     targetSubtableOffset = cmapOffset + subtableOffset;
+                    isSymbolEncoding = false;
                     break;
+                }
+                if (platformId == 3 && encodingId == 0) // Windows Symbol (Wingdings, Symbol, Webdings)
+                {
+                    targetSubtableOffset = cmapOffset + subtableOffset;
+                    isSymbolEncoding = true;
                 }
             }
 
             if (targetSubtableOffset == 0)
-                throw new InvalidDataException("В шрифте не найдена таблица cmap (Windows Unicode BMP).");
+                throw new InvalidDataException("В шрифте не найдена таблица cmap (Windows Unicode BMP / Symbol).");
 
             ms.Position = targetSubtableOffset;
             ushort format = ReadUInt16(ms);
@@ -276,6 +283,7 @@ namespace SharpLayout.NativePdf
             long idRangeOffsetTablePos = ms.Position;
             ushort[] idRangeOffset = new ushort[segCount];
             for (int i = 0; i < segCount; i++) idRangeOffset[i] = ReadUInt16(ms);
+
             for (int s = 0; s < segCount; s++)
             {
                 if (startCode[s] == 0xFFFF)
@@ -295,10 +303,18 @@ namespace SharpLayout.NativePdf
                         if (gid != 0)
                             gid = (ushort)((gid + idDelta[s]) & 0xFFFF);
                     }
+
                     SetGlyphMapping(c, gid);
+
+                    // Для символьных шрифтов (Wingdings 2) дублируем коды из 0xF000..0xF0FF в 0x0000..0x00FF
+                    if (isSymbolEncoding && c >= 0xF000 && c <= 0xF0FF)
+                    {
+                        SetGlyphMapping(c - 0xF000, gid);
+                    }
                 }
             }
         }
+
         private static byte[] ReadBytes(Stream s, int count)
         {
             byte[] buffer = new byte[count];
