@@ -35,8 +35,7 @@ namespace SharpLayout.NativePdf
             if (string.IsNullOrEmpty(text)) return;
 
             var m = font.Metrics;
-            double ascentPt = (double)(m.WinAscent > 0 ? m.WinAscent : m.Ascender) / m.UnitsPerEm * fontSize;
-            double baselineY = Height - (yTop + ascentPt);
+            double baselineY = Height - yTop;
 
             var hex = new StringBuilder("<");
             for (int i = 0; i < text.Length; i++)
