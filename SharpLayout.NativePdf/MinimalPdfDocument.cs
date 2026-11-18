@@ -151,9 +151,15 @@ namespace SharpLayout.NativePdf
         private static byte[] BuildToUnicodeCMap(MinimalPdfFont font)
         {
             var sb = new StringBuilder();
-            sb.Append("/CIDInit /ProcSet findresource begin\n12 dict begin begincmap\n");
+            sb.Append("/CIDInit /ProcSet findresource begin\n");
+            sb.Append("12 dict begin\n");
+            sb.Append("begincmap\n");
             sb.Append($"/CIDSystemInfo {OpenDict} /Registry (Adobe) /Ordering (UCS) /Supplement 0 {CloseDict} def\n");
-            sb.Append("/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n\x3C0000\x3E \x3CFFFF\x3E\nendcodespacerange\n");
+            sb.Append("/CMapName /Adobe-Identity-UCS def\n");
+            sb.Append("/CMapType 2 def\n");
+            sb.Append("1 begincodespacerange\n");
+            sb.Append("<0000> <FFFF>\n");
+            sb.Append("endcodespacerange\n");
 
             var mappings = new SortedDictionary<ushort, int>();
             foreach (int cp in font.UsedCodePoints)
@@ -166,11 +172,25 @@ namespace SharpLayout.NativePdf
             {
                 sb.Append($"{mappings.Count} beginbfchar\n");
                 foreach (var kv in mappings)
-                    sb.Append($"\x3C{kv.Key:X4}\x3E \x3C{kv.Value:X4}\x3E\n");
+                {
+                    // Важно: для символов BMP (<= 0xFFFF) пишем 4 hex-цифры, для суррогатных пар (> 0xFFFF) — UTF-16BE (8 hex-цифр)
+                    if (kv.Value <= 0xFFFF)
+                    {
+                        sb.AppendFormat("<{0:X4}> <{1:X4}>\n", kv.Key, kv.Value);
+                    }
+                    else
+                    {
+                        string surrogate = char.ConvertFromUtf32(kv.Value);
+                        sb.AppendFormat("<{0:X4}> <{1:X4}{2:X4}>\n", kv.Key, (int)surrogate[0], (int)surrogate[1]);
+                    }
+                }
                 sb.Append("endbfchar\n");
             }
 
-            sb.Append("endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n");
+            sb.Append("endcmap\n");
+            sb.Append("CMapName currentdict /CMap defineresource pop\n");
+            sb.Append("end\n");
+            sb.Append("end\n");
             return Encoding.ASCII.GetBytes(sb.ToString());
         }
 
