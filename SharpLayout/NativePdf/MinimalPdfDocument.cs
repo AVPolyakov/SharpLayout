@@ -76,7 +76,7 @@ namespace SharpLayout.NativePdf
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
                     $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags 4 " +
                     $"/FontBBox {OpenArr}-500 {descent} 1500 {ascent}{CloseArr} " +
-                    $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 80 " +
+                    $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 0 " +
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));
                 
                 var widths = new StringBuilder($"{OpenArr} ");
