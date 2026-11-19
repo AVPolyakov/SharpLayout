@@ -45,10 +45,22 @@ public class NativePdfGraphics : IGraphics
     {
         _page.DrawLine(ToColor(pen.Color), pen.Width, x1, y1, x2, y2);   
     }
-
+    
     public void DrawRectangle(XBrush brush, double x, double y, double width, double height)
     {
-        throw new NotImplementedException();
+        if (brush is XSolidBrush solid)
+        {
+            _page.DrawRectangle(ToColor(solid.Color), null, 0, x, y, width, height);
+        }
+    }
+
+    public void DrawRectangle(XPen pen, XBrush brush, double x, double y, double width, double height)
+    {
+        Color? fill = brush is XSolidBrush solid ? ToColor(solid.Color) : (Color?)null;
+        Color? stroke = pen != null ? ToColor(pen.Color) : (Color?)null;
+        double strokeWidth = pen?.Width ?? 0;
+
+        _page.DrawRectangle(fill, stroke, strokeWidth, x, y, width, height);
     }
     
     public void DrawLines(XPen pen, XPoint[] points)

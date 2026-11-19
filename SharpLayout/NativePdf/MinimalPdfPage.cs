@@ -7,17 +7,28 @@ namespace SharpLayout.NativePdf
 {
     public class MinimalPdfPage
     {
+        private const string HexChars = "0123456789ABCDEF";
+
         public double Width { get; }
         public double Height { get; }
 
-        private readonly List<(string Prefix, MinimalPdfFont Font, string Text, string Suffix)> _chunks =
-            new List<(string, MinimalPdfFont, string, string)>();
-        private readonly StringBuilder _currentCommands = new StringBuilder();
+        private readonly List<(string Prefix, MinimalPdfFont Font, string Text)> _chunks =
+            new List<(string, MinimalPdfFont, string)>();
+        private readonly StringBuilder _cmd = new StringBuilder();
 
-        // Состояние для батчинга линий одного стиля
+        // Состояние векторного пути (линии)
         private bool _hasOpenPath;
         private double _currentStrokeWidth = -1;
         private Color _currentStrokeColor;
+
+        // Состояние текстового блока и цвета заливки
+        private bool _inTextObject;
+        private bool _hasFillColor;
+        private Color _currentFillColor;
+        private string _currentFontAlias;
+        private double _currentFontSize = -1;
+        private double _textCursorX;
+        private double _textCursorY;
 
         public MinimalPdfPage(double width, double height)
         {
@@ -29,13 +40,39 @@ namespace SharpLayout.NativePdf
         {
             if (_hasOpenPath)
             {
-                _currentCommands.Append("S\n");
+                _cmd.Append("S\n");
                 _hasOpenPath = false;
+            }
+        }
+
+        private void EndTextObject()
+        {
+            if (_inTextObject)
+            {
+                _cmd.Append("ET\n");
+                _inTextObject = false;
+            }
+        }
+
+        private void EnsureFillColor(Color color)
+        {
+            if (!_hasFillColor || _currentFillColor != color)
+            {
+                _currentFillColor = color;
+                _hasFillColor = true;
+                AppendColorComponent(color.R);
+                _cmd.Append(' ');
+                AppendColorComponent(color.G);
+                _cmd.Append(' ');
+                AppendColorComponent(color.B);
+                _cmd.Append(" rg\n");
             }
         }
 
         private void EnsureStrokeStyle(Color color, double lineWidth)
         {
+            EndTextObject();
+
             bool styleChanged = !_hasOpenPath
                 || Math.Abs(_currentStrokeWidth - lineWidth) > 0.0001
                 || _currentStrokeColor != color;
@@ -46,9 +83,14 @@ namespace SharpLayout.NativePdf
                 _currentStrokeWidth = lineWidth;
                 _currentStrokeColor = color;
 
-                _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                    "{0:0.####} w {1:0.###} {2:0.###} {3:0.###} RG\n",
-                    lineWidth, color.R / 255.0, color.G / 255.0, color.B / 255.0);
+                AppendNum(lineWidth);
+                _cmd.Append(" w ");
+                AppendColorComponent(color.R);
+                _cmd.Append(' ');
+                AppendColorComponent(color.G);
+                _cmd.Append(' ');
+                AppendColorComponent(color.B);
+                _cmd.Append(" RG\n");
 
                 _hasOpenPath = true;
             }
@@ -60,9 +102,14 @@ namespace SharpLayout.NativePdf
                 return;
 
             EnsureStrokeStyle(color, lineWidth);
-            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                "{0:0.####} {1:0.####} m {2:0.####} {3:0.####} l\n",
-                x1, Height - y1, x2, Height - y2);
+            AppendNum(x1);
+            _cmd.Append(' ');
+            AppendNum(Height - y1);
+            _cmd.Append(" m ");
+            AppendNum(x2);
+            _cmd.Append(' ');
+            AppendNum(Height - y2);
+            _cmd.Append(" l\n");
         }
 
         public void DrawLines(Color color, double lineWidth, (double X, double Y)[] points)
@@ -71,16 +118,61 @@ namespace SharpLayout.NativePdf
                 return;
 
             EnsureStrokeStyle(color, lineWidth);
-            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                "{0:0.####} {1:0.####} m\n",
-                points[0].X, Height - points[0].Y);
+            AppendNum(points[0].X);
+            _cmd.Append(' ');
+            AppendNum(Height - points[0].Y);
+            _cmd.Append(" m\n");
 
             for (int i = 1; i < points.Length; i++)
             {
-                _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                    "{0:0.####} {1:0.####} l\n",
-                    points[i].X, Height - points[i].Y);
+                AppendNum(points[i].X);
+                _cmd.Append(' ');
+                AppendNum(Height - points[i].Y);
+                _cmd.Append(" l\n");
             }
+        }
+
+        public void DrawRectangle(Color? fillColor, Color? strokeColor, double strokeWidth, double x, double y, double width, double height)
+        {
+            bool hasFill = fillColor.HasValue && fillColor.Value.A > 0;
+            bool hasStroke = strokeColor.HasValue && strokeColor.Value.A > 0 && strokeWidth > 0;
+
+            if (!hasFill && !hasStroke)
+                return;
+
+            EndTextObject();
+            FlushStrokePath();
+
+            double bottomY = Height - (y + height);
+
+            if (hasFill)
+            {
+                EnsureFillColor(fillColor.Value);
+            }
+
+            if (hasStroke)
+            {
+                Color sc = strokeColor.Value;
+                _currentStrokeWidth = strokeWidth;
+                _currentStrokeColor = sc;
+                AppendNum(strokeWidth);
+                _cmd.Append(" w ");
+                AppendColorComponent(sc.R);
+                _cmd.Append(' ');
+                AppendColorComponent(sc.G);
+                _cmd.Append(' ');
+                AppendColorComponent(sc.B);
+                _cmd.Append(" RG\n");
+            }
+
+            AppendNum(x);
+            _cmd.Append(' ');
+            AppendNum(bottomY);
+            _cmd.Append(' ');
+            AppendNum(width);
+            _cmd.Append(' ');
+            AppendNum(height);
+            _cmd.Append(hasFill && hasStroke ? " re B\n" : (hasFill ? " re f\n" : " re S\n"));
         }
 
         public void DrawString(string text, MinimalPdfFont font, double fontSize, Color color, double x, double y)
@@ -92,6 +184,37 @@ namespace SharpLayout.NativePdf
 
             double baselineY = Height - y;
 
+            if (!_inTextObject)
+            {
+                _cmd.Append("BT\n");
+                _inTextObject = true;
+                _textCursorX = 0;
+                _textCursorY = 0;
+            }
+
+            EnsureFillColor(color);
+
+            if (_currentFontAlias != font.Alias || Math.Abs(_currentFontSize - fontSize) > 0.0001)
+            {
+                _currentFontAlias = font.Alias;
+                _currentFontSize = fontSize;
+                _cmd.Append('/');
+                _cmd.Append(font.Alias);
+                _cmd.Append(' ');
+                AppendNum(fontSize);
+                _cmd.Append(" Tf\n");
+            }
+
+            double dx = x - _textCursorX;
+            double dy = baselineY - _textCursorY;
+            _textCursorX = x;
+            _textCursorY = baselineY;
+
+            AppendNum(dx);
+            _cmd.Append(' ');
+            AppendNum(dy);
+            _cmd.Append(" Td <");
+
             for (int i = 0; i < text.Length; i++)
             {
                 int cp = char.ConvertToUtf32(text, i);
@@ -99,43 +222,49 @@ namespace SharpLayout.NativePdf
                 font.UsedCodePoints.Add(cp);
             }
 
-            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                "BT {0:0.###} {1:0.###} {2:0.###} rg /{3} {4:0.####} Tf {5:0.####} {6:0.####} Td <",
-                color.R / 255.0, color.G / 255.0, color.B / 255.0,
-                font.Alias, fontSize, x, baselineY);
+            string prefix = _cmd.ToString();
+            _cmd.Clear();
 
-            string prefix = _currentCommands.ToString();
-            _currentCommands.Clear();
-
-            _chunks.Add((prefix, font, text, "> Tj ET\n"));
+            _chunks.Add((prefix, font, text));
+            _cmd.Append("> Tj\n");
         }
 
         internal string GetContent()
         {
+            EndTextObject();
             FlushStrokePath();
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(_chunks.Count * 48 + _cmd.Length);
             for (int c = 0; c < _chunks.Count; c++)
             {
                 var chunk = _chunks[c];
                 sb.Append(chunk.Prefix);
 
-                if (chunk.Font != null && chunk.Text != null)
+                string text = chunk.Text;
+                MinimalPdfFont font = chunk.Font;
+                for (int i = 0; i < text.Length; i++)
                 {
-                    for (int i = 0; i < chunk.Text.Length; i++)
-                    {
-                        int cp = char.ConvertToUtf32(chunk.Text, i);
-                        if (char.IsSurrogatePair(chunk.Text, i)) i++;
-                        sb.AppendFormat("{0:X4}", chunk.Font.GetFinalGlyphId(cp));
-                    }
-                    sb.Append(chunk.Suffix);
+                    int cp = char.ConvertToUtf32(text, i);
+                    if (char.IsSurrogatePair(text, i)) i++;
+
+                    ushort gid = font.GetFinalGlyphId(cp);
+                    sb.Append(HexChars[(gid >> 12) & 0xF]);
+                    sb.Append(HexChars[(gid >> 8) & 0xF]);
+                    sb.Append(HexChars[(gid >> 4) & 0xF]);
+                    sb.Append(HexChars[gid & 0xF]);
                 }
             }
 
-            if (_currentCommands.Length > 0)
-                sb.Append(_currentCommands);
+            if (_cmd.Length > 0)
+                sb.Append(_cmd);
 
             return sb.ToString();
         }
+
+        private void AppendNum(double val)
+            => _cmd.Append(val.ToString("0.####", CultureInfo.InvariantCulture));
+
+        private void AppendColorComponent(byte c)
+            => _cmd.Append((c / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
     }
 }
