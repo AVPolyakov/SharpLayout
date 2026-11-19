@@ -31,9 +31,9 @@ namespace SharpLayout.NativePdf
             return minimalPdfFont;
         }
 
-        public MinimalPdfPage AddPage(double width = 595, double height = 842)
+        public MinimalPdfPage AddPage()
         {
-            var page = new MinimalPdfPage(width, height);
+            var page = new MinimalPdfPage();
             _pages.Add(page);
             return page;
         }

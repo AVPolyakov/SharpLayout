@@ -63,12 +63,14 @@ namespace SharpLayout
                     continue;
 
                 var page = minimalPdfDocument.AddPage();
+                page.Orientation = sectionGroup.Sections[0].PageSettings.Orientation;
 
                 TableRenderer.Draw(
                     new NativePdfGraphics(page, minimalPdfDocument),
                     (pageIndex, action, section) =>
                     {
                         var page2 = minimalPdfDocument.AddPage();
+                        page2.Orientation = section.PageSettings.Orientation;
                         action(new NativePdfGraphics(page2, minimalPdfDocument));
                     },
                     this, 

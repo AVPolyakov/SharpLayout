@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using PdfSharp;
 
 namespace SharpLayout.NativePdf
 {
@@ -9,8 +10,21 @@ namespace SharpLayout.NativePdf
     {
         private const string HexChars = "0123456789ABCDEF";
 
-        public double Width { get; }
-        public double Height { get; }
+        public double Width => Orientation switch
+        {
+            PageOrientation.Portrait => 595,
+            PageOrientation.Landscape => 842,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        public double Height => Orientation switch
+        {
+            PageOrientation.Portrait => 842,
+            PageOrientation.Landscape => 595,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        
+        public PageOrientation Orientation { get; set; }
 
         internal Dictionary<byte, string> AlphaStates { get; } = new Dictionary<byte, string>();
 
@@ -32,13 +46,7 @@ namespace SharpLayout.NativePdf
         private double _currentFontSize = -1;
         private double _textCursorX;
         private double _textCursorY;
-
-        public MinimalPdfPage(double width, double height)
-        {
-            Width = width;
-            Height = height;
-        }
-
+        
         private string GetOrRegisterAlphaState(byte alpha)
         {
             if (!AlphaStates.TryGetValue(alpha, out string alias))
