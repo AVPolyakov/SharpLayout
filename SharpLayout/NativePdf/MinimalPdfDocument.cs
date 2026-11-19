@@ -16,11 +16,11 @@ namespace SharpLayout.NativePdf
         private const string CloseArr = "\x5D";
 
         private readonly List<MinimalPdfPage> _pages = new List<MinimalPdfPage>();
-        private readonly Dictionary<FontKey, MinimalPdfFont> _fonts = new();
+        private readonly Dictionary<FontResolutionKey, MinimalPdfFont> _fonts = new();
 
         public MinimalPdfFont GetOrRegisterFont(Font font)
         {
-            var key = font.Key;
+            var key = new FontResolutionKey(font.FontFamily.Name, font.Bold, font.Italic);
             
             if (_fonts.TryGetValue(key, out var value))
                 return value;

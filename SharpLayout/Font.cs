@@ -43,6 +43,8 @@ namespace SharpLayout
         public XPdfFontOptions PdfOptions => XFont.PdfOptions;
 
         public bool Bold => XFont.Bold;
+        
+        public bool Italic => XFont.Italic;
 
         public string Name => XFont.Name;
     }
