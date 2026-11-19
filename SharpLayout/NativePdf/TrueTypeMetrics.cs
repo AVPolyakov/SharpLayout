@@ -41,6 +41,7 @@ namespace SharpLayout.NativePdf
         public short LineGap { get; private set; }
         public ushort WinAscent { get; private set; }
         public ushort WinDescent { get; private set; }
+        public short CapHeight { get; private set; }
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -168,6 +169,9 @@ namespace SharpLayout.NativePdf
                 // 3. Таблица OS/2 (флаги стиля и метрики высоты)
                 if (tables.TryGetValue("OS/2", out var os2Table))
                 {
+                    ms.Position = os2Table.Offset;
+                    ushort os2Version = ReadUInt16(ms);
+
                     ms.Position = os2Table.Offset + 62;
                     ushort fsSelection = ReadUInt16(ms);
                     IsItalic = (fsSelection & 0x0001) != 0;
@@ -176,6 +180,12 @@ namespace SharpLayout.NativePdf
                     ms.Position = os2Table.Offset + 74;
                     WinAscent = ReadUInt16(ms);
                     WinDescent = ReadUInt16(ms);
+
+                    if (os2Version >= 2 && os2Table.Length >= 90)
+                    {
+                        ms.Position = os2Table.Offset + 88;
+                        CapHeight = ReadInt16(ms);
+                    }
                 }
 
                 // 4. Таблица name (FontFamily)

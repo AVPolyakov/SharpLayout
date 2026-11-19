@@ -65,15 +65,20 @@ namespace SharpLayout.NativePdf
                 else if (m.IsItalic) styleSuffix = ",Italic";
                 string pdfFontName = $"SHARPL+{familyName}{styleSuffix}";
                 
-                int ascent = m.WinAscent > 0 ? m.WinAscent : m.Ascender;
-                int descent = m.WinDescent > 0 ? -m.WinDescent : m.Descender;
+                int rawAscent = m.WinAscent > 0 ? m.WinAscent : m.Ascender;
+                int rawDescent = m.WinDescent > 0 ? m.WinDescent : Math.Abs((int)m.Descender);
+                int ascent = (int)Math.Round((double)rawAscent / m.UnitsPerEm * 1000.0);
+                int descent = (int)Math.Round((double)rawDescent / m.UnitsPerEm * 1000.0);
+                int capHeight = m.CapHeight > 0
+                    ? (int)Math.Round((double)m.CapHeight / m.UnitsPerEm * 1000.0)
+                    : (int)Math.Round(ascent * 0.75);
 
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
                     $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags 4 " +
                     $"/FontBBox {OpenArr}-500 {descent} 1500 {ascent}{CloseArr} " +
-                    $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {ascent} /StemV 80 " +
+                    $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 80 " +
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));
-
+                
                 var widths = new StringBuilder($"{OpenArr} ");
                 var sortedGids = new SortedSet<ushort>();
                 foreach (int cp in font.UsedCodePoints)
@@ -216,7 +221,6 @@ namespace SharpLayout.NativePdf
             Buffer.BlockCopy(tail, 0, res, head.Length + data.Length, tail.Length);
             return res;
         }
-
         private static byte[] CompressZlib(byte[] data)
         {
             using (var outMs = new MemoryStream())
