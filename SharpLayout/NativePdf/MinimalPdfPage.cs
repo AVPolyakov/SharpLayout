@@ -132,38 +132,16 @@ namespace SharpLayout.NativePdf
             }
         }
 
-        public void DrawRectangle(Color? fillColor, Color? strokeColor, double strokeWidth, double x, double y, double width, double height)
+        public void DrawRectangle(Color fillColor, double x, double y, double width, double height)
         {
-            bool hasFill = fillColor.HasValue && fillColor.Value.A > 0;
-            bool hasStroke = strokeColor.HasValue && strokeColor.Value.A > 0 && strokeWidth > 0;
-
-            if (!hasFill && !hasStroke)
+            if (fillColor.A == 0 || width <= 0 || height <= 0)
                 return;
 
             EndTextObject();
             FlushStrokePath();
+            EnsureFillColor(fillColor);
 
             double bottomY = Height - (y + height);
-
-            if (hasFill)
-            {
-                EnsureFillColor(fillColor.Value);
-            }
-
-            if (hasStroke)
-            {
-                Color sc = strokeColor.Value;
-                _currentStrokeWidth = strokeWidth;
-                _currentStrokeColor = sc;
-                AppendNum(strokeWidth);
-                _cmd.Append(" w ");
-                AppendColorComponent(sc.R);
-                _cmd.Append(' ');
-                AppendColorComponent(sc.G);
-                _cmd.Append(' ');
-                AppendColorComponent(sc.B);
-                _cmd.Append(" RG\n");
-            }
 
             AppendNum(x);
             _cmd.Append(' ');
@@ -172,7 +150,7 @@ namespace SharpLayout.NativePdf
             AppendNum(width);
             _cmd.Append(' ');
             AppendNum(height);
-            _cmd.Append(hasFill && hasStroke ? " re B\n" : (hasFill ? " re f\n" : " re S\n"));
+            _cmd.Append(" re f\n");
         }
 
         public void DrawString(string text, MinimalPdfFont font, double fontSize, Color color, double x, double y)
