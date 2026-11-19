@@ -172,7 +172,7 @@ namespace SharpLayout.NativePdf
                 .Select(x => (x.CodePoint, oldToNewGid[x.GlyphId]));
             tables["cmap"] = BuildMinimalCmap4(remappedChars);
 
-            string[] requiredTags = { "head", "hhea", "maxp", "OS/2", "hmtx", "cmap", "loca", "glyf", "cvt ", "fpgm", "prep", "gasp" };
+            string[] requiredTags = { "head", "hhea", "maxp", "OS/2", "hmtx", "cmap", "loca", "glyf", "cvt ", "fpgm", "prep" };
             var finalTables = tables
                 .Where(kv => requiredTags.Contains(kv.Key))
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
