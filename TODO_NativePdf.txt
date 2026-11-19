@@ -1,7 +1,6 @@
 ItalicAngle
 StemV
 Flags
-{OpenArr}-558 -307 2000 1026{CloseArr}
 
 
 

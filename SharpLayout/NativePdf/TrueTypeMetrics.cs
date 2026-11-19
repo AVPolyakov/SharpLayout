@@ -42,6 +42,10 @@ namespace SharpLayout.NativePdf
         public ushort WinAscent { get; private set; }
         public ushort WinDescent { get; private set; }
         public short CapHeight { get; private set; }
+        public short XMin { get; private set; }
+        public short YMin { get; private set; }
+        public short XMax { get; private set; }
+        public short YMax { get; private set; }        
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -158,6 +162,12 @@ namespace SharpLayout.NativePdf
                 ms.Position = tables["head"].Offset + 18;
                 UnitsPerEm = ReadUInt16(ms);
 
+                ms.Position = tables["head"].Offset + 36;
+                XMin = ReadInt16(ms);
+                YMin = ReadInt16(ms);
+                XMax = ReadInt16(ms);
+                YMax = ReadInt16(ms);
+                
                 // 2. Таблица hhea
                 ms.Position = tables["hhea"].Offset + 4;
                 Ascender = ReadInt16(ms);
