@@ -12,6 +12,8 @@ namespace SharpLayout.NativePdf
         public double Width { get; }
         public double Height { get; }
 
+        internal Dictionary<byte, string> AlphaStates { get; } = new Dictionary<byte, string>();
+
         private readonly List<(string Prefix, MinimalPdfFont Font, string Text)> _chunks =
             new List<(string, MinimalPdfFont, string)>();
         private readonly StringBuilder _cmd = new StringBuilder();
@@ -21,10 +23,11 @@ namespace SharpLayout.NativePdf
         private double _currentStrokeWidth = -1;
         private Color _currentStrokeColor;
 
-        // Состояние текстового блока и цвета заливки
+        // Состояние текстового блока, заливки и прозрачности
         private bool _inTextObject;
         private bool _hasFillColor;
         private Color _currentFillColor;
+        private byte _currentAlpha = 255;
         private string _currentFontAlias;
         private double _currentFontSize = -1;
         private double _textCursorX;
@@ -34,6 +37,28 @@ namespace SharpLayout.NativePdf
         {
             Width = width;
             Height = height;
+        }
+
+        private string GetOrRegisterAlphaState(byte alpha)
+        {
+            if (!AlphaStates.TryGetValue(alpha, out string alias))
+            {
+                alias = $"GSA{alpha}";
+                AlphaStates[alpha] = alias;
+            }
+            return alias;
+        }
+
+        private void EnsureAlpha(byte alpha)
+        {
+            if (_currentAlpha != alpha)
+            {
+                _currentAlpha = alpha;
+                string gsAlias = GetOrRegisterAlphaState(alpha);
+                _cmd.Append('/');
+                _cmd.Append(gsAlias);
+                _cmd.Append(" gs\n");
+            }
         }
 
         private void FlushStrokePath()
@@ -56,7 +81,9 @@ namespace SharpLayout.NativePdf
 
         private void EnsureFillColor(Color color)
         {
-            if (!_hasFillColor || _currentFillColor != color)
+            EnsureAlpha(color.A);
+
+            if (!_hasFillColor || _currentFillColor.R != color.R || _currentFillColor.G != color.G || _currentFillColor.B != color.B)
             {
                 _currentFillColor = color;
                 _hasFillColor = true;
@@ -82,6 +109,8 @@ namespace SharpLayout.NativePdf
                 FlushStrokePath();
                 _currentStrokeWidth = lineWidth;
                 _currentStrokeColor = color;
+
+                EnsureAlpha(color.A);
 
                 AppendNum(lineWidth);
                 _cmd.Append(" w ");

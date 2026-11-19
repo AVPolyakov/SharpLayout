@@ -66,7 +66,7 @@ public class NativePdfGraphics : IGraphics
     }
     
     private static Color ToColor(XColor xColor)
-        => new (xColor.R, xColor.G, xColor.B, (byte)(xColor.A * 255));
+        => new Color(xColor.R, xColor.G, xColor.B, (byte)Math.Round(xColor.A * 255));
     
     public XSize MeasureString(string text, Font font, XStringFormat stringFormat)
     {

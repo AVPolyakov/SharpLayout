@@ -134,10 +134,23 @@ namespace SharpLayout.NativePdf
                 int contentId = AddObject(BuildStreamObject(
                     $"{OpenDict} /Length {compressedContent.Length} /Filter /FlateDecode {CloseDict}", compressedContent));
 
+                string extGStatePart = "";
+                if (page.AlphaStates.Count > 0)
+                {
+                    var gsSb = new StringBuilder($"{OpenDict} ");
+                    foreach (var kv in page.AlphaStates)
+                    {
+                        string aVal = (kv.Key / 255.0).ToString("0.###", CultureInfo.InvariantCulture);
+                        gsSb.Append($"/{kv.Value} {OpenDict} /Type /ExtGState /CA {aVal} /ca {aVal} {CloseDict} ");
+                    }
+                    gsSb.Append(CloseDict);
+                    extGStatePart = $" /ExtGState {gsSb}";
+                }
+
                 int pageId = AddObject(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture,
                     "{0} /Type /Page /Parent {1} 0 R /MediaBox {2}0 0 {3:0.###} {4:0.###}{5} " +
-                    "/Resources {0} /ProcSet {2}/PDF /Text{5} /Font {6} {7} /Contents {8} 0 R {7}",
-                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, fontResources, CloseDict, contentId)));
+                    "/Resources {0} /ProcSet {2}/PDF /Text{5}{6} /Font {7} {8} /Contents {9} 0 R {8}",
+                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, extGStatePart, fontResources, CloseDict, contentId)));
 
                 pageIds.Add(pageId);
             }
@@ -191,16 +204,14 @@ namespace SharpLayout.NativePdf
             sb.Append("/CMapName /Adobe-Identity-UCS def\n");
             sb.Append("/CMapType 2 def\n");
             sb.Append("1 begincodespacerange\n");
-            sb.Append("<0000> <FFFF>\n");
+            sb.Append("<0000> \n");
             sb.Append("endcodespacerange\n");
-
             var mappings = new SortedDictionary<ushort, int>();
             foreach (int cp in font.UsedCodePoints)
             {
                 ushort gid = font.GetFinalGlyphId(cp);
                 if (gid != 0) mappings[gid] = cp;
             }
-
             if (mappings.Count > 0)
             {
                 sb.Append($"{mappings.Count} beginbfchar\n");
