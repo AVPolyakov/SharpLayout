@@ -99,7 +99,7 @@ namespace SharpLayout.NativePdf
                     $"{OpenDict} /Length {cmapBytes.Length} /Filter /FlateDecode {CloseDict}", cmapBytes));
 
                 int type0Id = AddObject(Encoding.ASCII.GetBytes(
-                    $"{OpenDict} /Type /Font /Subtype /Type0 /BaseFont /{pdfFontName}-Identity-H " +
+                    $"{OpenDict} /Type /Font /Subtype /Type0 /BaseFont /{pdfFontName} " +
                     $"/Encoding /Identity-H /DescendantFonts {OpenArr}{cidFontId} 0 R{CloseArr} /ToUnicode {toUnicodeId} 0 R {CloseDict}"));
 
                 fontResources.Append($"/{font.Alias} {type0Id} 0 R ");
