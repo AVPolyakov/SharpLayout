@@ -10,11 +10,20 @@ namespace SharpLayout.NativePdf
         public TrueTypeMetrics Metrics { get; }
         internal string Alias { get; set; }
         internal HashSet<int> UsedCodePoints { get; } = new HashSet<int>();
+        internal Dictionary<ushort, ushort> OldToNewGid { get; set; }
 
         public MinimalPdfFont(byte[] ttfBytes)
         {
             RawBytes = ttfBytes;
             Metrics = new TrueTypeMetrics(ttfBytes);
+        }
+
+        internal ushort GetFinalGlyphId(int codePoint)
+        {
+            ushort oldGid = Metrics.GetGlyphId(codePoint);
+            if (OldToNewGid != null && OldToNewGid.TryGetValue(oldGid, out ushort newGid))
+                return newGid;
+            return oldGid;
         }
     }
 
@@ -22,7 +31,10 @@ namespace SharpLayout.NativePdf
     {
         public double Width { get; }
         public double Height { get; }
-        private readonly StringBuilder _sb = new StringBuilder();
+
+        private readonly List<(string Prefix, MinimalPdfFont Font, string Text, string Suffix)> _chunks =
+            new List<(string, MinimalPdfFont, string, string)>();
+        private readonly StringBuilder _currentCommands = new StringBuilder();
 
         public MinimalPdfPage(double width, double height)
         {
@@ -34,24 +46,49 @@ namespace SharpLayout.NativePdf
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            var m = font.Metrics;
             double baselineY = Height - yTop;
 
-            var hex = new StringBuilder("<");
             for (int i = 0; i < text.Length; i++)
             {
                 int cp = char.ConvertToUtf32(text, i);
                 if (char.IsSurrogatePair(text, i)) i++;
                 font.UsedCodePoints.Add(cp);
-                hex.AppendFormat("{0:X4}", m.GetGlyphId(cp));
             }
-            hex.Append(">");
 
-            _sb.AppendFormat(CultureInfo.InvariantCulture,
-                "BT 0 0 0 rg /{0} {1:0.####} Tf {2:0.####} {3:0.####} Td {4} Tj ET\n",
-                font.Alias, fontSize, x, baselineY, hex);
+            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
+                "BT 0 0 0 rg /{0} {1:0.####} Tf {2:0.####} {3:0.####} Td <",
+                font.Alias, fontSize, x, baselineY);
+
+            string prefix = _currentCommands.ToString();
+            _currentCommands.Clear();
+
+            _chunks.Add((prefix, font, text, "> Tj ET\n"));
         }
 
-        internal string GetContent() => _sb.ToString();
+        internal string GetContent()
+        {
+            var sb = new StringBuilder();
+            for (int c = 0; c < _chunks.Count; c++)
+            {
+                var chunk = _chunks[c];
+                sb.Append(chunk.Prefix);
+
+                if (chunk.Font != null && chunk.Text != null)
+                {
+                    for (int i = 0; i < chunk.Text.Length; i++)
+                    {
+                        int cp = char.ConvertToUtf32(chunk.Text, i);
+                        if (char.IsSurrogatePair(chunk.Text, i)) i++;
+                        sb.AppendFormat("{0:X4}", chunk.Font.GetFinalGlyphId(cp));
+                    }
+                    sb.Append(chunk.Suffix);
+                }
+            }
+
+            if (_currentCommands.Length > 0)
+                sb.Append(_currentCommands);
+
+            return sb.ToString();
+        }
     }
 }

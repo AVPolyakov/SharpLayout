@@ -52,7 +52,9 @@ namespace SharpLayout.NativePdf
             {
                 var m = font.Metrics;
                 var usedChars = font.UsedCodePoints.Select(cp => (cp, m.GetGlyphId(cp)));
-                byte[] subsetTtf = TrueTypeSubsetter.CreateSubset(font.RawBytes, usedChars);
+                var (subsetTtf, oldToNewGid) = TrueTypeSubsetter.CreateSubset(font.RawBytes, usedChars);
+                font.OldToNewGid = oldToNewGid;
+
                 byte[] compressedTtf = CompressZlib(subsetTtf);
                 int ttfStreamId = AddObject(BuildStreamObject(
                     $"{OpenDict} /Length {compressedTtf.Length} /Length1 {subsetTtf.Length} /Filter /FlateDecode {CloseDict}",
@@ -80,17 +82,21 @@ namespace SharpLayout.NativePdf
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));
                 
                 var widths = new StringBuilder($"{OpenArr} ");
-                var sortedGids = new SortedSet<ushort>();
+                var newToOldGids = new SortedDictionary<ushort, ushort>();
                 foreach (int cp in font.UsedCodePoints)
                 {
-                    ushort gid = m.GetGlyphId(cp);
-                    if (gid != 0) sortedGids.Add(gid);
+                    ushort oldGid = m.GetGlyphId(cp);
+                    if (oldGid != 0)
+                    {
+                        ushort newGid = font.GetFinalGlyphId(cp);
+                        newToOldGids[newGid] = oldGid;
+                    }
                 }
 
-                foreach (ushort gid in sortedGids)
+                foreach (var kv in newToOldGids)
                 {
-                    int w = (int)Math.Round((double)m.GetAdvanceWidth(gid) / m.UnitsPerEm * 1000.0);
-                    widths.Append($"{gid} {OpenArr}{w}{CloseArr} ");
+                    int w = (int)Math.Round((double)m.GetAdvanceWidth(kv.Value) / m.UnitsPerEm * 1000.0);
+                    widths.Append($"{kv.Key} {OpenArr}{w}{CloseArr} ");
                 }
                 widths.Append(CloseArr);
 
@@ -182,7 +188,7 @@ namespace SharpLayout.NativePdf
             var mappings = new SortedDictionary<ushort, int>();
             foreach (int cp in font.UsedCodePoints)
             {
-                ushort gid = font.Metrics.GetGlyphId(cp);
+                ushort gid = font.GetFinalGlyphId(cp);
                 if (gid != 0) mappings[gid] = cp;
             }
 
@@ -203,14 +209,12 @@ namespace SharpLayout.NativePdf
                 }
                 sb.Append("endbfchar\n");
             }
-
             sb.Append("endcmap\n");
             sb.Append("CMapName currentdict /CMap defineresource pop\n");
             sb.Append("end\n");
             sb.Append("end\n");
             return Encoding.ASCII.GetBytes(sb.ToString());
         }
-
         private static byte[] BuildStreamObject(string dict, byte[] data)
         {
             var head = Encoding.ASCII.GetBytes(dict + "\nstream\n");
