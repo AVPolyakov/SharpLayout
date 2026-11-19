@@ -47,6 +47,7 @@ namespace SharpLayout.NativePdf
         public short XMax { get; private set; }
         public short YMax { get; private set; }
         public bool IsSymbol { get; private set; }
+        public float ItalicAngle { get; private set; }
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -205,6 +206,13 @@ namespace SharpLayout.NativePdf
                     FontFamily = ParseFontFamily(ms, nameTable.Offset);
                 }
 
+                // 4.5. Таблица post (ItalicAngle по смещению +4 в формате Fixed 16.16)
+                if (tables.TryGetValue("post", out var postTable) && postTable.Length >= 8)
+                {
+                    ms.Position = postTable.Offset + 4;
+                    ItalicAngle = (int)ReadUInt32(ms) / 65536f;
+                }
+                
                 // 5. Таблица maxp
                 ms.Position = tables["maxp"].Offset + 4;
                 ushort numGlyphs = ReadUInt16(ms);

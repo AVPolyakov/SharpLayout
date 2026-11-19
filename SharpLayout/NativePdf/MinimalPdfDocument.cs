@@ -82,10 +82,12 @@ namespace SharpLayout.NativePdf
 
                 int flags = m.IsSymbol ? 4 : 32;
                 
+                string italicAngleStr = m.ItalicAngle.ToString("0.###", CultureInfo.InvariantCulture);
+
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
                     $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags {flags} " +
                     $"/FontBBox {OpenArr}{xMin} {yMin} {xMax} {yMax}{CloseArr} " +
-                    $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 0 " +
+                    $"/ItalicAngle {italicAngleStr} /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 0 " +
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));
                 
                 var widths = new StringBuilder($"{OpenArr} ");
