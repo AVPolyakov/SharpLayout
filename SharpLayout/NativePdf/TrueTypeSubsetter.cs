@@ -8,7 +8,7 @@ namespace SharpLayout.NativePdf
 {
     public static class TrueTypeSubsetter
     {
-        public static byte[] CreateSubset(byte[] ttfBytes, IEnumerable<ushort> usedGlyphIds)
+        public static byte[] CreateSubset(byte[] ttfBytes, IEnumerable<(int CodePoint, ushort GlyphId)> usedCharacters)
         {
             var tables = new Dictionary<string, byte[]>();
             short indexToLocFormat;
@@ -52,8 +52,10 @@ namespace SharpLayout.NativePdf
                     : ReadUInt32BE(locaData, i * 4);
             }
 
+            var charList = usedCharacters.ToList();
+
             // 3. Собираем все нужные глифы (включая компоненты составных глифов вроде 'ё' и 'й')
-            var keepGlyphs = new HashSet<ushort>(usedGlyphIds) { 0 }; // 0 (.notdef) обязателен
+            var keepGlyphs = new HashSet<ushort>(charList.Select(x => x.GlyphId)) { 0 }; // 0 (.notdef) обязателен
             byte[] glyfData = tables["glyf"];
             var queue = new Queue<ushort>(keepGlyphs);
 
@@ -132,8 +134,11 @@ namespace SharpLayout.NativePdf
             newHead[51] = 1;
             tables["head"] = newHead;
 
-            // Удаляем лишние таблицы, не нужные для рендеринга в PDF (hinting, GSUB, GPOS, DSIG и т.д.)
-            string[] requiredTags = { "head", "hhea", "maxp", "OS/2", "hmtx", "cmap", "loca", "glyf", "cvt ", "fpgm", "prep" };
+            // Заменяем огромную исходную cmap на валидную минимальную cmap (format 4) только для использованных символов
+            tables["cmap"] = BuildMinimalCmap4(charList);
+
+            // Удаляем лишние таблицы, не нужные для рендеринга в PDF (GSUB, GPOS, DSIG и т.д.)
+            string[] requiredTags = { "head", "hhea", "maxp", "OS/2", "hmtx", "cmap", "loca", "glyf", "cvt ", "fpgm", "prep", "gasp" };
             var finalTables = tables
                 .Where(kv => requiredTags.Contains(kv.Key))
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
@@ -141,6 +146,77 @@ namespace SharpLayout.NativePdf
 
             // 5. Собираем итоговый бинарный TTF-файл
             return BuildTtfBinary(finalTables);
+        }
+
+        private static byte[] BuildMinimalCmap4(IEnumerable<(int CodePoint, ushort GlyphId)> mappings)
+        {
+            var sorted = mappings
+                .Where(x => x.CodePoint > 0 && 0xFFFF > x.CodePoint && x.GlyphId != 0)
+                .GroupBy(x => x.CodePoint)
+                .Select(g => (Code: (ushort)g.Key, Gid: g.First().GlyphId))
+                .OrderBy(x => x.Code)
+                .ToList();
+
+            var segments = new List<(ushort Start, ushort End, short Delta)>();
+            int idx = 0;
+            while (sorted.Count > idx)
+            {
+                ushort start = sorted[idx].Code;
+                ushort end = start;
+                short delta = (short)(sorted[idx].Gid - start);
+                idx++;
+
+                while (sorted.Count > idx &&
+                       sorted[idx].Code == end + 1 &&
+                       (short)(sorted[idx].Gid - sorted[idx].Code) == delta)
+                {
+                    end = sorted[idx].Code;
+                    idx++;
+                }
+
+                segments.Add((start, end, delta));
+            }
+
+            segments.Add((0xFFFF, 0xFFFF, 1));
+
+            ushort segCount = (ushort)segments.Count;
+            ushort segCountX2 = (ushort)(segCount * 2);
+
+            ushort entrySelector = 0;
+            ushort searchRange = 2;
+            while (segCountX2 >= searchRange * 2)
+            {
+                searchRange *= 2;
+                entrySelector++;
+            }
+            ushort rangeShift = (ushort)(segCountX2 - searchRange);
+            ushort subtableLength = (ushort)(16 + segCount * 8);
+
+            using (var ms = new MemoryStream())
+            {
+                WriteUInt16(ms, 0);
+                WriteUInt16(ms, 1);
+
+                WriteUInt16(ms, 3);
+                WriteUInt16(ms, 1);
+                WriteUInt32(ms, 12);
+
+                WriteUInt16(ms, 4);
+                WriteUInt16(ms, subtableLength);
+                WriteUInt16(ms, 0);
+                WriteUInt16(ms, segCountX2);
+                WriteUInt16(ms, searchRange);
+                WriteUInt16(ms, entrySelector);
+                WriteUInt16(ms, rangeShift);
+
+                foreach (var seg in segments) WriteUInt16(ms, seg.End);
+                WriteUInt16(ms, 0);
+                foreach (var seg in segments) WriteUInt16(ms, seg.Start);
+                foreach (var seg in segments) WriteUInt16(ms, (ushort)seg.Delta);
+                for (int i = 0; segCount > i; i++) WriteUInt16(ms, 0);
+
+                return ms.ToArray();
+            }
         }
 
         private static byte[] BuildTtfBinary(List<KeyValuePair<string, byte[]>> tables)
@@ -172,21 +248,17 @@ namespace SharpLayout.NativePdf
                     WriteUInt32(ms, 0); // checksum (PDF-ридеры не требуют)
                     WriteUInt32(ms, currentOffset);
                     WriteUInt32(ms, (uint)kv.Value.Length);
-
                     uint paddedLen = (uint)((kv.Value.Length + 3) & ~3);
                     currentOffset += paddedLen;
                 }
-
                 foreach (var kv in tables)
                 {
                     ms.Write(kv.Value, 0, kv.Value.Length);
                     while ((ms.Position & 3) != 0) ms.WriteByte(0);
                 }
-
                 return ms.ToArray();
             }
         }
-
         private static byte[] ReadBytes(Stream s, int count)
         {
             byte[] buf = new byte[count];
@@ -199,12 +271,10 @@ namespace SharpLayout.NativePdf
             }
             return buf;
         }
-
         private static ushort ReadUInt16(Stream s) => (ushort)((s.ReadByte() << 8) | s.ReadByte());
         private static uint ReadUInt32(Stream s) => ((uint)s.ReadByte() << 24) | ((uint)s.ReadByte() << 16) | ((uint)s.ReadByte() << 8) | (uint)s.ReadByte();
         private static void WriteUInt16(Stream s, ushort v) { s.WriteByte((byte)(v >> 8)); s.WriteByte((byte)v); }
         private static void WriteUInt32(Stream s, uint v) { s.WriteByte((byte)(v >> 24)); s.WriteByte((byte)(v >> 16)); s.WriteByte((byte)(v >> 8)); s.WriteByte((byte)v); }
-
         private static ushort ReadUInt16BE(byte[] b, int o) => (ushort)((b[o] << 8) | b[o + 1]);
         private static short ReadInt16BE(byte[] b, int o) => (short)ReadUInt16BE(b, o);
         private static uint ReadUInt32BE(byte[] b, int o) => ((uint)b[o] << 24) | ((uint)b[o + 1] << 16) | ((uint)b[o + 2] << 8) | b[o + 3];

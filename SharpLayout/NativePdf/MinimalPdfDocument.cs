@@ -51,8 +51,8 @@ namespace SharpLayout.NativePdf
             foreach (var font in _fonts.Values)
             {
                 var m = font.Metrics;
-                var usedGids = font.UsedCodePoints.Select(cp => m.GetGlyphId(cp));
-                byte[] subsetTtf = TrueTypeSubsetter.CreateSubset(font.RawBytes, usedGids);
+                var usedChars = font.UsedCodePoints.Select(cp => (cp, m.GetGlyphId(cp)));
+                byte[] subsetTtf = TrueTypeSubsetter.CreateSubset(font.RawBytes, usedChars);
                 byte[] compressedTtf = CompressZlib(subsetTtf);
                 int ttfStreamId = AddObject(BuildStreamObject(
                     $"{OpenDict} /Length {compressedTtf.Length} /Length1 {subsetTtf.Length} /Filter /FlateDecode {CloseDict}",
