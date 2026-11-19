@@ -277,9 +277,91 @@ namespace SharpLayout.NativePdf
         }
 
         private void AppendNum(double val)
-            => _cmd.Append(val.ToString("0.####", CultureInfo.InvariantCulture));
+        {
+            // Быстрый без-аллокационный путь для стандартных координат PDF с точностью до 4 знаков (0.####)
+            if (val >= -200000.0 && val <= 200000.0)
+            {
+                long scaled = (long)Math.Round(val * 10000.0, MidpointRounding.AwayFromZero);
+                if (scaled == 0)
+                {
+                    _cmd.Append('0');
+                    return;
+                }
+
+                if (scaled < 0)
+                {
+                    _cmd.Append('-');
+                    scaled = -scaled;
+                }
+
+                long intPart = scaled / 10000;
+                int fracPart = (int)(scaled % 10000);
+
+                _cmd.Append(intPart);
+
+                if (fracPart > 0)
+                {
+                    _cmd.Append('.');
+                    int d1 = fracPart / 1000;
+                    int d2 = (fracPart / 100) % 10;
+                    int d3 = (fracPart / 10) % 10;
+                    int d4 = fracPart % 10;
+
+                    _cmd.Append((char)('0' + d1));
+                    if (d2 != 0 || d3 != 0 || d4 != 0)
+                    {
+                        _cmd.Append((char)('0' + d2));
+                        if (d3 != 0 || d4 != 0)
+                        {
+                            _cmd.Append((char)('0' + d3));
+                            if (d4 != 0)
+                            {
+                                _cmd.Append((char)('0' + d4));
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+
+            _cmd.Append(val.ToString("0.####", CultureInfo.InvariantCulture));
+        }
 
         private void AppendColorComponent(byte c)
-            => _cmd.Append((c / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
+        {
+            if (c == 0)
+            {
+                _cmd.Append('0');
+                return;
+            }
+            if (c == 255)
+            {
+                _cmd.Append('1');
+                return;
+            }
+
+            // Точность 0.### (как (c / 255.0).ToString("0.###")) без создания строк
+            int scaled = (int)Math.Round(c * 1000.0 / 255.0, MidpointRounding.AwayFromZero);
+            if (scaled >= 1000)
+            {
+                _cmd.Append('1');
+                return;
+            }
+
+            _cmd.Append("0.");
+            int d1 = scaled / 100;
+            int d2 = (scaled / 10) % 10;
+            int d3 = scaled % 10;
+
+            _cmd.Append((char)('0' + d1));
+            if (d2 != 0 || d3 != 0)
+            {
+                _cmd.Append((char)('0' + d2));
+                if (d3 != 0)
+                {
+                    _cmd.Append((char)('0' + d3));
+                }
+            }
+        }
     }
 }
