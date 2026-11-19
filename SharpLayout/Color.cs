@@ -14,4 +14,10 @@ public readonly struct Color
         B = b;
         A = a;
     }
+    
+    public bool Equals(Color other) => R == other.R && G == other.G && B == other.B && A == other.A;
+    public override bool Equals(object obj) => obj is Color other && Equals(other);
+    public override int GetHashCode() => (A << 24) | (R << 16) | (G << 8) | B;
+    public static bool operator ==(Color left, Color right) => left.Equals(right);
+    public static bool operator !=(Color left, Color right) => !left.Equals(right);
 }

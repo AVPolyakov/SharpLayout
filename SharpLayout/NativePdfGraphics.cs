@@ -18,10 +18,12 @@ public class NativePdfGraphics : IGraphics
 
     public void DrawImage(Func<Stream> imageContent, double x, double y)
     {
+        throw new NotImplementedException();
     }
 
     public void DrawImage(Func<Stream> imageContent, double x, double y, Func<double, double> width, Func<double, double> height)
     {
+        throw new NotImplementedException();
     }
 
     public void DrawString(string s, Font font, XBrush brush, double x, double y)
@@ -41,15 +43,27 @@ public class NativePdfGraphics : IGraphics
 
     public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
     {
+        _page.DrawLine(ToColor(pen.Color), pen.Width, x1, y1, x2, y2);   
     }
 
     public void DrawRectangle(XBrush brush, double x, double y, double width, double height)
     {
+        throw new NotImplementedException();
     }
     
     public void DrawLines(XPen pen, XPoint[] points)
     {
+        var rawPoints = new (double X, double Y)[points.Length];
+        for (int i = 0; i < points.Length; i++)
+        {
+            rawPoints[i] = (points[i].X, points[i].Y);
+        }
+
+        _page.DrawLines(ToColor(pen.Color), pen.Width, rawPoints);     
     }
+    
+    private static Color ToColor(XColor xColor)
+        => new (xColor.R, xColor.G, xColor.B, (byte)(xColor.A * 255));
     
     public XSize MeasureString(string text, Font font, XStringFormat stringFormat)
     {

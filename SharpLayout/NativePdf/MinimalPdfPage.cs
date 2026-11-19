@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -13,15 +14,81 @@ namespace SharpLayout.NativePdf
             new List<(string, MinimalPdfFont, string, string)>();
         private readonly StringBuilder _currentCommands = new StringBuilder();
 
+        // Состояние для батчинга линий одного стиля
+        private bool _hasOpenPath;
+        private double _currentStrokeWidth = -1;
+        private Color _currentStrokeColor;
+
         public MinimalPdfPage(double width, double height)
         {
             Width = width;
             Height = height;
         }
 
+        private void FlushStrokePath()
+        {
+            if (_hasOpenPath)
+            {
+                _currentCommands.Append("S\n");
+                _hasOpenPath = false;
+            }
+        }
+
+        private void EnsureStrokeStyle(Color color, double lineWidth)
+        {
+            bool styleChanged = !_hasOpenPath
+                || Math.Abs(_currentStrokeWidth - lineWidth) > 0.0001
+                || _currentStrokeColor != color;
+
+            if (styleChanged)
+            {
+                FlushStrokePath();
+                _currentStrokeWidth = lineWidth;
+                _currentStrokeColor = color;
+
+                _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
+                    "{0:0.####} w {1:0.###} {2:0.###} {3:0.###} RG\n",
+                    lineWidth, color.R / 255.0, color.G / 255.0, color.B / 255.0);
+
+                _hasOpenPath = true;
+            }
+        }
+
+        public void DrawLine(Color color, double lineWidth, double x1, double y1, double x2, double y2)
+        {
+            if (color.A == 0 || lineWidth <= 0)
+                return;
+
+            EnsureStrokeStyle(color, lineWidth);
+            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
+                "{0:0.####} {1:0.####} m {2:0.####} {3:0.####} l\n",
+                x1, Height - y1, x2, Height - y2);
+        }
+
+        public void DrawLines(Color color, double lineWidth, (double X, double Y)[] points)
+        {
+            if (points == null || points.Length < 2 || color.A == 0 || lineWidth <= 0)
+                return;
+
+            EnsureStrokeStyle(color, lineWidth);
+            _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
+                "{0:0.####} {1:0.####} m\n",
+                points[0].X, Height - points[0].Y);
+
+            for (int i = 1; i < points.Length; i++)
+            {
+                _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
+                    "{0:0.####} {1:0.####} l\n",
+                    points[i].X, Height - points[i].Y);
+            }
+        }
+
         public void DrawString(string text, MinimalPdfFont font, double fontSize, Color color, double x, double y)
         {
-            if (string.IsNullOrEmpty(text)) return;
+            if (string.IsNullOrEmpty(text) || color.A == 0)
+                return;
+
+            FlushStrokePath();
 
             double baselineY = Height - y;
 
@@ -45,6 +112,8 @@ namespace SharpLayout.NativePdf
 
         internal string GetContent()
         {
+            FlushStrokePath();
+
             var sb = new StringBuilder();
             for (int c = 0; c < _chunks.Count; c++)
             {
