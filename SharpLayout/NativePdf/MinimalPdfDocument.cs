@@ -130,7 +130,7 @@ namespace SharpLayout.NativePdf
             foreach (var page in _pages)
             {
                 byte[] rawContent = Encoding.ASCII.GetBytes(page.GetContent());
-                byte[] compressedContent = CompressZlib(rawContent);
+                byte[] compressedContent = CompressZlib(rawContent, CompressionLevel.Fastest);
                 int contentId = AddObject(BuildStreamObject(
                     $"{OpenDict} /Length {compressedContent.Length} /Filter /FlateDecode {CloseDict}", compressedContent));
 
@@ -245,24 +245,81 @@ namespace SharpLayout.NativePdf
             Buffer.BlockCopy(tail, 0, res, head.Length + data.Length, tail.Length);
             return res;
         }
-        private static byte[] CompressZlib(byte[] data)
+        
+        private static byte[] CompressZlib(byte[] data, CompressionLevel level = CompressionLevel.Optimal)
         {
-            using (var outMs = new MemoryStream())
+            using (var outMs = new MemoryStream(data.Length / 2 + 16))
             {
+                // Zlib header: 0x78 0x01 для Fastest, 0x78 0x9C для Optimal
                 outMs.WriteByte(0x78);
-                outMs.WriteByte(0x9C);
-                using (var ds = new DeflateStream(outMs, CompressionLevel.Optimal, true))
+                outMs.WriteByte(level == CompressionLevel.Fastest ? (byte)0x01 : (byte)0x9C);
+
+                using (var ds = new DeflateStream(outMs, level, true))
+                {
                     ds.Write(data, 0, data.Length);
-                uint a = 1, b = 0;
-                foreach (byte d in data) { a = (a + d) % 65521; b = (b + a) % 65521; }
-                uint adler = (b << 16) | a;
+                }
+
+                uint adler = ComputeAdler32(data);
                 outMs.WriteByte((byte)(adler >> 24));
                 outMs.WriteByte((byte)(adler >> 16));
                 outMs.WriteByte((byte)(adler >> 8));
                 outMs.WriteByte((byte)adler);
+
                 return outMs.ToArray();
             }
         }
+
+        private static uint ComputeAdler32(byte[] data)
+        {
+            const uint MOD_ADLER = 65521;
+            const int NMAX = 5552;
+
+            uint a = 1;
+            uint b = 0;
+            int index = 0;
+            int length = data.Length;
+
+            while (length > 0)
+            {
+                int k = length < NMAX ? length : NMAX;
+                length -= k;
+
+                while (k >= 16)
+                {
+                    a += data[index]; b += a;
+                    a += data[index + 1]; b += a;
+                    a += data[index + 2]; b += a;
+                    a += data[index + 3]; b += a;
+                    a += data[index + 4]; b += a;
+                    a += data[index + 5]; b += a;
+                    a += data[index + 6]; b += a;
+                    a += data[index + 7]; b += a;
+                    a += data[index + 8]; b += a;
+                    a += data[index + 9]; b += a;
+                    a += data[index + 10]; b += a;
+                    a += data[index + 11]; b += a;
+                    a += data[index + 12]; b += a;
+                    a += data[index + 13]; b += a;
+                    a += data[index + 14]; b += a;
+                    a += data[index + 15]; b += a;
+                    index += 16;
+                    k -= 16;
+                }
+
+                while (k > 0)
+                {
+                    a += data[index++];
+                    b += a;
+                    k--;
+                }
+
+                a %= MOD_ADLER;
+                b %= MOD_ADLER;
+            }
+
+            return (b << 16) | a;
+        }
+        
         private static void WriteAscii(Stream s, string text)
         {
             var b = Encoding.ASCII.GetBytes(text);
