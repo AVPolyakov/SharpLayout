@@ -69,10 +69,10 @@ namespace SharpLayout.NativePdf
                 
                 int rawAscent = m.WinAscent > 0 ? m.WinAscent : m.Ascender;
                 int rawDescent = m.WinDescent > 0 ? m.WinDescent : Math.Abs((int)m.Descender);
-                int ascent = (int)Math.Round((double)rawAscent / m.UnitsPerEm * 1000.0);
-                int descent = (int)Math.Round((double)rawDescent / m.UnitsPerEm * 1000.0);
+                int ascent = (int)Math.Round(rawAscent * 1000.0 / m.UnitsPerEm);
+                int descent = (int)Math.Round(rawDescent * 1000.0 / m.UnitsPerEm);
                 int capHeight = m.CapHeight > 0
-                    ? (int)Math.Round((double)m.CapHeight / m.UnitsPerEm * 1000.0)
+                    ? (int)Math.Round(m.CapHeight * 1000.0 / m.UnitsPerEm)
                     : (int)Math.Round(ascent * 0.75);
 
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
