@@ -42,11 +42,11 @@ namespace SharpLayout.NativePdf
             Height = height;
         }
 
-        public void DrawString(string text, MinimalPdfFont font, double fontSize, double x, double yTop)
+        public void DrawString(string text, MinimalPdfFont font, double fontSize, double x, double y)
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            double baselineY = Height - yTop;
+            double baselineY = Height - y;
 
             for (int i = 0; i < text.Length; i++)
             {

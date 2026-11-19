@@ -31,7 +31,7 @@ public class NativePdfGraphics : IGraphics
             font: _minimalPdfDocument.GetOrRegisterFont(font),
             fontSize: font.Size,
             x: x,
-            yTop: y);
+            y: y);
     }
 
     public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
