@@ -143,9 +143,9 @@ namespace SharpLayout.ImageRendering
             throw new InvalidOperationException("Implemented for XSolidBrush only.");
         }
 
-        private static Color ToGdiColor(XColor color)
+        private static System.Drawing.Color ToGdiColor(XColor color)
         {
-            return Color.FromArgb((int) (color.A * 255), color.R, color.G, color.B);
+            return System.Drawing.Color.FromArgb((int) (color.A * 255), color.R, color.G, color.B);
         }
 
         public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)

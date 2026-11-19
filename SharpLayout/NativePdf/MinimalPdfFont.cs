@@ -42,7 +42,7 @@ namespace SharpLayout.NativePdf
             Height = height;
         }
 
-        public void DrawString(string text, MinimalPdfFont font, double fontSize, double x, double y)
+        public void DrawString(string text, MinimalPdfFont font, double fontSize, Color color, double x, double y)
         {
             if (string.IsNullOrEmpty(text)) return;
 
@@ -56,7 +56,8 @@ namespace SharpLayout.NativePdf
             }
 
             _currentCommands.AppendFormat(CultureInfo.InvariantCulture,
-                "BT 0 0 0 rg /{0} {1:0.####} Tf {2:0.####} {3:0.####} Td <",
+                "BT {0:0.###} {1:0.###} {2:0.###} rg /{3} {4:0.####} Tf {5:0.####} {6:0.####} Td <",
+                color.R / 255.0, color.G / 255.0, color.B / 255.0,
                 font.Alias, fontSize, x, baselineY);
 
             string prefix = _currentCommands.ToString();

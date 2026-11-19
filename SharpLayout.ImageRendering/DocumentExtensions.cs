@@ -94,7 +94,7 @@ namespace SharpLayout.ImageRendering
                 {
                     graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                     if (!section.Template().HasValue)
-                        graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
+                        graphics.FillRectangle(new SolidBrush(System.Drawing.Color.White), 0, 0, horizontalPixelCount, verticalPixelCount);
                     var s = (float) (resolution / 72d);
                     graphics.ScaleTransform(s, s);
                     result = func(new ImageGraphics(graphics));

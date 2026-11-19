@@ -26,10 +26,15 @@ public class NativePdfGraphics : IGraphics
 
     public void DrawString(string s, Font font, XBrush brush, double x, double y)
     {
+        var color = brush is XSolidBrush solid
+            ? new Color(solid.Color.R, solid.Color.G, solid.Color.B)
+            : Colors.Black;
+        
         _page.DrawString(
             text: s, 
             font: _minimalPdfDocument.GetOrRegisterFont(font),
             fontSize: font.Size,
+            color: color,
             x: x,
             y: y);
     }

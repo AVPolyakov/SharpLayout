@@ -25,7 +25,7 @@ namespace MeasureComparisonTest
             var font = doc.GetOrRegisterFont(new Font(TimesNewRoman, 8, XFontStyle.Regular, PdfOptions));
             var page = doc.AddPage();
 
-            page.DrawString("Привет, мир! Платёжное поручение № 104 от 18.11.2026", font, 12, 50, 50);
+            page.DrawString("Привет, мир! Платёжное поручение № 104 от 18.11.2026", font, 12, Colors.Black, 50, 50);
 
             using (var fs = File.Create("only_text.pdf"))
             {
