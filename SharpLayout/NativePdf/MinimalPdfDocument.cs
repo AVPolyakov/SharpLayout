@@ -80,8 +80,10 @@ namespace SharpLayout.NativePdf
                 int xMax = (int)Math.Round(m.XMax * 1000.0 / m.UnitsPerEm);
                 int yMax = (int)Math.Round(m.YMax * 1000.0 / m.UnitsPerEm);                
 
+                int flags = m.IsSymbol ? 4 : 32;
+                
                 int descriptorId = AddObject(Encoding.ASCII.GetBytes(
-                    $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags 4 " +
+                    $"{OpenDict} /Type /FontDescriptor /FontName /{pdfFontName} /Flags {flags} " +
                     $"/FontBBox {OpenArr}{xMin} {yMin} {xMax} {yMax}{CloseArr} " +
                     $"/ItalicAngle 0 /Ascent {ascent} /Descent {descent} /CapHeight {capHeight} /StemV 0 " +
                     $"/FontFile2 {ttfStreamId} 0 R {CloseDict}"));

@@ -45,7 +45,8 @@ namespace SharpLayout.NativePdf
         public short XMin { get; private set; }
         public short YMin { get; private set; }
         public short XMax { get; private set; }
-        public short YMax { get; private set; }        
+        public short YMax { get; private set; }
+        public bool IsSymbol { get; private set; }
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -296,6 +297,8 @@ namespace SharpLayout.NativePdf
                     isSymbolEncoding = true;
                 }
             }
+            
+            IsSymbol = isSymbolEncoding;
 
             if (targetSubtableOffset == 0)
                 throw new InvalidDataException("В шрифте не найдена таблица cmap (Windows Unicode BMP / Symbol).");
@@ -354,7 +357,7 @@ namespace SharpLayout.NativePdf
                 }
             }
         }
-
+        
         private static byte[] ReadBytes(Stream s, int count)
         {
             byte[] buffer = new byte[count];
