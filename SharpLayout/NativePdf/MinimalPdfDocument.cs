@@ -130,7 +130,7 @@ namespace SharpLayout.NativePdf
             foreach (var page in _pages)
             {
                 byte[] rawContent = Encoding.ASCII.GetBytes(page.GetContent());
-                byte[] compressedContent = CompressZlib(rawContent, CompressionLevel.Fastest);
+                byte[] compressedContent = CompressZlib(rawContent);
                 int contentId = AddObject(BuildStreamObject(
                     $"{OpenDict} /Length {compressedContent.Length} /Filter /FlateDecode {CloseDict}", compressedContent));
 
@@ -246,15 +246,14 @@ namespace SharpLayout.NativePdf
             return res;
         }
         
-        private static byte[] CompressZlib(byte[] data, CompressionLevel level = CompressionLevel.Optimal)
+        private static byte[] CompressZlib(byte[] data)
         {
             using (var outMs = new MemoryStream(data.Length / 2 + 16))
             {
-                // Zlib header: 0x78 0x01 для Fastest, 0x78 0x9C для Optimal
                 outMs.WriteByte(0x78);
-                outMs.WriteByte(level == CompressionLevel.Fastest ? (byte)0x01 : (byte)0x9C);
+                outMs.WriteByte(0x9C);
 
-                using (var ds = new DeflateStream(outMs, level, true))
+                using (var ds = new DeflateStream(outMs, CompressionLevel.Optimal, true))
                 {
                     ds.Write(data, 0, data.Length);
                 }
