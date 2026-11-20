@@ -204,7 +204,7 @@ namespace SharpLayout.NativePdf
             sb.Append("/CMapName /Adobe-Identity-UCS def\n");
             sb.Append("/CMapType 2 def\n");
             sb.Append("1 begincodespacerange\n");
-            sb.Append("<0000> \n");
+            sb.Append("<0000> <FFFF>\n");
             sb.Append("endcodespacerange\n");
             var mappings = new SortedDictionary<ushort, int>();
             foreach (int cp in font.UsedCodePoints)
