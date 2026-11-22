@@ -394,7 +394,7 @@ namespace SharpLayout
             double GetWidth() => lineIndex == 0 ? width - paragraph.TextIndent().ToOption().ValueOr(0) : width;
             while (true)
             {
-                var endIndex = GetEndIndex(GetWidth(), charInfos, softLineParts, mode, startIndex, graphics, table);
+                var endIndex = GetEndIndex(GetWidth(), charInfos, softLineParts, mode, startIndex);
                 if (endIndex == charInfos.Length - 1)
                 {
                     result.Add(new LineInfo(startIndex, TrimEnd(charInfos.Length - 1, charInfos, softLineParts, startIndex, mode)));
@@ -420,7 +420,7 @@ namespace SharpLayout
             }
         }
 
-        private static int GetEndIndex(double width, CharInfo[] charInfos, List<ISoftLinePart> softLineParts, TextMode mode, int startIndex, IGraphics graphics, Option<Table> table)
+        private static int GetEndIndex(double width, CharInfo[] charInfos, List<ISoftLinePart> softLineParts, TextMode mode, int startIndex)
         {
             var i = startIndex;
             double currentWidth = 0;
@@ -429,7 +429,7 @@ namespace SharpLayout
                 if (i >= charInfos.Length) return charInfos.Length - 1;
                 var charInfo = charInfos[i];
                 var part = softLineParts[charInfo.PartIndex];
-                currentWidth += part.Text(mode).GetCharWidth(charInfo.CharIndex, part, graphics, table);
+                currentWidth += part.Text(mode).GetCharWidth(charInfo.CharIndex, part);
                 if (currentWidth >= width)
                     if (i == startIndex)
                         return i;
@@ -439,15 +439,9 @@ namespace SharpLayout
             }
         }
 
-        private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part, IGraphics graphics, Option<Table> table)
+        private static double GetCharWidth(this string text, int charIndex, ISoftLinePart part)
         {
-            var key = text[charIndex];
-            var value = part.CharSizeCache.Array[key];
-            if (value != 0.0)
-                return value;
-            var width = graphics.MeasureString(text.Substring(charIndex, 1), part.Span.Font(table), MeasureTrailingSpacesStringFormat).Width;
-            part.CharSizeCache.Array[key] = width;
-            return width;
+            return part.TrueTypeMetrics.MeasureChar(text[charIndex], part.Font.Size);
         }
 
         private static bool ExpressionVisible(this IValue value, Document document) => document.ExpressionVisible && value.IsExpression;

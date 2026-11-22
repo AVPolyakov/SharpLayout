@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using SharpLayout.NativePdf;
 using static SharpLayout.InlineVerticalAlign;
 
 namespace SharpLayout
@@ -16,16 +17,17 @@ namespace SharpLayout
         public ISoftLinePart[] GetSoftLineParts(Span span, Document document, DrawCache drawCache, Option<Table> table, TextMode mode)
         {
             var lines = GetTextOrEmpty(document, mode, table).SplitToLines();
+            var currentFont = span.Font(table);
+            var trueTypeMetrics = FontStorage.GetMetrics(currentFont);
             if (lines.Length == 0)
                 return new ISoftLinePart[] {
-                    new SoftLinePart(span, GetTextOrEmpty(document, mode, table),
-                        drawCache.GetCharSizeCache(span.Font(table)))
+                    new SoftLinePart(span, GetTextOrEmpty(document, mode, table), trueTypeMetrics, currentFont)
                 };
             else
             {
                 var result = new ISoftLinePart[lines.Length];
                 for (var index = 0; index < lines.Length; index++)
-                    result[index] = new SoftLinePart(span, lines[index], drawCache.GetCharSizeCache(span.Font(table)));
+                    result[index] = new SoftLinePart(span, lines[index], trueTypeMetrics, currentFont);
                 return result;
             }
         }
@@ -34,7 +36,8 @@ namespace SharpLayout
         {
             private readonly string stringText;
             public Span Span { get; }
-            public CharSizeCache CharSizeCache { get; }
+            public TrueTypeMetrics TrueTypeMetrics { get; }
+            public Font Font { get; }
 
             public string Text(TextMode mode) => stringText;
 
@@ -43,10 +46,11 @@ namespace SharpLayout
                 return new TextValue(stringText.Substring(startIndex, length));
             }
 
-            public SoftLinePart(Span span, string stringText, CharSizeCache charSizeCache)
+            public SoftLinePart(Span span, string stringText, TrueTypeMetrics trueTypeMetrics, Font font)
             {
                 Span = span;
-                CharSizeCache = charSizeCache;
+                TrueTypeMetrics = trueTypeMetrics;
+                Font = font;
                 this.stringText = stringText;
             }
         }
@@ -260,7 +264,8 @@ namespace SharpLayout
     public interface ISoftLinePart
     {
         Span Span { get; }
-        CharSizeCache CharSizeCache { get; }
+        TrueTypeMetrics TrueTypeMetrics { get; }
+        Font Font { get; }
         string Text(TextMode mode);
         IValue SubText(int startIndex, int length);
     }

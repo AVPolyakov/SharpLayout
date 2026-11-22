@@ -9,26 +9,9 @@ using static System.Math;
 
 namespace SharpLayout
 {
-    public class CharSizeCache
-    {
-        public readonly double[] Array = new double[char.MaxValue + 1];
-    }
-
     public class DrawCache
     {
         public readonly Dictionary<FontKey, double> BaseLines = new Dictionary<FontKey, double>();
-        private readonly Dictionary<FontKey, CharSizeCache> charSizeCaches = 
-            new Dictionary<FontKey, CharSizeCache>();
-
-        public CharSizeCache GetCharSizeCache(Font font)
-        {
-            var key = new FontKey(font.Name, font.Size, font.Style, font.PdfOptions.FontEncoding);
-            if (charSizeCaches.TryGetValue(key, out var value))
-                return value;
-            var charSizeCache = new CharSizeCache();
-            charSizeCaches.Add(key, charSizeCache);
-            return charSizeCache;
-        }
     }
 
     internal class RowCache
