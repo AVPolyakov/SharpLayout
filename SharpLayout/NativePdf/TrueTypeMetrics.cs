@@ -66,14 +66,11 @@ namespace SharpLayout.NativePdf
                 ? (double)(WinAscent + WinDescent) / UnitsPerEm * fontSize
                 : (double)(Ascender - Descender + LineGap) / UnitsPerEm * fontSize;
 
-            if (string.IsNullOrEmpty(text))
-                return new LayoutSize(0, lineHeight);
-
             long totalAdvanceUnits = 0;
             ushort[] fastGlyphs = _fastGlyphIds;
             ushort[] widths = _advanceWidths;
             int widthsLen = widths.Length;
-            ushort fallbackWidth = widthsLen > 0 ? widths[widthsLen - 1] : (ushort)0;
+            ushort fallbackWidth = widths[widthsLen - 1];
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -81,21 +78,9 @@ namespace SharpLayout.NativePdf
                 if (ch < 32)
                     continue;
 
-                ushort gid;
-                if (ch < FastLookupSize)
-                {
-                    gid = fastGlyphs[ch];
-                }
-                else if (char.IsHighSurrogate(ch) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
-                {
-                    int codePoint = char.ConvertToUtf32(ch, text[i + 1]);
-                    i++;
-                    gid = _fallbackGlyphIds.TryGetValue(codePoint, out ushort found) ? found : (ushort)0;
-                }
-                else
-                {
-                    gid = _fallbackGlyphIds.TryGetValue(ch, out ushort found) ? found : (ushort)0;
-                }
+                ushort gid = ch < FastLookupSize
+                    ? fastGlyphs[ch]
+                    : (_fallbackGlyphIds.TryGetValue(ch, out ushort found) ? found : (ushort)0);
 
                 totalAdvanceUnits += gid < widthsLen ? widths[gid] : fallbackWidth;
             }
@@ -109,6 +94,26 @@ namespace SharpLayout.NativePdf
             }
 
             return new LayoutSize(width, lineHeight);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double MeasureChar(char ch, double fontSize)
+        {
+            if (ch < 32)
+                return 0;
+
+            ushort gid = ch < FastLookupSize
+                ? _fastGlyphIds[ch]
+                : (_fallbackGlyphIds.TryGetValue(ch, out ushort found) ? found : (ushort)0);
+
+            ushort[] widths = _advanceWidths;
+            ushort advance = gid < widths.Length ? widths[gid] : widths[widths.Length - 1];
+
+            double width = (double)advance / UnitsPerEm * fontSize;
+            if (_simulateBold)
+                width += fontSize * BoldEmphasis;
+
+            return width;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
