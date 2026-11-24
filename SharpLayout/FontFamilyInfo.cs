@@ -6,11 +6,11 @@ namespace SharpLayout
         public string OriginalName { get; }
         public string Name { get; }
 
-        public FontFamilyInfo(FontSlot slot, string originalName)
+        internal FontFamilyInfo(FontSlot slot, string originalName, string name)
         {
             Slot = slot;
             OriginalName = originalName;
-            Name = originalName;
+            Name = name;
         }
     }
 }
