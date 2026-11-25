@@ -48,6 +48,8 @@ namespace SharpLayout.NativePdf
         public short YMax { get; private set; }
         public bool IsSymbol { get; private set; }
         public float ItalicAngle { get; private set; }
+        public short UnderlinePosition { get; private set; }
+        public short UnderlineThickness { get; private set; }
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -211,11 +213,17 @@ namespace SharpLayout.NativePdf
                     FontFamily = ParseFontFamily(ms, nameTable.Offset);
                 }
 
-                // 4.5. Таблица post (ItalicAngle по смещению +4 в формате Fixed 16.16)
+                // 4.5. Таблица post (ItalicAngle +4, UnderlinePosition +8, UnderlineThickness +10)
                 if (tables.TryGetValue("post", out var postTable) && postTable.Length >= 8)
                 {
                     ms.Position = postTable.Offset + 4;
                     ItalicAngle = (int)ReadUInt32(ms) / 65536f;
+
+                    if (postTable.Length >= 12)
+                    {
+                        UnderlinePosition = ReadInt16(ms);
+                        UnderlineThickness = ReadInt16(ms);
+                    }
                 }
                 
                 // 5. Таблица maxp

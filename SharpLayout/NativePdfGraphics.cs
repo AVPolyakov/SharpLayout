@@ -36,14 +36,27 @@ public class NativePdfGraphics : IGraphics
         var color = brush is XSolidBrush solid
             ? new Color(solid.Color.R, solid.Color.G, solid.Color.B)
             : Colors.Black;
+
+        var minimalPdfFont = _minimalPdfDocument.GetOrRegisterFont(font);
         
         _page.DrawString(
             text: s, 
-            font: _minimalPdfDocument.GetOrRegisterFont(font),
+            font: minimalPdfFont,
             fontSize: font.Size,
             color: color,
             x: x,
             y: y);
+        
+        if (font.Underline && !string.IsNullOrEmpty(s))
+        {
+            var metrics = minimalPdfFont.Metrics;
+            double width = metrics.MeasureString(s, font.Size).Width;
+            double underlinePosition = metrics.UnderlinePosition * font.Size / metrics.UnitsPerEm;
+            double underlineThickness = metrics.UnderlineThickness * font.Size / metrics.UnitsPerEm;
+            double underlineRectY = y - underlinePosition;
+
+            _page.DrawRectangle(color, x, underlineRectY, width, underlineThickness);
+        }        
     }
 
     public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
