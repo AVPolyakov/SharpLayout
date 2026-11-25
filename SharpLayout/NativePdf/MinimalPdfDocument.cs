@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SharpLayout.NativePdf
 {
@@ -43,6 +44,7 @@ namespace SharpLayout.NativePdf
             var objects = new List<byte[]>();
             int AddObject(byte[] data) { objects.Add(data); return objects.Count; }
             int ReserveObject() { objects.Add(null); return objects.Count; }
+            void SetObject(int id, byte[] data) { objects[id - 1] = data; }
 
             int catalogId = ReserveObject();
             int pagesId = ReserveObject();
@@ -129,6 +131,43 @@ namespace SharpLayout.NativePdf
             var imageObjectIds = new Dictionary<MinimalPdfImage, int>();
             foreach (var img in _images.Values)
             {
+                if (img.FormXObject != null)
+                {
+                    var form = img.FormXObject;
+                    var idMap = new Dictionary<int, int>();
+
+                    // Резервируем новые номера объектов в текущем документе для всех ресурсов векторного PDF
+                    foreach (var oldId in form.ReferencedObjects.Keys)
+                        idMap[oldId] = ReserveObject();
+
+                    string RemapRefs(string s) => Regex.Replace(s, @"\b(\d+)\s+0\s+R\b", m =>
+                    {
+                        int old = int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+                        return idMap.TryGetValue(old, out int mapped) ? $"{mapped} 0 R" : m.Value;
+                    });
+
+                    // Записываем перенесённые объекты ресурсов
+                    foreach (var kv in form.ReferencedObjects)
+                    {
+                        string remappedDict = RemapRefs(kv.Value.Dictionary);
+                        if (kv.Value.StreamData != null)
+                            SetObject(idMap[kv.Key], BuildStreamObject(remappedDict, kv.Value.StreamData));
+                        else
+                            SetObject(idMap[kv.Key], Encoding.GetEncoding("ISO-8859-1").GetBytes(remappedDict));
+                    }
+
+                    string remappedResources = RemapRefs(form.ResourcesDictionary);
+                    string formDict = string.Format(CultureInfo.InvariantCulture,
+                        "{0} /Type /XObject /Subtype /Form /FormType 1 /BBox {1}{2:0.####} {3:0.####} {4:0.####} {5:0.####}{6} " +
+                        "/Resources {7} /Length {8} /Filter /FlateDecode {9}",
+                        OpenDict, OpenArr,
+                        form.MinX, form.MinY, form.MinX + form.PointWidth, form.MinY + form.PointHeight,
+                        CloseArr, remappedResources, form.ContentStream.Length, CloseDict);
+
+                    imageObjectIds[img] = AddObject(BuildStreamObject(formDict, form.ContentStream));
+                    continue;
+                }
+                
                 string smaskPart = "";
                 if (img.AlphaMaskCompressedData != null)
                 {
@@ -194,12 +233,10 @@ namespace SharpLayout.NativePdf
 
             string kids = string.Join(" ", pageIds.Select(id => $"{id} 0 R"));
             byte[] pagesBytes = Encoding.ASCII.GetBytes($"{OpenDict} /Type /Pages /Kids {OpenArr}{kids}{CloseArr} /Count {pageIds.Count} {CloseDict}");
-            objects.RemoveAt(pagesId - 1);
-            objects.Insert(pagesId - 1, pagesBytes);
+            SetObject(pagesId, pagesBytes);
 
             byte[] catalogBytes = Encoding.ASCII.GetBytes($"{OpenDict} /Type /Catalog /Pages {pagesId} 0 R {CloseDict}");
-            objects.RemoveAt(catalogId - 1);
-            objects.Insert(catalogId - 1, catalogBytes);
+            SetObject(catalogId, catalogBytes);
 
             using (var ms = new MemoryStream())
             {

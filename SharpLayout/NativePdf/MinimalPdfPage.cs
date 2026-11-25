@@ -378,16 +378,36 @@ namespace SharpLayout.NativePdf
             double bottomY = Height - (y + height);
 
             _cmd.Append("q ");
-            AppendNum(width);
-            _cmd.Append(" 0 0 ");
-            AppendNum(height);
-            _cmd.Append(' ');
-            AppendNum(x);
-            _cmd.Append(' ');
-            AppendNum(bottomY);
+            if (image.FormXObject != null)
+            {
+                var form = image.FormXObject;
+                double sx = width / form.PointWidth;
+                double sy = height / form.PointHeight;
+                double tx = x - form.MinX * sx;
+                double ty = bottomY - form.MinY * sy;
+
+                AppendNum(sx);
+                _cmd.Append(" 0 0 ");
+                AppendNum(sy);
+                _cmd.Append(' ');
+                AppendNum(tx);
+                _cmd.Append(' ');
+                AppendNum(ty);
+            }
+            else
+            {
+                AppendNum(width);
+                _cmd.Append(" 0 0 ");
+                AppendNum(height);
+                _cmd.Append(' ');
+                AppendNum(x);
+                _cmd.Append(' ');
+                AppendNum(bottomY);
+            }
+
             _cmd.Append(" cm /");
             _cmd.Append(image.Alias);
             _cmd.Append(" Do Q\n");
-        }        
+        }
     }
 }

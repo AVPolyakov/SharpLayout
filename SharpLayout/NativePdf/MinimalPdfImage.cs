@@ -17,7 +17,15 @@ namespace SharpLayout.NativePdf
         public bool InvertCmyk { get; }
         public byte[] CompressedData { get; }
         public byte[] AlphaMaskCompressedData { get; }
+        public MinimalPdfFormXObject FormXObject { get; }
 
+        public MinimalPdfImage(MinimalPdfFormXObject formXObject)
+        {
+            FormXObject = formXObject;
+            PointWidth = formXObject.PointWidth;
+            PointHeight = formXObject.PointHeight;
+        }
+        
         public MinimalPdfImage(
             int pixelWidth,
             int pixelHeight,
@@ -49,6 +57,10 @@ namespace SharpLayout.NativePdf
         {
             if (bytes == null || bytes.Length < 8)
                 throw new InvalidDataException("Image data is empty or corrupted.");
+            
+            // PDF magic: %PDF- (25 50 44 46 2D)
+            if (bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46 && bytes[4] == 0x2D)
+                return new MinimalPdfImage(PdfFormXObjectParser.ParseFirstPage(bytes, zlibCompressor));
 
             // JPEG magic: FF D8
             if (bytes[0] == 0xFF && bytes[1] == 0xD8)
