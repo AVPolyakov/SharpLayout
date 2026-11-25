@@ -50,6 +50,8 @@ namespace SharpLayout.NativePdf
         public float ItalicAngle { get; private set; }
         public short UnderlinePosition { get; private set; }
         public short UnderlineThickness { get; private set; }
+        public short StrikeoutPosition { get; private set; }
+        public short StrikeoutSize { get; private set; }
 
         private readonly ushort[] _fastGlyphIds = new ushort[FastLookupSize];
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
@@ -190,6 +192,13 @@ namespace SharpLayout.NativePdf
                 {
                     ms.Position = os2Table.Offset;
                     ushort os2Version = ReadUInt16(ms);
+
+                    if (os2Table.Length >= 30)
+                    {
+                        ms.Position = os2Table.Offset + 26;
+                        StrikeoutSize = ReadInt16(ms);
+                        StrikeoutPosition = ReadInt16(ms);
+                    }
 
                     ms.Position = os2Table.Offset + 62;
                     ushort fsSelection = ReadUInt16(ms);

@@ -38,25 +38,35 @@ public class NativePdfGraphics : IGraphics
             : Colors.Black;
 
         var minimalPdfFont = _minimalPdfDocument.GetOrRegisterFont(font);
-        
+
         _page.DrawString(
-            text: s, 
+            text: s,
             font: minimalPdfFont,
             fontSize: font.Size,
             color: color,
             x: x,
             y: y);
-        
-        if (font.Underline && !string.IsNullOrEmpty(s))
+
+        if ((font.Underline || font.Strikeout) && !string.IsNullOrEmpty(s))
         {
             var metrics = minimalPdfFont.Metrics;
             double width = metrics.MeasureString(s, font.Size).Width;
-            double underlinePosition = metrics.UnderlinePosition * font.Size / metrics.UnitsPerEm;
-            double underlineThickness = metrics.UnderlineThickness * font.Size / metrics.UnitsPerEm;
-            double underlineRectY = y - underlinePosition;
+            double scale = font.Size / metrics.UnitsPerEm;
 
-            _page.DrawRectangle(color, x, underlineRectY, width, underlineThickness);
-        }        
+            if (font.Underline)
+            {
+                double underlinePosition = metrics.UnderlinePosition * scale;
+                double underlineThickness = metrics.UnderlineThickness * scale;
+                _page.DrawRectangle(color, x, y - underlinePosition, width, underlineThickness);
+            }
+
+            if (font.Strikeout)
+            {
+                double strikeoutPosition = metrics.StrikeoutPosition * scale;
+                double strikeoutSize = metrics.StrikeoutSize * scale;
+                _page.DrawRectangle(color, x, y - strikeoutPosition, width, strikeoutSize);
+            }
+        }
     }
 
     public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)

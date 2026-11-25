@@ -35,6 +35,8 @@ namespace SharpLayout
         public double GetHeight() => XFont.GetHeight();
 
         public bool Underline => XFont.Underline;
+        
+        public bool Strikeout => XFont.Strikeout;
 
         public double Size => XFont.Size;
 
