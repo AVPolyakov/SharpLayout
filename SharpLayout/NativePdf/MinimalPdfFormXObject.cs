@@ -132,7 +132,7 @@ namespace SharpLayout.NativePdf
                         if (streamLen > 0 && bytes[streamDataStart + streamLen - 1] == '\r') streamLen--;
 
                         // Если в словаре указана точная числовая /Length, используем её
-                        var lenMatch = Regex.Match(dictPart, @"/Length\s+(\d+)\b");
+                        var lenMatch = Regex.Match(dictPart, @"/Length\s+(\d+)\b(?!\s+\d+\s+R)");
                         if (lenMatch.Success && int.TryParse(lenMatch.Groups[1].Value, out int declaredLen) &&
                             declaredLen >= 0 && streamDataStart + declaredLen <= endStreamIdx)
                         {
