@@ -223,10 +223,14 @@ namespace SharpLayout.NativePdf
                     xObjectPart = $" /XObject {xSb}";
                 }
 
+                string groupPart = (page.UsedImages.Count > 0 || page.AlphaStates.Count > 0)
+                    ? $" /Group {OpenDict} /CS /DeviceRGB /S /Transparency {CloseDict}"
+                    : "";
+
                 int pageId = AddObject(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture,
                     "{0} /Type /Page /Parent {1} 0 R /MediaBox {2}0 0 {3:0.###} {4:0.###}{5} " +
-                    "/Resources {0} /ProcSet {2}/PDF /Text /ImageB /ImageC /ImageI{5}{6}{7} /Font {8} {9} /Contents {10} 0 R {9}",
-                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, extGStatePart, xObjectPart, fontResources, CloseDict, contentId)));
+                    "/Resources {0} /ProcSet {2}/PDF /Text /ImageB /ImageC /ImageI{5}{6}{7} /Font {8} {9}{10} /Contents {11} 0 R {9}",
+                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, extGStatePart, xObjectPart, fontResources, CloseDict, groupPart, contentId)));
 
                 pageIds.Add(pageId);
             }
