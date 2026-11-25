@@ -126,6 +126,31 @@ namespace SharpLayout.NativePdf
             }
             fontResources.Append(CloseDict);
 
+            var imageObjectIds = new Dictionary<MinimalPdfImage, int>();
+            foreach (var img in _images.Values)
+            {
+                string smaskPart = "";
+                if (img.AlphaMaskCompressedData != null)
+                {
+                    int smaskId = AddObject(BuildStreamObject(
+                        $"{OpenDict} /Type /XObject /Subtype /Image /Width {img.PixelWidth} /Height {img.PixelHeight} " +
+                        $"/ColorSpace /DeviceGray /BitsPerComponent 8 /Length {img.AlphaMaskCompressedData.Length} /Filter /FlateDecode {CloseDict}",
+                        img.AlphaMaskCompressedData));
+                    smaskPart = $" /SMask {smaskId} 0 R";
+                }
+
+                string decodePart = img.InvertCmyk ? $" /Decode {OpenArr}1 0 1 0 1 0 1 0{CloseArr}" : "";
+                string filter = img.IsJpeg ? "/DCTDecode" : "/FlateDecode";
+
+                int imgObjId = AddObject(BuildStreamObject(
+                    $"{OpenDict} /Type /XObject /Subtype /Image /Width {img.PixelWidth} /Height {img.PixelHeight} " +
+                    $"/ColorSpace {img.ColorSpace} /BitsPerComponent {img.BitsPerComponent}{decodePart}{smaskPart} " +
+                    $"/Length {img.CompressedData.Length} /Filter {filter} {CloseDict}",
+                    img.CompressedData));
+
+                imageObjectIds[img] = imgObjId;
+            }
+            
             var pageIds = new List<int>();
             foreach (var page in _pages)
             {
@@ -147,10 +172,22 @@ namespace SharpLayout.NativePdf
                     extGStatePart = $" /ExtGState {gsSb}";
                 }
 
+                string xObjectPart = "";
+                if (page.UsedImages.Count > 0)
+                {
+                    var xSb = new StringBuilder($"{OpenDict} ");
+                    foreach (var img in page.UsedImages)
+                    {
+                        xSb.Append($"/{img.Alias} {imageObjectIds[img]} 0 R ");
+                    }
+                    xSb.Append(CloseDict);
+                    xObjectPart = $" /XObject {xSb}";
+                }
+
                 int pageId = AddObject(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture,
                     "{0} /Type /Page /Parent {1} 0 R /MediaBox {2}0 0 {3:0.###} {4:0.###}{5} " +
-                    "/Resources {0} /ProcSet {2}/PDF /Text{5}{6} /Font {7} {8} /Contents {9} 0 R {8}",
-                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, extGStatePart, fontResources, CloseDict, contentId)));
+                    "/Resources {0} /ProcSet {2}/PDF /Text /ImageB /ImageC /ImageI{5}{6}{7} /Font {8} {9} /Contents {10} 0 R {9}",
+                    OpenDict, pagesId, OpenArr, page.Width, page.Height, CloseArr, extGStatePart, xObjectPart, fontResources, CloseDict, contentId)));
 
                 pageIds.Add(pageId);
             }
@@ -323,6 +360,40 @@ namespace SharpLayout.NativePdf
         {
             var b = Encoding.ASCII.GetBytes(text);
             s.Write(b, 0, b.Length);
+        }
+        
+        private readonly Dictionary<(int Length, ulong Hash), MinimalPdfImage> _images =
+            new Dictionary<(int Length, ulong Hash), MinimalPdfImage>();
+
+        public MinimalPdfImage GetOrRegisterImage(Func<Stream> imageContent)
+        {
+            using (var stream = imageContent())
+            using (var ms = new MemoryStream())
+            {
+                stream.CopyTo(ms);
+                byte[] bytes = ms.ToArray();
+
+                ulong hash = ComputeFnv1a(bytes);
+                var key = (bytes.Length, hash);
+                if (_images.TryGetValue(key, out var existing))
+                    return existing;
+
+                var image = PdfImageParser.Parse(bytes, CompressZlib);
+                image.Alias = $"Im{_images.Count + 1}";
+                _images.Add(key, image);
+                return image;
+            }
+        }
+
+        private static ulong ComputeFnv1a(byte[] data)
+        {
+            ulong hash = 14695981039346656037UL;
+            for (int i = 0; i < data.Length; i++)
+            {
+                hash ^= data[i];
+                hash *= 1099511628211UL;
+            }
+            return hash;
         }
     }
 }

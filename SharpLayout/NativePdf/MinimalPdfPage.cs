@@ -363,5 +363,31 @@ namespace SharpLayout.NativePdf
                 }
             }
         }
+        
+        internal HashSet<MinimalPdfImage> UsedImages { get; } = new HashSet<MinimalPdfImage>();
+
+        public void DrawImage(MinimalPdfImage image, double x, double y, double width, double height)
+        {
+            if (image == null || width <= 0 || height <= 0)
+                return;
+
+            EndTextObject();
+            FlushStrokePath();
+            UsedImages.Add(image);
+
+            double bottomY = Height - (y + height);
+
+            _cmd.Append("q ");
+            AppendNum(width);
+            _cmd.Append(" 0 0 ");
+            AppendNum(height);
+            _cmd.Append(' ');
+            AppendNum(x);
+            _cmd.Append(' ');
+            AppendNum(bottomY);
+            _cmd.Append(" cm /");
+            _cmd.Append(image.Alias);
+            _cmd.Append(" Do Q\n");
+        }        
     }
 }

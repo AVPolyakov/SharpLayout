@@ -420,6 +420,10 @@ Other header"));
             var r2 = table.AddRow();
             r2[c1].Add(new Image()
 	            .Content(Image2));
+            
+            var path = $"Temp_{Guid.NewGuid():N}.pdf";
+            StartProcess(document.SavePdf(path));
+            
             Assert(nameof(Image), document.CreatePng().Item1);
         }
 
@@ -447,6 +451,10 @@ Other header"));
             var r4 = table.AddRow();
             r4[c3].Add(new Image().Height(Cm(1)).Width(Cm(3)).Alignment(HorizontalAlign.Right)
                 .Content(ResourceImage1));
+            
+            var path = $"Temp_{Guid.NewGuid():N}.pdf";
+            StartProcess(document.SavePdf(path));
+            
             Assert(nameof(Image_Alignments), document.CreatePng().Item1);
         }
 

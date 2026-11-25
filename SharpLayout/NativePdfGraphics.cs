@@ -18,12 +18,17 @@ public class NativePdfGraphics : IGraphics
 
     public void DrawImage(Func<Stream> imageContent, double x, double y)
     {
-        throw new NotImplementedException();
+        var img = _minimalPdfDocument.GetOrRegisterImage(imageContent);
+        _page.DrawImage(img, x, y, img.PointWidth, img.PointHeight);
     }
 
-    public void DrawImage(Func<Stream> imageContent, double x, double y, Func<double, double> width, Func<double, double> height)
+    public void DrawImage(Func<Stream> imageContent, double x, double y,
+        Func<double, double> width, Func<double, double> height)
     {
-        throw new NotImplementedException();
+        var img = _minimalPdfDocument.GetOrRegisterImage(imageContent);
+        double w = width != null ? width(img.PointWidth) : img.PointWidth;
+        double h = height != null ? height(img.PointHeight) : img.PointHeight;
+        _page.DrawImage(img, x, y, w, h);
     }
 
     public void DrawString(string s, Font font, XBrush brush, double x, double y)
