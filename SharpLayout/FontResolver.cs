@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Reflection;
 using PdfSharp.Fonts;
 using SharpLayout.Fonts;
-using SixLabors.Fonts;
+using SharpLayout.NativePdf;
 
 namespace SharpLayout
 {
@@ -23,16 +23,18 @@ namespace SharpLayout
         
         public static void Install(FontSlot slot, IHandler<Stream> streamHandler)
         {
-            var fontDescription = streamHandler.Handle(FontDescription.LoadDescription);
-                
+            var metrics = streamHandler.Handle(stream =>
+            {
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return new TrueTypeMetrics(ms.ToArray(), simulateBold: false);
+            });
+
             var faceName = Guid.NewGuid().ToString();
             fontFaces.TryAdd(faceName, streamHandler);
-            
-            var isBold = fontDescription.Style.HasFlag(FontStyle.Bold);
-            var isItalic = fontDescription.Style.HasFlag(FontStyle.Italic);
-            var familyName = slot.FamilyInfo(fontDescription.FontFamilyInvariantCulture).Name;
+            var familyName = slot.FamilyInfo(metrics.FontFamily).Name;
             fontResolverInfos.TryAdd(
-                new FontResolutionKey(familyName, isBold, isItalic), 
+                new FontResolutionKey(familyName, metrics.IsBold, metrics.IsItalic),
                 new FontResolverInfo(faceName));
         }
 
