@@ -201,7 +201,7 @@ namespace SharpLayout.NativePdf
             objects.RemoveAt(pagesId - 1);
             objects.Insert(pagesId - 1, pagesBytes);
 
-            byte[] catalogBytes = Encoding.ASCII.GetBytes($"{OpenDict} /Type /Catalog /Pages {pagesId} 0 R {CloseDict}");
+            byte[] catalogBytes = Encoding.ASCII.GetBytes($"{OpenDict} /Type /Catalog /Pages {pagesId} 0 R /ViewerPreferences {OpenDict} /PrintScaling /None {CloseDict} {CloseDict}");
             objects.RemoveAt(catalogId - 1);
             objects.Insert(catalogId - 1, catalogBytes);
             
