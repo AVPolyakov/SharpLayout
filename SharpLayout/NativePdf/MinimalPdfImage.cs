@@ -232,11 +232,17 @@ namespace SharpLayout.NativePdf
                 _ => throw new NotSupportedException($"Unsupported PNG color type: {colorType}")
             };
 
-            if (bitDepth != 8)
-                throw new NotSupportedException($"Only 8-bit PNG images are supported (got {bitDepth}-bit).");
+            if (bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8)
+                throw new NotSupportedException($"Unsupported PNG bit depth: {bitDepth}-bit.");
 
-            int stride = width * channels;
-            byte[] unfiltered = UnfilterPngScanlines(rawScanlines, height, channels, stride);
+            int bpp = Math.Max(1, (channels * bitDepth + 7) / 8);
+            int stride = (width * channels * bitDepth + 7) / 8;
+            byte[] unfiltered = UnfilterPngScanlines(rawScanlines, height, bpp, stride);
+
+            if (bitDepth < 8)
+            {
+                unfiltered = UnpackSubByteSamples(unfiltered, width, height, stride, bitDepth, scaleToByte: colorType == 0);
+            }
 
             bool isGray = colorType == 0 || colorType == 4;
             bool hasAlpha = colorType == 4 || colorType == 6 || (colorType == 3 && transparency != null);
@@ -297,6 +303,29 @@ namespace SharpLayout.NativePdf
                 alphaMaskCompressedData: compressedAlpha);
         }
 
+        private static byte[] UnpackSubByteSamples(byte[] packed, int width, int height, int stride, int bitDepth, bool scaleToByte)
+        {
+            byte[] unpacked = new byte[width * height];
+            int mask = (1 << bitDepth) - 1;
+            int scale = scaleToByte ? 255 / mask : 1;
+            int samplesPerByte = 8 / bitDepth;
+            int dstIdx = 0;
+
+            for (int y = 0; y < height; y++)
+            {
+                int rowStart = y * stride;
+                for (int x = 0; x < width; x++)
+                {
+                    int byteVal = packed[rowStart + (x / samplesPerByte)];
+                    int shift = 8 - bitDepth * ((x % samplesPerByte) + 1);
+                    int sample = (byteVal >> shift) & mask;
+                    unpacked[dstIdx++] = (byte)(sample * scale);
+                }
+            }
+
+            return unpacked;
+        }
+        
         private static byte[] UnfilterPngScanlines(byte[] raw, int height, int bpp, int stride)
         {
             byte[] result = new byte[height * stride];
