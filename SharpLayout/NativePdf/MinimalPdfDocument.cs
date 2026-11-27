@@ -204,6 +204,9 @@ namespace SharpLayout.NativePdf
             byte[] catalogBytes = Encoding.ASCII.GetBytes($"{OpenDict} /Type /Catalog /Pages {pagesId} 0 R {CloseDict}");
             objects.RemoveAt(catalogId - 1);
             objects.Insert(catalogId - 1, catalogBytes);
+            
+            int infoId = AddObject(Encoding.ASCII.GetBytes(
+                $"{OpenDict} /Creator (SharpLayout) /Producer (SharpLayout) {CloseDict}"));
 
             using (var ms = new MemoryStream())
             {
@@ -229,7 +232,7 @@ namespace SharpLayout.NativePdf
                     WriteAscii(ms, $"{offset:D10} 00000 n \n");
                 }
 
-                WriteAscii(ms, $"trailer\n{OpenDict} /Size {objects.Count + 1} /Root {catalogId} 0 R {CloseDict}\nstartxref\n{xrefPos}\n%%EOF");
+                WriteAscii(ms, $"trailer\n{OpenDict} /Size {objects.Count + 1} /Root {catalogId} 0 R /Info {infoId} 0 R {CloseDict}\nstartxref\n{xrefPos}\n%%EOF");
                 ms.Position = 0;
                 ms.CopyTo(output);
             }
