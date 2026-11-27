@@ -40,6 +40,7 @@ namespace SharpLayout.NativePdf
 
         // Состояние текстового блока, заливки и прозрачности
         private bool _inTextObject;
+        private bool _isBoldSimulated;
         private bool _hasFillColor;
         private Color _currentFillColor;
         private byte _currentAlpha = 255;
@@ -83,6 +84,11 @@ namespace SharpLayout.NativePdf
         {
             if (_inTextObject)
             {
+                if (_isBoldSimulated)
+                {
+                    _cmd.Append("0 Tr 0 Tc\n");
+                    _isBoldSimulated = false;
+                }
                 _cmd.Append("ET\n");
                 _inTextObject = false;
             }
@@ -246,6 +252,29 @@ namespace SharpLayout.NativePdf
                 _cmd.Append(" Tf\n");
             }
 
+            bool simulateBold = font.Metrics.SimulateBold;
+            if (simulateBold)
+            {
+                double emphasis = fontSize * TrueTypeMetrics.BoldEmphasis;
+                AppendNum(emphasis);
+                _cmd.Append(" w ");
+                AppendColorComponent(color.R);
+                _cmd.Append(' ');
+                AppendColorComponent(color.G);
+                _cmd.Append(' ');
+                AppendColorComponent(color.B);
+                _cmd.Append(" RG 2 Tr ");
+                AppendNum(emphasis);
+                _cmd.Append(" Tc\n");
+                _isBoldSimulated = true;
+                _currentStrokeWidth = -1;
+            }
+            else if (_isBoldSimulated)
+            {
+                _cmd.Append("0 Tr 0 Tc\n");
+                _isBoldSimulated = false;
+            }
+            
             double dx = x - _textCursorX;
             double dy = baselineY - _textCursorY;
             _textCursorX = x;

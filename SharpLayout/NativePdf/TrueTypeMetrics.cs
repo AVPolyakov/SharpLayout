@@ -21,7 +21,7 @@ namespace SharpLayout.NativePdf
     public class TrueTypeMetrics
     {
         public ParsedTrueTypeFont ParsedTrueTypeFont { get; }
-        private readonly bool _simulateBold;
+        public bool SimulateBold { get; }
         private const int FastLookupSize = 0x0500;
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace SharpLayout.NativePdf
         /// Value of 2% found in original XPS 1.0 documentation.
         /// Source: https://github.com/AVPolyakov/PDFsharp/blob/master/src/PdfSharp/Drawing/FontHelper.cs#L104-L109
         /// </summary>
-        private const double BoldEmphasis = 0.02;
+        internal const double BoldEmphasis = 0.02;
         
         public string FontFamily { get; private set; }
         public bool IsBold { get; private set; }
@@ -60,7 +60,7 @@ namespace SharpLayout.NativePdf
         public TrueTypeMetrics(byte[] ttfBytes, bool simulateBold)
         {
             ParsedTrueTypeFont = ParsedTrueTypeFont.ParseFontStructure(ttfBytes);
-            _simulateBold = simulateBold;
+            SimulateBold = simulateBold;
             ParseFont(ttfBytes);
         }
 
@@ -92,7 +92,7 @@ namespace SharpLayout.NativePdf
             double width = (double)totalAdvanceUnits / UnitsPerEm * fontSize;
 
             // Exact replica of XStyleSimulations.BoldSimulation from PDFsharp (+2% of font size per character)
-            if (_simulateBold)
+            if (SimulateBold)
             {
                 width += text.Length * fontSize * BoldEmphasis;
             }
@@ -114,7 +114,7 @@ namespace SharpLayout.NativePdf
             ushort advance = gid < widths.Length ? widths[gid] : widths[widths.Length - 1];
 
             double width = (double)advance / UnitsPerEm * fontSize;
-            if (_simulateBold)
+            if (SimulateBold)
                 width += fontSize * BoldEmphasis;
 
             return width;
