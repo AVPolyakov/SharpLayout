@@ -26,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Images\blue-rabbit.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Images\Image1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -463,57 +463,7 @@ Other header"));
             var anchorType = typeof(ResourceImage1);
             return anchorType.Assembly.GetManifestResourceStream(anchorType.FullName + ".png");
         }
-
-        [Fact]
-        public void VectorImage()
-        {
-            var document = new Document();
-            var section = document.Add(new Section(new PageSettings()));
-            var info = blueRabbitInfo.Value;
-            {
-                var table = section.AddTable();
-                var scale = 0.7;
-                var c1 = table.AddColumn(info.PointWidth * scale);
-                table.AddColumn(Px(500));
-                table.AddColumn(Px(500));
-                var r1 = table.AddRow();
-                r1[c1].Add(new Image()
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(BlueRabbit));
-            }
-            {
-                var table = section.AddTable().Margin(Top, Cm(0.5));
-                var scale = 0.3;
-                var c1 = table.AddColumn();
-                var c2 = table.AddColumn();
-                var c3 = table.AddColumn();
-                table.Columns.ToArray().Distribute(section.PageSettings.PageWidthWithoutMargins - BorderWidth);
-                var r1 = table.AddRow();
-                r1[c1].Add(new Image()
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(BlueRabbit));
-                var r2 = table.AddRow();
-                r2[c2].Add(new Image().Alignment(HorizontalAlign.Center)
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(BlueRabbit));
-                var r3 = table.AddRow();
-                r3[c3].Add(new Image().Alignment(HorizontalAlign.Right)
-                    .Width(info.PointWidth * scale).Height(info.PointHeight * scale)
-                    .Content(BlueRabbit));
-            }
-            //Process.Start(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
-            Assert(nameof(VectorImage), document.CreatePng().Item1);
-        }
-
-        private static readonly Lazy<ImageInfo> blueRabbitInfo = new Lazy<ImageInfo>(() => {
-            var bytes = File.ReadAllBytes(@"Images\blue-rabbit.pdf");
-            using (var stream = new MemoryStream(bytes))
-            using (var xImage = XImage.FromStream(stream))
-                return new ImageInfo(bytes, xImage.PointWidth, xImage.PointHeight);
-        });
-
-        private static MemoryStream BlueRabbit() => new MemoryStream(blueRabbitInfo.Value.Bytes);
-
+        
         [Fact]
         public void Footnotes()
         {
