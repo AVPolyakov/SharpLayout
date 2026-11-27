@@ -53,7 +53,7 @@ namespace Tests
             }
 
             //StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
-            Assert(nameof(QRCode), document.CreatePng().Item1);
+            Assert(nameof(QRCode), document);
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -84,7 +84,7 @@ namespace Tests
             }
             section.AddPageBreak();
             section.AddPageBreak();
-            Assert(nameof(EmptyFirstPageHeader), document.CreatePng().Item1);
+            Assert(nameof(EmptyFirstPageHeader), document);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ Other footer
                     r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
                 }
             }
-            Assert(nameof(DifferentFooters), document.CreatePng().Item1);
+            Assert(nameof(DifferentFooters), document);
         }
         
         [Fact]
@@ -235,7 +235,7 @@ Other header
                     r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
                 }
             }
-            Assert(nameof(DifferentPageHeaders), document.CreatePng().Item1);
+            Assert(nameof(DifferentPageHeaders), document);
         }
         
         [Fact]
@@ -291,7 +291,7 @@ Other header"));
                     r[c1].Add(new Paragraph().Add($"Table 2, row {i}"));
                 }
             }
-            Assert(nameof(DifferentPageHeaders2), document.CreatePng().Item1);
+            Assert(nameof(DifferentPageHeaders2), document);
         }
 
         [Fact]
@@ -318,7 +318,7 @@ Other header"));
                     .Add(c => $"{c.PageNumber} of {c.PageCount}"));
                 section.AddPageBreak();
             }
-            Assert(nameof(SectionGroup), document.CreatePng().Item1);
+            Assert(nameof(SectionGroup), document);
         }
 
         [Fact]
@@ -339,7 +339,7 @@ Other header"));
                          "inheritance is required by your design should it be used. If you use inheritance where " +
                          "composition will work, your designs will become needlessly complicated.",
                         Styles.TimesNewRoman10));
-            Assert(nameof(KeepLinesTogether), document.CreatePng().Item1);
+            Assert(nameof(KeepLinesTogether), document);
         }
 
         [Fact]
@@ -360,7 +360,7 @@ Other header"));
             section.AddPageBreak();
             section.AddPageBreak();
             section.Add(new Paragraph().Add("Test3", Styles.TimesNewRoman10));
-            Assert(nameof(AddPageBreak), document.CreatePng().Item1);
+            Assert(nameof(AddPageBreak), document);
         }
 
         [Fact]
@@ -420,11 +420,7 @@ Other header"));
             var r2 = table.AddRow();
             r2[c1].Add(new Image()
 	            .Content(Image2));
-            
-            var path = $"Temp_{Guid.NewGuid():N}.pdf";
-            StartProcess(document.SavePdf(path));
-            
-            Assert(nameof(Image), document.CreatePng().Item1);
+            Assert(nameof(Image), document);
         }
 
         private static FileStream Image1() => File.OpenRead(@"Images\Image1.png");
@@ -451,11 +447,7 @@ Other header"));
             var r4 = table.AddRow();
             r4[c3].Add(new Image().Height(Cm(1)).Width(Cm(3)).Alignment(HorizontalAlign.Right)
                 .Content(ResourceImage1));
-            
-            var path = $"Temp_{Guid.NewGuid():N}.pdf";
-            StartProcess(document.SavePdf(path));
-            
-            Assert(nameof(Image_Alignments), document.CreatePng().Item1);
+            Assert(nameof(Image_Alignments), document);
         }
 
         private static Stream ResourceImage1()
@@ -508,7 +500,7 @@ Other header"));
                     table.AddRow()[c1].Add(new Paragraph().Margin(Left | Right, Px(5))
                         .Add("Text"));
             }
-            Assert(nameof(Footnotes), document.CreatePng().Item1);
+            Assert(nameof(Footnotes), document);
         }
 
         [Fact]
@@ -538,7 +530,7 @@ Other header"));
                     .AddFootnote(new Paragraph()
                         .Add(new Span("2", footnoteFont).InlineVerticalAlign(Super))
                         .Add("FootnoteFont2", footnoteFont))));
-            Assert(nameof(Footnotes2), document.CreatePng().Item1);
+            Assert(nameof(Footnotes2), document);
         }
 
         private static Table FootnoteSeparator()
@@ -559,7 +551,7 @@ Other header"));
 		    var c1 = table.AddColumn(Px(200));
 		    var r1 = table.AddRow();
 		    r1[c1].Add(new Paragraph().Add("Test", new Font(TimesNewRoman, 10, XFontStyle.Underline, PdfOptions)));
-		    Assert(nameof(UnderlineText), document.CreatePng().Item1);
+		    Assert(nameof(UnderlineText), document);
 		}
 
 	    [Fact]
@@ -571,7 +563,7 @@ Other header"));
 		    var c1 = table.AddColumn(Px(200));
 		    var r1 = table.AddRow();
 		    r1[c1].Add(new Paragraph().Add("wwxxxxxxxx ", Styles.TimesNewRoman10));
-		    Assert(nameof(AddParagraph_TrailingSpace), document.CreatePng().Item1);
+		    Assert(nameof(AddParagraph_TrailingSpace), document);
 		}
 
 	    [Fact]
@@ -585,7 +577,7 @@ Other header"));
 		    r1[c1].Add(new Paragraph().Add(@"line1
 wwxxxxxxxx 
 line3", Styles.TimesNewRoman10));
-		    Assert(nameof(AddParagraph_TrailingSpace2), document.CreatePng().Item1);
+		    Assert(nameof(AddParagraph_TrailingSpace2), document);
 		}
 
 	    [Fact]
@@ -599,7 +591,7 @@ qwe2
 qwe3
 ", Styles.TimesNewRoman10))
 			    .Add(new Paragraph().Add(@"test", Styles.TimesNewRoman10));
-		    Assert(nameof(AddParagraph_LineBreak), document.CreatePng().Item1);
+		    Assert(nameof(AddParagraph_LineBreak), document);
 		}
 
 	    [Fact]
@@ -609,7 +601,7 @@ qwe3
 		    var section = document.Add(new Section(new PageSettings()));
 		    section.Add(new Paragraph().Add("", Styles.TimesNewRoman10))
 			    .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
-		    Assert(nameof(AddParagraph_EmptyString), document.CreatePng().Item1);
+		    Assert(nameof(AddParagraph_EmptyString), document);
 		}
 
 	    [Fact]
@@ -628,7 +620,7 @@ qwe3
             var section = document.Add(new Section(new PageSettings()));
             var timesNewRoma = new Font(TimesNewRoman, 9, XFontStyle.Underline, PdfOptions);
             section.Add(new Paragraph().Add("    one     ", timesNewRoma).Add("\u200B", timesNewRoma));
-            Assert(nameof(UnderlinedSpace), document.CreatePng().Item1);
+            Assert(nameof(UnderlinedSpace), document);
         }
 
         [Fact]
@@ -648,7 +640,7 @@ qwe3
                 .Add(new Paragraph().Margin(Top, Cm(2)).Add("\u00FE\u00FD\u00A8", wingdings)
                     .Add("\u0054\u0053\u00A3\u0052\u0051", wingdings2)
                     .Add("Одна тысяча", timesNewRoma));
-            Assert(nameof(Checkbox), document.CreatePng().Item1);
+            Assert(nameof(Checkbox), document);
         }
 
         [Fact]
@@ -685,7 +677,7 @@ qwe3
                 r1[c1].Add(new Paragraph()
                     .Add(new Span("1").InlineVerticalAlign(Super)).Add(" Footnote text"));
             }
-            Assert(nameof(Superscript), document.CreatePng().Item1);
+            Assert(nameof(Superscript), document);
         }
 
         [Fact]
@@ -720,7 +712,7 @@ qwe3
                     .Add(new Span(note3, font).InlineVerticalAlign(Super))
                     .Add(" Text of third footnote", font));
             }
-            Assert(nameof(Superscript_LongText), document.CreatePng().Item1);
+            Assert(nameof(Superscript_LongText), document);
         }
 
         [Fact]
@@ -758,7 +750,7 @@ qwe3
                 }
                 section.Add(paragraph);
             }
-            Assert(nameof(ParagraphByPages), document.CreatePng().Item1);            
+            Assert(nameof(ParagraphByPages), document);            
         }
 
 	    [Fact]
@@ -784,7 +776,7 @@ qwe3
 		    var r1 = table.AddRow();
 		    r1.Height(Px(2700+500));
 		    r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
-		    Assert(nameof(RowHeightGreaterThanPageHeight), document.CreatePng().Item1);
+		    Assert(nameof(RowHeightGreaterThanPageHeight), document);
 	    }
 
 	    [Fact]
@@ -821,7 +813,7 @@ qwe3
 		    var r1 = table.AddRow();
 		    r1.Height(Px(2700));
 		    r1[c1].Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
-		    Assert(nameof(KeepWithNext), document.CreatePng().Item1);
+		    Assert(nameof(KeepWithNext), document);
 	    }
 
 	    [Fact]
@@ -892,7 +884,7 @@ Other header", Styles.TimesNewRoman10));
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
                     Styles.TimesNewRoman10));
-            Assert(nameof(KeepWithNext_DifferentPageHeaders), document.CreatePng().Item1);
+            Assert(nameof(KeepWithNext_DifferentPageHeaders), document);
 	    }
         
         [Fact]
@@ -926,7 +918,7 @@ Other header", Styles.TimesNewRoman10));
 			    table.AddRow().Height(Px(50));
 			    table.AddRow().Height(Px(50));
 		    }
-		    Assert(nameof(KeepWith), document.CreatePng().Item1);
+		    Assert(nameof(KeepWith), document);
 	    }
 
         [Fact]
@@ -946,7 +938,7 @@ Other header", Styles.TimesNewRoman10));
                 var r1 = table.AddRow();
                 r1[c1].Add(new Paragraph().Add("Test2", Styles.TimesNewRoman10));
             }
-            Assert(nameof(TableBottomMargin), document.CreatePng().Item1);
+            Assert(nameof(TableBottomMargin), document);
         }
 
         [Fact]
@@ -999,7 +991,7 @@ Other header", Styles.TimesNewRoman10));
                         .Add(new Paragraph().Add($"first {i}", Styles.TimesNewRoman10));
                 }
             }
-            Assert(nameof(PageHeader), document.CreatePng().Item1);
+            Assert(nameof(PageHeader), document);
         }
 
         [Fact]
@@ -1053,7 +1045,7 @@ Other header", Styles.TimesNewRoman10));
                         .Add(new Paragraph().Add($"first {i}", Styles.TimesNewRoman10));
                 }
             }
-            Assert(nameof(PageFooter), document.CreatePng().Item1);
+            Assert(nameof(PageFooter), document);
         }
 
         [Fact]
@@ -1098,7 +1090,7 @@ Other header", Styles.TimesNewRoman10));
                 r[c1]
                     .Add(new Paragraph().Add($"first {i}", Styles.TimesNewRoman10));
             }
-            Assert(nameof(TableHeader), document.CreatePng().Item1);
+            Assert(nameof(TableHeader), document);
         }
 
         [Fact]
@@ -1118,11 +1110,7 @@ Other header", Styles.TimesNewRoman10));
                 .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
             r3[c1].Border(Bottom, new XPen(XColors.Black, BorderWidth * 2) {DashPattern = new[] {5d, 5d}})
                 .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
-            
-            var path = $"Temp_{Guid.NewGuid():N}.pdf";
-            StartProcess(document.SavePdf(path));
-            
-            Assert(nameof(DashBorders), document.CreatePng().Item1);
+            Assert(nameof(DashBorders), document);
         }
 
         [Fact]
@@ -1149,7 +1137,7 @@ Other header", Styles.TimesNewRoman10));
                     "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" class.", Styles.TimesNewRoman10)));
-            Assert(nameof(SpanBackgroundColor), document.CreatePng().Item1);
+            Assert(nameof(SpanBackgroundColor), document);
         }
 
         [Fact]
@@ -1211,7 +1199,7 @@ Other header", Styles.TimesNewRoman10));
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
                     new Font(TimesNewRoman, 12, XFontStyle.Regular, PdfOptions)));
-            Assert(nameof(TextIndent), document.CreatePng().Item1);
+            Assert(nameof(TextIndent), document);
         }
 
         [Fact]
@@ -1249,7 +1237,7 @@ Other header", Styles.TimesNewRoman10));
                     "variables should you change to an ", Styles.TimesNewRoman10).BackgroundColor(XColors.LightGray))
                 .Add(new Span("abstract", TimesNewRoman10Bold))
                 .Add(new Span(" class.", Styles.TimesNewRoman10)));
-            Assert(nameof(HorizontalAlign_Justify), document.CreatePng().Item1);
+            Assert(nameof(HorizontalAlign_Justify), document);
         }
 
         [Fact]
@@ -1282,7 +1270,7 @@ Other header", Styles.TimesNewRoman10));
 			        "inheritance is required by your design should it be used. If you use inheritance where " +
 			        "composition will work, your designs will become needlessly complicated. ",
 			        new Font(TimesNewRoman, 20, XFontStyle.Underline | XFontStyle.Bold, PdfOptions))));
-            Assert(nameof(HorizontalAlign_Justify_Underline), document.CreatePng().Item1);
+            Assert(nameof(HorizontalAlign_Justify_Underline), document);
         }
 
         [Fact]
@@ -1326,7 +1314,7 @@ Other header", Styles.TimesNewRoman10));
                     "inheritance is required by your design should it be used. If you use inheritance where " +
                     "composition will work, your designs will become needlessly complicated. ",
                     Styles.TimesNewRoman10));
-            Assert(nameof(ParagraphLineSpacingFunc), document.CreatePng().Item1);
+            Assert(nameof(ParagraphLineSpacingFunc), document);
         }
 
         [Fact]
@@ -1350,7 +1338,7 @@ Other header", Styles.TimesNewRoman10));
             Table2(section);
             Table1(section);
             Table1(section);
-            Assert(nameof(Test1), document.CreatePng().Item1);
+            Assert(nameof(Test1), document);
         }
 
         [Fact]
@@ -1382,7 +1370,7 @@ Other header", Styles.TimesNewRoman10));
             Table4(section);
             Table2(section);
             Table1(section);
-            Assert(nameof(Test3), document.CreatePng().Item1);
+            Assert(nameof(Test3), document);
         }
 
         [Fact]
@@ -1393,7 +1381,7 @@ Other header", Styles.TimesNewRoman10));
                 IncomingDate = new DateTime(2018, 1, 23),
                 OutcomingDate = new DateTime(2018, 1, 23),
             });
-            Assert(nameof(PaymentOrderTest), document.CreatePng().Item1);
+            Assert(nameof(PaymentOrderTest), document);
         }
 
         [Fact]
@@ -1401,7 +1389,7 @@ Other header", Styles.TimesNewRoman10));
         {
             var document = new Document();
             Svo.AddSection(document,new SvoData());
-            Assert(nameof(SvoTest), document.CreatePng().Item1);
+            Assert(nameof(SvoTest), document);
         }
 
         [Fact]
@@ -1409,7 +1397,7 @@ Other header", Styles.TimesNewRoman10));
         {
             var document = new Document();
             ContractDealPassport.AddSection(document, new ContractDealPassportData());
-            Assert(nameof(ContractDealPassportTest), document.CreatePng().Item1);
+            Assert(nameof(ContractDealPassportTest), document);
         }
 
         [Fact]
@@ -1417,7 +1405,7 @@ Other header", Styles.TimesNewRoman10));
         {
             var document = new Document();
             LoanAgreementDealPassport.AddSection(document, new LoanAgreementDealPassportData());
-            Assert(nameof(LoanAgreementDealPassportTest), document.CreatePng().Item1);
+            Assert(nameof(LoanAgreementDealPassportTest), document);
         }
 
         [Fact]
@@ -1443,7 +1431,7 @@ Other header", Styles.TimesNewRoman10));
                 .Add(TimesNewRoman10("1"));
             r3[c2].Border(Top, BorderWidth)
                 .Add(TimesNewRoman10("2"));
-            Assert(nameof(BackgroundColor), document.CreatePng().Item1);
+            Assert(nameof(BackgroundColor), document);
         }
 
         [Fact]
@@ -1457,7 +1445,7 @@ Other header", Styles.TimesNewRoman10));
             var r2 = table.AddRow().Height(Cm(1));
             r1[c1].Border(Bottom, Cm(0.1));
             r2[c1].Border(Left, Cm(0.1));
-            Assert(nameof(Intersection_of_border_lines_in_left_column), document.CreatePng().Item1);
+            Assert(nameof(Intersection_of_border_lines_in_left_column), document);
         }
 
         [Fact]
@@ -2230,8 +2218,12 @@ aaaaaaaaa ")
 
         public static Paragraph TimesNewRoman60Bold(string text) => new Paragraph().Add(text, Styles.TimesNewRoman60Bold);
 
-        private static void Assert(string folderName, List<byte[]> pages)
+        private static void Assert(string folderName, Document document)
         {
+            var pages = document.CreatePng().Item1;
+
+            StartProcess(document.SavePdf($"Temp_{Guid.NewGuid():N}.pdf"));
+            
             for (var index = 0; index < pages.Count; index++)
             {
                 var path = GetPageFileName(folderName, index);
