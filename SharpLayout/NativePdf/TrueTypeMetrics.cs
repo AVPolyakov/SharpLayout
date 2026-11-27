@@ -20,7 +20,7 @@ namespace SharpLayout.NativePdf
 
     public class TrueTypeMetrics
     {
-        public byte[] TtfBytes { get; }
+        public ParsedTrueTypeFont ParsedTrueTypeFont { get; }
         private readonly bool _simulateBold;
         private const int FastLookupSize = 0x0500;
 
@@ -57,9 +57,9 @@ namespace SharpLayout.NativePdf
         private readonly Dictionary<int, ushort> _fallbackGlyphIds = new Dictionary<int, ushort>();
         private ushort[] _advanceWidths;
 
-        public TrueTypeMetrics(byte[] ttfBytes, bool simulateBold = false)
+        public TrueTypeMetrics(byte[] ttfBytes, bool simulateBold)
         {
-            TtfBytes = ttfBytes;
+            ParsedTrueTypeFont = ParsedTrueTypeFont.ParseFontStructure(ttfBytes);
             _simulateBold = simulateBold;
             ParseFont(ttfBytes);
         }

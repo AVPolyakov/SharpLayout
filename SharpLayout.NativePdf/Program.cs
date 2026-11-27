@@ -44,7 +44,7 @@ namespace MeasureComparisonTest
             double fontSize = 10.0;
 
             // 1. Замер через наш новый класс TrueTypeMetrics
-            var metrics = new TrueTypeMetrics(ttfBytes);
+            var metrics = new TrueTypeMetrics(ttfBytes, false);
             LayoutSize nativeSize = metrics.MeasureString(sample, fontSize);
 
             // 2. Замер через ваш текущий форк PDFsharp

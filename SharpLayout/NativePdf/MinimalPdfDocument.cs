@@ -26,7 +26,7 @@ namespace SharpLayout.NativePdf
                 return value;
 
             var trueTypeMetrics = FontStorage.GetMetrics(font);
-            var minimalPdfFont = new MinimalPdfFont(trueTypeMetrics.TtfBytes) { Alias = $"F{_fonts.Count + 1}" };
+            var minimalPdfFont = new MinimalPdfFont(trueTypeMetrics) { Alias = $"F{_fonts.Count + 1}" };
             _fonts.Add(key, minimalPdfFont);
             return minimalPdfFont;
         }
@@ -52,7 +52,7 @@ namespace SharpLayout.NativePdf
             {
                 var m = font.Metrics;
                 var usedChars = font.UsedCodePoints.Select(cp => (cp, m.GetGlyphId(cp)));
-                var (subsetTtf, oldToNewGid) = TrueTypeSubsetter.CreateSubset(font.RawBytes, usedChars);
+                var (subsetTtf, oldToNewGid) = TrueTypeSubsetter.CreateSubset(font.Metrics.ParsedTrueTypeFont, usedChars);
                 font.OldToNewGid = oldToNewGid;
 
                 byte[] compressedTtf = CompressZlib(subsetTtf);

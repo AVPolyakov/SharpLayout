@@ -4,16 +4,14 @@ namespace SharpLayout.NativePdf;
 
 public class MinimalPdfFont
 {
-    public byte[] RawBytes { get; }
     public TrueTypeMetrics Metrics { get; }
     internal string Alias { get; set; }
     internal HashSet<int> UsedCodePoints { get; } = new HashSet<int>();
     internal Dictionary<ushort, ushort> OldToNewGid { get; set; }
 
-    public MinimalPdfFont(byte[] ttfBytes)
+    public MinimalPdfFont(TrueTypeMetrics metrics)
     {
-        RawBytes = ttfBytes;
-        Metrics = new TrueTypeMetrics(ttfBytes);
+        Metrics = metrics;
     }
 
     internal ushort GetFinalGlyphId(int codePoint)

@@ -8,57 +8,78 @@ namespace SharpLayout.NativePdf
 {
     public static class TrueTypeSubsetter
     {
+        internal static readonly string[] StaticTableTags = { "OS/2", "cvt ", "fpgm", "prep" };
+
         public static (byte[] SubsetTtf, Dictionary<ushort, ushort> OldToNewGid) CreateSubset(
-            byte[] ttfBytes,
+            ParsedTrueTypeFont font,
             IEnumerable<(int CodePoint, ushort GlyphId)> usedCharacters)
         {
-            var tables = new Dictionary<string, byte[]>();
-            short indexToLocFormat;
-            ushort numGlyphs;
-
-            // 1. Разбираем исходный TTF на отдельные таблицы
-            using (var ms = new MemoryStream(ttfBytes))
-            {
-                ReadUInt32(ms); // sfntVersion
-                ushort numTables = ReadUInt16(ms);
-                ms.Position += 6;
-
-                var entries = new List<(string Tag, uint Offset, uint Length)>();
-                for (int i = 0; numTables > i; i++)
-                {
-                    string tag = Encoding.ASCII.GetString(ReadBytes(ms, 4));
-                    ReadUInt32(ms); // checksum
-                    uint offset = ReadUInt32(ms);
-                    uint length = ReadUInt32(ms);
-                    entries.Add((tag, offset, length));
-                }
-
-                foreach (var entry in entries)
-                {
-                    ms.Position = entry.Offset;
-                    tables[entry.Tag] = ReadBytes(ms, (int)entry.Length);
-                }
-            }
-
-            indexToLocFormat = ReadInt16BE(tables["head"], 50);
-            numGlyphs = ReadUInt16BE(tables["maxp"], 4);
-
-            // 2. Читаем старые смещения глифов из loca
-            uint[] oldOffsets = new uint[numGlyphs + 1];
-            byte[] locaData = tables["loca"];
-            for (int i = 0; numGlyphs >= i; i++)
-            {
-                oldOffsets[i] = indexToLocFormat == 0
-                    ? (uint)(ReadUInt16BE(locaData, i * 2) * 2)
-                    : ReadUInt32BE(locaData, i * 4);
-            }
-
             var charList = usedCharacters.ToList();
 
-            // 3. Собираем все нужные глифы (включая компоненты составных глифов вроде 'ё' и 'й')
+            // 1. Собираем все нужные глифы (включая компоненты составных глифов вроде 'ё' и 'й')
+            var keepGlyphs = CollectRequiredGlyphs(font, charList);
+
+            // 2. Перенумеровываем глифы подряд: 0, 1, 2, ... newGlyphCount - 1
+            var sortedOldGids = keepGlyphs.OrderBy(g => g).ToList();
+            var oldToNewGid = new Dictionary<ushort, ushort>(sortedOldGids.Count);
+            for (ushort newGid = 0; sortedOldGids.Count > newGid; newGid++)
+            {
+                oldToNewGid[sortedOldGids[newGid]] = newGid;
+            }
+
+            ushort newGlyphCount = (ushort)sortedOldGids.Count;
+
+            // 3. Пересобираем таблицы glyf и loca только для newGlyphCount глифов
+            (byte[] newGlyf, byte[] newLoca) = BuildSubsetGlyfAndLoca(font, sortedOldGids, oldToNewGid);
+
+            // 4. Пересобираем компактную таблицу hmtx и обновляем заголовки maxp, hhea, head
+            byte[] newHmtx = RebuildHmtx(font.HmtxData, font.HheaData, sortedOldGids);
+
+            byte[] newMaxp = (byte[])font.MaxpData.Clone();
+            WriteUInt16BE(newMaxp, 4, newGlyphCount);
+
+            byte[] newHhea = (byte[])font.HheaData.Clone();
+            WriteUInt16BE(newHhea, 34, newGlyphCount);
+
+            byte[] newHead = (byte[])font.HeadData.Clone();
+            WriteUInt16BE(newHead, 50, 1);
+
+            // 5. Строим минимальную таблицу cmap (format 4) с уже новыми GID
+            var remappedChars = charList
+                .Where(x => oldToNewGid.ContainsKey(x.GlyphId))
+                .Select(x => (x.CodePoint, oldToNewGid[x.GlyphId]));
+            byte[] newCmap = BuildMinimalCmap4(remappedChars);
+
+            // 6. Собираем итоговый список таблиц в алфавитном порядке тегов
+            var finalTables = new List<KeyValuePair<string, byte[]>>(font.StaticTables.Count + 7);
+            finalTables.AddRange(font.StaticTables);
+            finalTables.Add(new KeyValuePair<string, byte[]>("cmap", newCmap));
+            finalTables.Add(new KeyValuePair<string, byte[]>("glyf", newGlyf));
+            finalTables.Add(new KeyValuePair<string, byte[]>("head", newHead));
+            finalTables.Add(new KeyValuePair<string, byte[]>("hhea", newHhea));
+            finalTables.Add(new KeyValuePair<string, byte[]>("hmtx", newHmtx));
+            finalTables.Add(new KeyValuePair<string, byte[]>("loca", newLoca));
+            finalTables.Add(new KeyValuePair<string, byte[]>("maxp", newMaxp));
+            finalTables.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
+
+            return (BuildTtfBinary(finalTables), oldToNewGid);
+        }
+
+        private static HashSet<ushort> CollectRequiredGlyphs(
+            ParsedTrueTypeFont font,
+            List<(int CodePoint, ushort GlyphId)> charList)
+        {
             var keepGlyphs = new HashSet<ushort>(charList.Select(x => x.GlyphId)) { 0 };
-            byte[] glyfData = tables["glyf"];
+            byte[] glyfData = font.GlyfData;
+            uint[] oldOffsets = font.GlyphOffsets;
+            ushort numGlyphs = font.NumGlyphs;
             var queue = new Queue<ushort>(keepGlyphs);
+
+            const ushort ARG_1_AND_2_ARE_WORDS = 0x0001;
+            const ushort WE_HAVE_A_SCALE = 0x0008;
+            const ushort WE_HAVE_AN_X_AND_Y_SCALE = 0x0040;
+            const ushort WE_HAVE_A_TWO_BY_TWO = 0x0080;
+            const ushort MORE_COMPONENTS = 0x0020;
 
             while (queue.Count > 0)
             {
@@ -73,12 +94,6 @@ namespace SharpLayout.NativePdf
                 if (0 > numberOfContours) // Составной глиф (Composite)
                 {
                     int pos = (int)start + 10;
-                    const ushort ARG_1_AND_2_ARE_WORDS = 0x0001;
-                    const ushort WE_HAVE_A_SCALE = 0x0008;
-                    const ushort WE_HAVE_AN_X_AND_Y_SCALE = 0x0040;
-                    const ushort WE_HAVE_A_TWO_BY_TWO = 0x0080;
-                    const ushort MORE_COMPONENTS = 0x0020;
-
                     while (pos + 4 <= end)
                     {
                         ushort flags = ReadUInt16BE(glyfData, pos);
@@ -98,18 +113,20 @@ namespace SharpLayout.NativePdf
                 }
             }
 
-            // 4. Перенумеровываем глифы подряд: 0, 1, 2, ... newGlyphCount - 1
-            var sortedOldGids = keepGlyphs.OrderBy(g => g).ToList();
-            var oldToNewGid = new Dictionary<ushort, ushort>(sortedOldGids.Count);
-            for (ushort newGid = 0; sortedOldGids.Count > newGid; newGid++)
-            {
-                oldToNewGid[sortedOldGids[newGid]] = newGid;
-            }
+            return keepGlyphs;
+        }
 
+        private static (byte[] Glyf, byte[] Loca) BuildSubsetGlyfAndLoca(
+            ParsedTrueTypeFont font,
+            List<ushort> sortedOldGids,
+            Dictionary<ushort, ushort> oldToNewGid)
+        {
             ushort newGlyphCount = (ushort)sortedOldGids.Count;
-
-            // 5. Пересобираем таблицы glyf и loca только для newGlyphCount глифов с обновлением составных ссылок
             uint[] newOffsets = new uint[newGlyphCount + 1];
+            byte[] glyfData = font.GlyfData;
+            uint[] oldOffsets = font.GlyphOffsets;
+            ushort numGlyphs = font.NumGlyphs;
+
             using (var newGlyf = new MemoryStream())
             {
                 for (ushort newGid = 0; newGlyphCount > newGid; newGid++)
@@ -124,63 +141,25 @@ namespace SharpLayout.NativePdf
                     {
                         byte[] glyphChunk = new byte[length];
                         Buffer.BlockCopy(glyfData, (int)start, glyphChunk, 0, (int)length);
-
-                        // Если составной глиф — обновляем индексы компонентов на новые GID
                         short numberOfContours = ReadInt16BE(glyphChunk, 0);
                         if (0 > numberOfContours)
                         {
                             RemapCompositeGlyphComponents(glyphChunk, oldToNewGid);
                         }
-
                         newGlyf.Write(glyphChunk, 0, glyphChunk.Length);
                         while ((newGlyf.Position & 3) != 0) newGlyf.WriteByte(0);
                     }
                 }
                 newOffsets[newGlyphCount] = (uint)newGlyf.Position;
-                tables["glyf"] = newGlyf.ToArray();
+                byte[] newLoca = new byte[(newGlyphCount + 1) * 4];
+                for (int i = 0; newGlyphCount >= i; i++)
+                {
+                    WriteUInt32BE(newLoca, i * 4, newOffsets[i]);
+                }
+                return (newGlyf.ToArray(), newLoca);
             }
-
-            // Записываем компактную таблицу loca (32-bit)
-            byte[] newLoca = new byte[(newGlyphCount + 1) * 4];
-            for (int i = 0; newGlyphCount >= i; i++)
-            {
-                WriteUInt32BE(newLoca, i * 4, newOffsets[i]);
-            }
-            tables["loca"] = newLoca;
-
-            // 6. Пересобираем компактную таблицу hmtx ровно на newGlyphCount записей
-            tables["hmtx"] = RebuildHmtx(tables["hmtx"], tables["hhea"], sortedOldGids);
-
-            // 7. Обновляем numGlyphs в maxp и numberOfHMetrics в hhea
-            byte[] newMaxp = (byte[])tables["maxp"].Clone();
-            WriteUInt16BE(newMaxp, 4, newGlyphCount);
-            tables["maxp"] = newMaxp;
-
-            byte[] newHhea = (byte[])tables["hhea"].Clone();
-            WriteUInt16BE(newHhea, 34, newGlyphCount);
-            tables["hhea"] = newHhea;
-
-            // Указываем в head, что формат loca теперь 1 (32-bit)
-            byte[] newHead = (byte[])tables["head"].Clone();
-            newHead[50] = 0;
-            newHead[51] = 1;
-            tables["head"] = newHead;
-
-            // 8. Строим минимальную таблицу cmap (format 4) с уже новыми GID
-            var remappedChars = charList
-                .Where(x => oldToNewGid.ContainsKey(x.GlyphId))
-                .Select(x => (x.CodePoint, oldToNewGid[x.GlyphId]));
-            tables["cmap"] = BuildMinimalCmap4(remappedChars);
-
-            string[] requiredTags = { "head", "hhea", "maxp", "OS/2", "hmtx", "cmap", "loca", "glyf", "cvt ", "fpgm", "prep" };
-            var finalTables = tables
-                .Where(kv => requiredTags.Contains(kv.Key))
-                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
-                .ToList();
-
-            return (BuildTtfBinary(finalTables), oldToNewGid);
         }
-
+        
         private static void RemapCompositeGlyphComponents(byte[] glyphChunk, Dictionary<ushort, ushort> oldToNewGid)
         {
             int pos = 10;
@@ -338,7 +317,7 @@ namespace SharpLayout.NativePdf
             }
         }
 
-        private static byte[] ReadBytes(Stream s, int count)
+        internal static byte[] ReadBytes(Stream s, int count)
         {
             byte[] buf = new byte[count];
             int read = 0;
@@ -351,8 +330,8 @@ namespace SharpLayout.NativePdf
             return buf;
         }
 
-        private static ushort ReadUInt16(Stream s) => (ushort)((s.ReadByte() << 8) | s.ReadByte());
-        private static uint ReadUInt32(Stream s) => ((uint)s.ReadByte() << 24) | ((uint)s.ReadByte() << 16) | ((uint)s.ReadByte() << 8) | (uint)s.ReadByte();
+        internal static ushort ReadUInt16(Stream s) => (ushort)((s.ReadByte() << 8) | s.ReadByte());
+        internal static uint ReadUInt32(Stream s) => ((uint)s.ReadByte() << 24) | ((uint)s.ReadByte() << 16) | ((uint)s.ReadByte() << 8) | (uint)s.ReadByte();
 
         private static void WriteUInt16(Stream s, ushort v)
         {
@@ -368,9 +347,9 @@ namespace SharpLayout.NativePdf
             s.WriteByte((byte)v);
         }
 
-        private static ushort ReadUInt16BE(byte[] b, int o) => (ushort)((b[o] << 8) | b[o + 1]);
-        private static short ReadInt16BE(byte[] b, int o) => (short)ReadUInt16BE(b, o);
-        private static uint ReadUInt32BE(byte[] b, int o) => ((uint)b[o] << 24) | ((uint)b[o + 1] << 16) | ((uint)b[o + 2] << 8) | b[o + 3];
+        internal static ushort ReadUInt16BE(byte[] b, int o) => (ushort)((b[o] << 8) | b[o + 1]);
+        internal static short ReadInt16BE(byte[] b, int o) => (short)ReadUInt16BE(b, o);
+        internal static uint ReadUInt32BE(byte[] b, int o) => ((uint)b[o] << 24) | ((uint)b[o + 1] << 16) | ((uint)b[o + 2] << 8) | b[o + 3];
 
         private static void WriteUInt16BE(byte[] b, int o, ushort v)
         {
