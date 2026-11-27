@@ -1168,6 +1168,10 @@ Other header", Styles.TimesNewRoman10));
                 .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
             r3[c1].Border(Bottom, new XPen(XColors.Black, BorderWidth * 2) {DashPattern = new[] {5d, 5d}})
                 .Add(new Paragraph().Add("test", Styles.TimesNewRoman10));
+            
+            var path = $"Temp_{Guid.NewGuid():N}.pdf";
+            StartProcess(document.SavePdf(path));
+            
             Assert(nameof(DashBorders), document.CreatePng().Item1);
         }
 

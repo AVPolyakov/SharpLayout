@@ -36,6 +36,7 @@ namespace SharpLayout.NativePdf
         private bool _hasOpenPath;
         private double _currentStrokeWidth = -1;
         private Color _currentStrokeColor;
+        private string _currentDashPattern = "";
 
         // Состояние текстового блока, заливки и прозрачности
         private bool _inTextObject;
@@ -104,13 +105,16 @@ namespace SharpLayout.NativePdf
             }
         }
 
-        private void EnsureStrokeStyle(Color color, double lineWidth)
+        private void EnsureStrokeStyle(Color color, double lineWidth, double[] dashPattern = null)
         {
             EndTextObject();
+            
+            string patternKey = FormatDashPattern(dashPattern, lineWidth);
 
             bool styleChanged = !_hasOpenPath
                 || Math.Abs(_currentStrokeWidth - lineWidth) > 0.0001
-                || _currentStrokeColor != color;
+                || _currentStrokeColor != color
+                || _currentDashPattern != patternKey;
 
             if (styleChanged)
             {
@@ -118,6 +122,14 @@ namespace SharpLayout.NativePdf
                 _currentStrokeWidth = lineWidth;
                 _currentStrokeColor = color;
 
+                if (_currentDashPattern != patternKey)
+                {
+                    _currentDashPattern = patternKey;
+                    _cmd.Append('[');
+                    _cmd.Append(patternKey);
+                    _cmd.Append("] 0 d ");
+                }
+                
                 EnsureAlpha(color.A);
 
                 AppendNum(lineWidth);
@@ -133,12 +145,26 @@ namespace SharpLayout.NativePdf
             }
         }
 
-        public void DrawLine(Color color, double lineWidth, double x1, double y1, double x2, double y2)
+        private static string FormatDashPattern(double[] dashPattern, double lineWidth)
         {
+            if (dashPattern == null || dashPattern.Length == 0)
+                return "";
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < dashPattern.Length; i++)
+            {
+                if (i > 0) sb.Append(' ');
+                sb.Append((dashPattern[i] * lineWidth).ToString("0.####", CultureInfo.InvariantCulture));
+            }
+            return sb.ToString();
+        }
+
+        public void DrawLine(Color color, double lineWidth, double x1, double y1, double x2, double y2, double[] dashPattern = null)
+         {
             if (color.A == 0 || lineWidth <= 0)
                 return;
 
-            EnsureStrokeStyle(color, lineWidth);
+            EnsureStrokeStyle(color, lineWidth, dashPattern);
             AppendNum(x1);
             _cmd.Append(' ');
             AppendNum(Height - y1);
@@ -149,12 +175,12 @@ namespace SharpLayout.NativePdf
             _cmd.Append(" l\n");
         }
 
-        public void DrawLines(Color color, double lineWidth, (double X, double Y)[] points)
+        public void DrawLines(Color color, double lineWidth, (double X, double Y)[] points, double[] dashPattern = null)
         {
             if (points == null || points.Length < 2 || color.A == 0 || lineWidth <= 0)
                 return;
 
-            EnsureStrokeStyle(color, lineWidth);
+            EnsureStrokeStyle(color, lineWidth, dashPattern);
             AppendNum(points[0].X);
             _cmd.Append(' ');
             AppendNum(Height - points[0].Y);

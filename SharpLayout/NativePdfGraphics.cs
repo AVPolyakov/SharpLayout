@@ -71,7 +71,7 @@ public class NativePdfGraphics : IGraphics
 
     public void DrawLine(XPen pen, double x1, double y1, double x2, double y2)
     {
-        _page.DrawLine(ToColor(pen.Color), pen.Width, x1, y1, x2, y2);   
+        _page.DrawLine(ToColor(pen.Color), pen.Width, x1, y1, x2, y2, GetDashPattern(pen));   
     }
     
     public void DrawRectangle(XBrush brush, double x, double y, double width, double height)
@@ -90,8 +90,21 @@ public class NativePdfGraphics : IGraphics
             rawPoints[i] = (points[i].X, points[i].Y);
         }
 
-        _page.DrawLines(ToColor(pen.Color), pen.Width, rawPoints);     
+        _page.DrawLines(ToColor(pen.Color), pen.Width, rawPoints, GetDashPattern(pen));
     }
+    
+    private static double[] GetDashPattern(XPen pen)
+    {
+        return pen.DashStyle switch
+        {
+            XDashStyle.Dash => new[] { 3.0, 1.0 },
+            XDashStyle.Dot => new[] { 1.0, 1.0 },
+            XDashStyle.DashDot => new[] { 3.0, 1.0, 1.0, 1.0 },
+            XDashStyle.DashDotDot => new[] { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 },
+            XDashStyle.Custom => pen.DashPattern,
+            _ => null
+        };
+     }
     
     private static Color ToColor(XColor xColor)
         => new Color(xColor.R, xColor.G, xColor.B, (byte)Math.Round(xColor.A * 255));
