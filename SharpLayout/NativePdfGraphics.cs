@@ -93,18 +93,23 @@ public class NativePdfGraphics : IGraphics
         _page.DrawLines(ToColor(pen.Color), pen.Width, rawPoints, GetDashPattern(pen));
     }
     
+    private static readonly double[] _dashPattern = { 3.0, 1.0 };
+    private static readonly double[] _dotPattern = { 1.0, 1.0 };
+    private static readonly double[] _dashDotPattern = { 3.0, 1.0, 1.0, 1.0 };
+    private static readonly double[] _dashDotDotPattern = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
     private static double[] GetDashPattern(XPen pen)
     {
         return pen.DashStyle switch
         {
-            XDashStyle.Dash => new[] { 3.0, 1.0 },
-            XDashStyle.Dot => new[] { 1.0, 1.0 },
-            XDashStyle.DashDot => new[] { 3.0, 1.0, 1.0, 1.0 },
-            XDashStyle.DashDotDot => new[] { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 },
+            XDashStyle.Dash => _dashPattern,
+            XDashStyle.Dot => _dotPattern,
+            XDashStyle.DashDot => _dashDotPattern,
+            XDashStyle.DashDotDot => _dashDotDotPattern,
             XDashStyle.Custom => pen.DashPattern,
             _ => null
         };
-     }
+    }
     
     private static Color ToColor(XColor xColor)
         => new Color(xColor.R, xColor.G, xColor.B, (byte)Math.Round(xColor.A * 255));
